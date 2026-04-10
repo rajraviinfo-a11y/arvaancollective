@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arvaan Collective Seller Center</title>
+  <meta name="description" content="Manage your products, orders, and analytics from the Arvaan Collective Seller Center.">
+  <link rel="stylesheet" href="../css/base.css?v=1.2">
+  <link rel="stylesheet" href="../css/components.css?v=1.2">
+  <link rel="stylesheet" href="../css/seller.css?v=1.2">
+</head>
+<body>
+
+<!-- ══════════════════════════  SELLER AUTH PAGE  ══════════════════════════ -->
+<div class="seller-auth-page" id="seller-auth-page">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+  
+  <div class="seller-auth-box">
+    <div class="auth-logo">
+      <div class="brand-icon" style="width:64px;height:64px;font-size:1.8rem;border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center;background:var(--grad-primary);box-shadow:var(--shadow-primary-lg);margin:0 auto">🏪</div>
+      <h1 class="auth-title">Seller Center</h1>
+      <p style="color:var(--clr-text-3); font-size:0.85rem; margin-top:8px">Welcome to the Artisan Command Center</p>
+    </div>
+
+    <div id="seller-login-box">
+      <form id="seller-login-form" novalidate>
+        <div style="display:flex;flex-direction:column;gap:var(--space-5)">
+          <div class="form-group">
+            <label class="form-label">Business Email</label>
+            <input class="form-control" type="email" id="seller-email" placeholder="seller@yourstore.com" autocomplete="email" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Secure Password</label>
+            <input class="form-control" type="password" id="seller-password" placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+          <button class="btn btn-primary btn-auth w-full" type="submit">Sign In to Dashboard →</button>
+        </div>
+      </form>
+
+      <div class="divider-prestige">Quick Access</div>
+      
+      <div class="demo-access-grid">
+        <button class="btn-demo-access" onclick="document.getElementById('seller-email').value='seller@techvault.com';document.getElementById('seller-password').value='seller123'">🏪 TechVault</button>
+        <button class="btn-demo-access" onclick="document.getElementById('seller-email').value='seller@lifestylehub.com';document.getElementById('seller-password').value='seller123'">🛍️ Lifestyle</button>
+      </div>
+
+      <p class="text-center text-sm" style="margin-top:var(--space-6); color:var(--clr-text-3)">
+        Don't have a store? <a href="register.html" style="color:var(--clr-primary);font-weight:700; text-decoration:none">Apply to become a partner</a>
+      </p>
+    </div>
+
+    <div class="text-center" style="margin-top:var(--space-8)">
+      <a href="../store/index.html" style="color:var(--clr-text-3); font-size:0.75rem; display:flex; align-items:center; justify-content:center; gap:8px">
+        ← Return to Storefront
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════  SELLER APP  ══════════════════════════ -->
+<div class="seller-app" id="seller-app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="seller-sidebar" id="seller-sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon" style="width:32px;height:32px;font-size:.9rem;display:flex;align-items:center;justify-content:center;background:var(--grad-primary);border-radius:var(--radius-sm)">🏪</div>
+      <div class="sidebar-brand">Arvaan<span> Collective</span></div>
+    </div>
+
+    <nav class="seller-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="seller-dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="seller-products.html" class="nav-item" data-page="products">
+        <span class="nav-icon">📦</span> Products
+      </a>
+      <a href="seller-promotions.html" class="nav-item" data-page="promotions">
+        <span class="nav-icon">🏷️</span> Promotions
+      </a>
+      <a href="seller-orders.html" class="nav-item" data-page="orders">
+        <span class="nav-icon">📋</span> Orders
+        <span class="nav-badge" id="orders-nav-badge" style="display:none">0</span>
+      </a>
+      <a href="seller-reviews.html" class="nav-item" data-page="reviews">
+        <span class="nav-icon">⭐</span> Reviews
+      </a>
+      <div class="nav-section-label">Insights</div>
+      <a href="seller-analytics.html" class="nav-item" data-page="analytics">
+        <span class="nav-icon">📈</span> Analytics
+      </a>
+      <a href="seller-financials.html" class="nav-item" data-page="financials">
+        <span class="nav-icon">💰</span> Financials
+      </a>
+      <div class="nav-section-label">Account</div>
+      <a href="seller-settings.html" class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+      <a href="../store/index.html" class="nav-item">
+        <span class="nav-icon">🛍️</span> View Store
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:var(--space-3)">
+        <div class="avatar avatar-sm" id="sidebar-seller-avatar">S</div>
+        <div style="overflow:hidden">
+          <div style="font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="sidebar-seller-name">Seller</div>
+          <div style="font-size:.72rem;color:var(--clr-text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="sidebar-seller-email">seller@email.com</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm w-full" id="seller-logout-btn" style="margin-top:var(--space-3);justify-content:flex-start;gap:var(--space-2)">
+        🚪 Log Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="seller-main">
+    <!-- Topbar -->
+    <header class="seller-topbar">
+      <div style="display:flex;align-items:center;gap:var(--space-4)">
+        <button class="btn btn-icon btn-ghost sidebar-toggle" id="sidebar-toggle-btn">☰</button>
+        <h2 class="page-title" id="page-title">Dashboard</h2>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary btn-sm" id="add-product-btn">➕ Add Product</button>
+        <div style="position:relative">
+          <button class="btn btn-icon btn-ghost" id="topbar-notif-btn" style="position:relative">
+            🔔<span class="nav-badge" id="topbar-notif-badge" style="position:absolute;top:-4px;right:-4px;display:none;padding:2px 5px;font-size:0.6rem">0</span>
+          </button>
+          <div id="notif-dropdown" style="display:none;position:absolute;top:100%;right:0;width:320px;background:var(--clr-surface);border:1px solid var(--clr-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);margin-top:var(--space-2);z-index:var(--z-tooltip);overflow:hidden">
+            <div style="padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--clr-border);font-weight:700;font-size:.9rem;display:flex;justify-content:space-between">
+              Notifications
+              <button class="btn btn-ghost btn-sm" style="padding:0;font-size:.75rem;color:var(--clr-text-3)" onclick="markNotifsRead()">Mark all read</button>
+            </div>
+            <div id="notif-list" style="max-height:300px;overflow-y:auto;padding:var(--space-2) 0">
+              <!-- Loaded via JS -->
+            </div>
+          </div>
+        </div>
+        <div class="avatar avatar-sm" id="topbar-seller-avatar" style="cursor:pointer"></div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="seller-content">
+
+      <!-- ── DASHBOARD ── -->
+      <section class="page-section active" id="section-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">💰</div>
+            <div class="stat-value" id="stat-revenue"><span class="localized-price" data-base="0">—</span></div>
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-change up">↑ 18% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-info">📋</div>
+            <div class="stat-value" id="stat-orders">0</div>
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-change up">↑ 12% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-success">📦</div>
+            <div class="stat-value" id="stat-products">0</div>
+            <div class="stat-label">Active Products</div>
+            <div class="stat-change up">↑ 3 new this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-warning">⏳</div>
+            <div class="stat-value" id="stat-pending">0</div>
+            <div class="stat-label">Pending Orders</div>
+            <div class="stat-change down">Needs attention</div>
+          </div>
+        </div>
+
+        <!-- Dashboard Alerts -->
+        <div id="dashboard-alerts" style="margin-top:var(--space-8); display:none">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-6)">
+            <div class="card glass-card" style="border-left:5px solid var(--clr-danger); padding:var(--space-6)">
+              <h4 style="color:var(--clr-danger); margin-bottom:var(--space-2); display:flex; align-items:center; gap:12px">⚠️ Low Stock Alerts</h4>
+              <div id="low-stock-list" style="font-size:0.9rem; color:var(--clr-text-2)">All products healthy.</div>
+            </div>
+            <div class="card glass-card" style="border-left:5px solid var(--clr-warning); padding:var(--space-6)">
+              <h4 style="color:var(--clr-warning); margin-bottom:var(--space-2); display:flex; align-items:center; gap:12px">🕒 Stale Orders (>2 Days)</h4>
+              <div id="stale-orders-list" style="font-size:0.9rem; color:var(--clr-text-2)">No stale orders.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">📈 Revenue Over Time (Last 6 Months)</div>
+            <div class="chart-canvas-wrap">
+              <canvas id="revenue-chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">🗂️ Products by Category</div>
+            <div style="display:flex;align-items:center;gap:var(--space-4)">
+              <canvas id="category-chart" style="flex-shrink:0"></canvas>
+              <div id="category-legend" style="flex:1"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="recent-orders">
+          <div class="section-title-row">
+            <h3>🕐 Recent Orders</h3>
+            <button class="btn btn-ghost btn-sm" onclick="navigateTo('orders')">View All →</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="recent-orders-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PRODUCTS ── -->
+      <section class="page-section" id="section-products">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>📦 My Products</h2>
+            <p>Manage your product catalog</p>
+          </div>
+          <div style="display:flex;gap:var(--space-2)">
+            <button class="btn btn-outline" id="bulk-edit-products-btn" onclick="openBulkEditor()">✏️ Bulk Edit</button>
+            <button class="btn btn-outline" id="export-products-btn" onclick="exportProductsCSV()">📥 Export CSV</button>
+            <button class="btn btn-primary" id="add-product-btn-2">➕ Add Product</button>
+          </div>
+        </div>
+        <div class="table-toolbar">
+          <div class="table-toolbar-left">
+            <div class="search-box" style="min-width:280px">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="product-search-input" placeholder="Search products…">
+            </div>
+          </div>
+          <div class="table-toolbar-right" id="product-bulk-actions" style="display:none; gap:var(--space-2)">
+            <span style="font-size:0.8rem; color:var(--clr-text-3); align-self:center; margin-right:8px"><span id="selected-products-count">0</span> selected</span>
+            <button class="btn btn-outline btn-sm" onclick="bulkToggleProductStatus(true)">✅ Activate</button>
+            <button class="btn btn-outline btn-sm" onclick="bulkToggleProductStatus(false)">🚫 Deactivate</button>
+            <button class="btn btn-danger btn-sm" onclick="bulkDeleteProducts()">🗑️ Delete</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:40px"><input type="checkbox" id="selectAllProducts" onclick="toggleAllProducts(this)"></th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Sold</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="products-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── PROMOTIONS ── -->
+      <section class="page-section" id="section-promotions">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>🏷️ Promotions & Discounts</h2>
+            <p>Create and manage discount codes for your customers</p>
+          </div>
+          <button class="btn btn-primary" id="create-promo-btn" onclick="openCreatePromo()">➕ Create Promo Code</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Usage</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="promotions-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── ORDERS ── -->
+      <section class="page-section" id="section-orders">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>📋 Orders</h2>
+            <p>Manage and update order statuses</p>
+          </div>
+          <button class="btn btn-primary" id="create-custom-invoice-btn" onclick="openCustomInvoiceModal()">➕ Create Custom Invoice</button>
+        </div>
+        <div class="table-toolbar">
+          <div class="table-toolbar-left">
+            <div class="search-box" style="min-width:280px">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="order-search-input" placeholder="Search orders or customers…">
+            </div>
+          </div>
+          <div class="table-toolbar-right" style="display:flex;gap:var(--space-2)">
+            <button class="btn btn-outline btn-sm" id="export-orders-btn" onclick="exportOrdersCSV()">📥 Export CSV</button>
+            <button class="btn btn-outline btn-sm" id="bulk-label-btn" onclick="generateBulkLabels()" disabled>🏷️ Bulk Labels</button>
+            <button class="btn btn-outline btn-sm" id="bulk-invoice-btn" onclick="generateBulkInvoices()" disabled>📄 Bulk Invoices</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:40px"><input type="checkbox" id="selectAllOrders" onchange="toggleAllOrders(this)"></th>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Tracking</th>
+                <th>Date</th>
+                <th>Update Status</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── REVIEWS ── -->
+      <section class="page-section" id="section-reviews">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>⭐ Customer Reviews</h2>
+            <p>Read and reply to feedback from your buyers</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Rating</th>
+                <th>Review</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="reviews-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── ANALYTICS ── -->
+      <section class="page-section" id="section-analytics">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>📈 Analytics</h2>
+            <p>Track your store performance</p>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">💰</div>
+            <div class="stat-value" id="analytics-revenue"><span class="localized-price" data-base="0">—</span></div>
+            <div class="stat-label">Total Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-info">📋</div>
+            <div class="stat-value" id="analytics-orders">0</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-success">💵</div>
+            <div class="stat-value" id="analytics-avg"><span class="localized-price" data-base="0">—</span></div>
+            <div class="stat-label">Avg. Order Value</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-warning">📦</div>
+            <div class="stat-value" id="analytics-products">0</div>
+            <div class="stat-label">Active Products</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">📅 Weekly Revenue</div>
+            <div class="chart-canvas-wrap">
+              <canvas id="weekly-chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">🏆 Top Products by Sales</div>
+            <div id="top-products-list"></div>
+          </div>
+          <!-- NEW: Top Customers Widget -->
+          <div class="chart-card">
+            <div class="chart-title">💎 Top Customers <span style="font-size:.7rem;font-weight:400;color:var(--clr-text-3);margin-left:auto">Lifetime Value</span></div>
+            <div id="top-customers-list" style="display:flex;flex-direction:column;gap:var(--space-2)">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── FINANCIALS ── -->
+      <section class="page-section" id="section-financials">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>💰 Financials & Payouts</h2>
+            <p>Manage your earnings, fees, and bank transfers</p>
+          </div>
+          <button class="btn btn-primary" onclick="requestPayout()">💸 Request Payout</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-success">🏦</div>
+            <div class="stat-value" id="fin-balance"><span class="localized-price" data-base="0">—</span></div>
+            <div class="stat-label">Available Balance</div>
+            <div class="stat-change" id="fin-bank-info">Bank: ****4567</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-info">⏳</div>
+            <div class="stat-value" id="fin-upcoming"><span class="localized-price" data-base="0">—</span></div>
+            <div class="stat-label">Upcoming Payout</div>
+            <div class="stat-change">Expected: Apr 15</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">📈</div>
+            <div class="stat-value" id="fin-alltime"><span class="localized-price" data-base="0">—</span></div>
+            <div class="stat-label">All-time Earnings</div>
+            <div class="stat-change up">↑ Lifetime total</div>
+          </div>
+        </div>
+
+        <div class="recent-orders" style="margin-top:var(--space-6)">
+          <div class="section-title-row">
+            <h3>📑 Transaction Ledger</h3>
+            <div style="display:flex; gap:8px">
+               <button class="btn btn-ghost btn-sm" onclick="exportTransactionsCSV()">📥 Export Ledger</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Transaction ID</th>
+                  <th>Description</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="transactions-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SETTINGS ── -->
+      <section class="page-section" id="section-settings">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>⚙️ Settings</h2>
+            <p>Manage your seller profile and preferences</p>
+          </div>
+        </div>
+        <div class="profile-header">
+          <div class="profile-avatar-lg" id="profile-avatar-text">S</div>
+          <div>
+            <div class="profile-name" id="profile-seller-name">Seller Name</div>
+            <div class="profile-email" id="profile-seller-email">seller@email.com</div>
+            <div class="seller-badge">
+              <span class="badge badge-primary">🏪 Verified Seller</span>
+              <span class="badge badge-success">⭐ Top Rated</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h4>Store Information</h4></div>
+          <div class="card-body">
+            <form id="settings-form">
+              <div class="settings-grid">
+                <div class="form-group">
+                  <label class="form-label">Shop Name</label>
+                  <input class="form-control" type="text" id="settings-shop-name" placeholder="Your store name">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email Address</label>
+                  <input class="form-control" type="email" id="settings-email" placeholder="seller@email.com" readonly>
+                </div>
+                <!-- Profile Enhancements -->
+                <div class="form-group">
+                  <label class="form-label">Phone Number</label>
+                  <input class="form-control" type="tel" id="settings-phone" placeholder="+1 555-0000">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Store Category</label>
+                  <select class="form-control">
+                    <option>Electronics</option><option>Fashion</option><option>Kitchen</option><option>Beauty</option><option>Home</option>
+                  </select>
+                </div>
+                <div class="form-group full">
+                  <label class="form-label">Physical Address</label>
+                  <input class="form-control" type="text" id="settings-address" placeholder="123 Business St, City, State">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">𝕏 (Twitter) Handle</label>
+                  <input class="form-control" type="text" id="settings-social-x" placeholder="@yourbrand">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Instagram Handle</label>
+                  <input class="form-control" type="text" id="settings-social-ig" placeholder="@yourbrand_official">
+                </div>
+                <div class="form-group full">
+                  <label class="form-label">Store Description</label>
+                  <textarea class="form-control" id="settings-description" rows="3" placeholder="Brief description of your store…"></textarea>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;margin-top:var(--space-5)">
+                <button class="btn btn-primary" type="submit">💾 Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /seller-content -->
+  </div><!-- /seller-main -->
+</div><!-- /seller-app -->
+
+<!-- ══════════════════════════  MODALS  ══════════════════════════ -->
+
+<!-- Product Form Modal -->
+<div class="modal-overlay" id="product-form-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="product-modal-title">➕ Add New Product</h3>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body" style="max-height:80vh;overflow-y:auto">
+      <form id="product-form" novalidate>
+
+        <!-- ── Section: Basic Info ── -->
+        <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin-bottom:var(--space-4)">📋 Basic Information</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Product Name *</label>
+            <input class="form-control" type="text" id="pf-name" placeholder="e.g. Premium Wireless Earbuds" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Brand / Manufacturer</label>
+            <input class="form-control" type="text" id="pf-brand" placeholder="e.g. Sony, Apple, Generic">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select class="form-control" id="pf-category" required>
+              <option value="">Select category…</option>
+              <option>Electronics</option>
+              <option>Fashion</option>
+              <option>Kitchen</option>
+              <option>Beauty</option>
+              <option>Furniture</option>
+              <option>Home</option>
+              <option>Sports</option>
+              <option>Books</option>
+              <option>Toys</option>
+              <option>Automotive</option>
+              <option>Health</option>
+              <option>Garden</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Condition *</label>
+            <select class="form-control" id="pf-condition" required>
+              <option value="">Select condition…</option>
+              <option value="new">New</option>
+              <option value="like_new">Like New</option>
+              <option value="refurbished">Refurbished</option>
+              <option value="used_good">Used – Good</option>
+              <option value="used_fair">Used – Fair</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">SKU / Model Number</label>
+            <input class="form-control" type="text" id="pf-sku" placeholder="e.g. WH-1000XM5-BLK">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tags (comma-separated)</label>
+            <input class="form-control" type="text" id="pf-tags" placeholder="wireless, audio, gadget">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Description *</label>
+            <textarea class="form-control" id="pf-description" placeholder="Describe your product features, specifications, and what makes it special…" rows="4" required></textarea>
+          </div>
+        </div>
+
+        <!-- ── Section: Pricing & Inventory ── -->
+        <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">💰 Pricing & Inventory</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Selling Price *</label>
+            <div style="position:relative">
+              <input class="form-control" type="number" step="0.01" min="0" id="pf-price" placeholder="0.00" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Original / MRP Price</label>
+            <div style="position:relative">
+              <input class="form-control" type="number" step="0.01" min="0" id="pf-original-price" placeholder="0.00">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stock Quantity *</label>
+            <input class="form-control" type="number" min="0" id="pf-stock" placeholder="e.g. 100" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Low Stock Alert Threshold</label>
+            <input class="form-control" type="number" min="0" id="pf-low-stock" placeholder="e.g. 10">
+          </div>
+        </div>
+
+        <!-- ── Section: Shipping ── -->
+        <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">📦 Shipping Details</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Weight (kg)</label>
+            <input class="form-control" type="number" step="0.01" min="0" id="pf-weight" placeholder="e.g. 0.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dimensions — Length (cm)</label>
+            <input class="form-control" type="number" step="0.1" min="0" id="pf-dim-l" placeholder="e.g. 20">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Width (cm)</label>
+            <input class="form-control" type="number" step="0.1" min="0" id="pf-dim-w" placeholder="e.g. 15">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Height (cm)</label>
+            <input class="form-control" type="number" step="0.1" min="0" id="pf-dim-h" placeholder="e.g. 10">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Shipping Class</label>
+            <select class="form-control" id="pf-shipping-class">
+              <option value="standard">Standard Shipping</option>
+              <option value="express">Express Shipping</option>
+              <option value="free">Free Shipping</option>
+              <option value="freight">Freight / Heavy Item</option>
+              <option value="digital">Digital / No Shipping</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country of Origin</label>
+            <select class="form-control" id="pf-origin">
+              <option value="">Select country…</option>
+              <option value="US">United States</option>
+              <option value="CN">China</option>
+              <option value="IN">India</option>
+              <option value="DE">Germany</option>
+              <option value="JP">Japan</option>
+              <option value="KR">South Korea</option>
+              <option value="GB">United Kingdom</option>
+              <option value="FR">France</option>
+              <option value="IT">Italy</option>
+              <option value="CA">Canada</option>
+              <option value="AU">Australia</option>
+              <option value="BR">Brazil</option>
+              <option value="MX">Mexico</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ── Section: Product Flags ── -->
+        <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">🏷️ Product Badges</div>
+        <div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-5)">
+          <label style="display:flex;align-items:center;gap:var(--space-2);cursor:pointer;font-size:.88rem;font-weight:500">
+            <input type="checkbox" id="pf-featured" style="width:16px;height:16px;accent-color:var(--clr-primary)"> ⭐ Featured
+          </label>
+          <label style="display:flex;align-items:center;gap:var(--space-2);cursor:pointer;font-size:.88rem;font-weight:500">
+            <input type="checkbox" id="pf-is-new" style="width:16px;height:16px;accent-color:var(--clr-primary)"> 🆕 New Arrival
+          </label>
+          <label style="display:flex;align-items:center;gap:var(--space-2);cursor:pointer;font-size:.88rem;font-weight:500">
+            <input type="checkbox" id="pf-trending" style="width:16px;height:16px;accent-color:var(--clr-primary)"> 🔥 Trending
+          </label>
+        </div>
+
+        <!-- ── Section: Images ── -->
+        <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">🖼️ Product Image</div>
+        <div class="form-group">
+          <!-- Drag-and-drop upload zone -->
+          <div id="pf-upload-zone" style="border:2px dashed var(--clr-border);border-radius:var(--radius-lg);padding:var(--space-8);text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:rgba(255,255,255,0.02)" onclick="document.getElementById('pf-image-file').click()" ondragover="event.preventDefault();this.style.borderColor='var(--clr-primary)';this.style.background='rgba(108,99,255,0.06)'" ondragleave="this.style.borderColor='var(--clr-border)';this.style.background='rgba(255,255,255,0.02)'" ondrop="handleImageDrop(event)">
+            <div style="font-size:2rem;margin-bottom:var(--space-2)">📁</div>
+            <div style="font-weight:600;font-size:.88rem">Click to browse or drag &amp; drop an image here</div>
+            <div style="font-size:.75rem;color:var(--clr-text-3);margin-top:4px">JPG, PNG, WEBP, GIF · Max 5 MB</div>
+            <input type="file" id="pf-image-file" accept="image/*" style="display:none" onchange="handleImageFileChange(event)">
+          </div>
+          <!-- URL fallback -->
+          <div style="display:flex;align-items:center;gap:var(--space-3);margin-top:var(--space-3)">
+            <div style="flex:1;height:1px;background:var(--clr-border)"></div>
+            <span style="font-size:.72rem;color:var(--clr-text-3);white-space:nowrap">or paste a URL</span>
+            <div style="flex:1;height:1px;background:var(--clr-border)"></div>
+          </div>
+          <input class="form-control" type="url" id="pf-image-url" placeholder="https://example.com/image.jpg" style="margin-top:var(--space-3)" oninput="handleImageUrlInput(this.value)">
+          <!-- Preview -->
+          <div class="img-preview-wrap" id="img-preview-wrap" style="margin-top:var(--space-3);display:flex;flex-wrap:wrap;gap:var(--space-2)"></div>
+        </div>
+
+        <!-- ── Section: Category Fields ── -->
+        <!-- ELECTRONICS -->
+        <div class="cat-fields" id="cat-fields-electronics" style="display:none">
+          <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">⚡ Electronics Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Warranty (months)</label>
+              <input class="form-control" type="number" min="0" id="pf-warranty" placeholder="e.g. 12">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Battery Capacity (mAh)</label>
+              <input class="form-control" type="number" min="0" id="pf-battery" placeholder="e.g. 5000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Voltage / Wattage</label>
+              <input class="form-control" type="text" id="pf-voltage" placeholder="e.g. 5V / 65W">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Connectivity</label>
+              <select class="form-control" id="pf-connectivity" multiple style="height:80px">
+                <option>WiFi</option><option>Bluetooth</option><option>USB-C</option><option>NFC</option><option>HDMI</option><option>Wired</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASHION -->
+        <div class="cat-fields" id="cat-fields-fashion" style="display:none">
+          <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">👗 Fashion Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Gender</label>
+              <select class="form-control" id="pf-gender">
+                <option value="">Select…</option><option>Men</option><option>Women</option><option>Unisex</option><option>Kids</option><option>Boys</option><option>Girls</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Material</label>
+              <input class="form-control" type="text" id="pf-material" placeholder="e.g. 100% Cotton">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Color</label>
+              <input class="form-control" type="text" id="pf-color" placeholder="e.g. Black, White, Red">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Available Sizes</label>
+              <select class="form-control" id="pf-sizes" multiple style="height:80px">
+                <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>3XL</option>
+                <option>28</option><option>30</option><option>32</option><option>34</option><option>36</option><option>38</option><option>40</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOOKS -->
+        <div class="cat-fields" id="cat-fields-books" style="display:none">
+          <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">📚 Book Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Author</label>
+              <input class="form-control" type="text" id="pf-author" placeholder="e.g. J.K. Rowling">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ISBN</label>
+              <input class="form-control" type="text" id="pf-isbn" placeholder="e.g. 978-3-16-148410-0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Publisher</label>
+              <input class="form-control" type="text" id="pf-publisher" placeholder="e.g. Scholastic">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pages</label>
+              <input class="form-control" type="number" min="1" id="pf-pages" placeholder="e.g. 384">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Language</label>
+              <input class="form-control" type="text" id="pf-language" placeholder="e.g. English">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Edition</label>
+              <input class="form-control" type="text" id="pf-edition" placeholder="e.g. 1st Edition">
+            </div>
+          </div>
+        </div>
+
+        <!-- BEAUTY / HEALTH -->
+        <div class="cat-fields" id="cat-fields-beauty" style="display:none">
+          <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">✨ Beauty / Health Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Skin / Hair Type</label>
+              <select class="form-control" id="pf-skin-type">
+                <option value="">All Types</option><option>Dry</option><option>Oily</option><option>Combination</option><option>Sensitive</option><option>Normal</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Volume / Net Weight</label>
+              <input class="form-control" type="text" id="pf-net-volume" placeholder="e.g. 200ml / 50g">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Shelf Life (months)</label>
+              <input class="form-control" type="number" min="0" id="pf-shelf-life" placeholder="e.g. 24">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Key Ingredients</label>
+              <input class="form-control" type="text" id="pf-ingredients" placeholder="e.g. Hyaluronic Acid, Vitamin C, Retinol">
+            </div>
+          </div>
+        </div>
+
+        <!-- KITCHEN / HOME / FURNITURE / GARDEN -->
+        <div class="cat-fields" id="cat-fields-home" style="display:none">
+          <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">🏡 Home / Kitchen / Furniture Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Material</label>
+              <input class="form-control" type="text" id="pf-home-material" placeholder="e.g. Stainless Steel, Wood">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Room / Usage</label>
+              <input class="form-control" type="text" id="pf-room" placeholder="e.g. Kitchen, Bedroom, Garden">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Assembly Required</label>
+              <select class="form-control" id="pf-assembly">
+                <option value="">Select…</option><option value="no">No</option><option value="yes">Yes</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Care Instructions</label>
+              <input class="form-control" type="text" id="pf-care" placeholder="e.g. Hand wash only">
+            </div>
+          </div>
+        </div>
+
+        <!-- SPORTS / TOYS -->
+        <div class="cat-fields" id="cat-fields-sports" style="display:none">
+          <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">🏅 Sports / Toys Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Recommended Age</label>
+              <input class="form-control" type="text" id="pf-age-range" placeholder="e.g. 3+ years / 12-18">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Indoor / Outdoor</label>
+              <select class="form-control" id="pf-indoor-outdoor">
+                <option value="">Select…</option><option>Indoor</option><option>Outdoor</option><option>Both</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sport / Activity Type</label>
+              <input class="form-control" type="text" id="pf-sport-type" placeholder="e.g. Football, Yoga, Cycling">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Material</label>
+              <input class="form-control" type="text" id="pf-sports-material" placeholder="e.g. ABS Plastic, Rubber">
+            </div>
+          </div>
+        </div>
+
+        <!-- AUTOMOTIVE -->
+        <div class="cat-fields" id="cat-fields-automotive" style="display:none">
+          <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">🚗 Automotive Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Compatible Make / Brand</label>
+              <input class="form-control" type="text" id="pf-car-make" placeholder="e.g. Toyota, Honda, Universal">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Compatible Model</label>
+              <input class="form-control" type="text" id="pf-car-model" placeholder="e.g. Corolla, Civic">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Part / OEM Number</label>
+              <input class="form-control" type="text" id="pf-part-number" placeholder="e.g. 12345-XYZ">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Fitment Year Range</label>
+              <input class="form-control" type="text" id="pf-fitment-years" placeholder="e.g. 2015–2023">
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Section: Specifications ── -->
+        <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">⚙️ Specifications</div>
+        <div id="pf-specs-container" style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-4)"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="pf-add-spec-btn">➕ Add Specification Row</button>
+
+        <div style="display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-8);padding-top:var(--space-5);border-top:1px solid var(--clr-border)">
+          <button type="button" class="btn btn-ghost modal-close">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-lg" id="product-save-btn">💾 Save Product Masterpiece</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Shipping Tracking Modal -->
+<div class="modal-overlay" id="shipping-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🚚 Mark as Shipped</h3>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="shipping-form">
+        <input type="hidden" id="ship-order-id">
+        <div class="form-group">
+          <label class="form-label">Carrier</label>
+          <select class="form-control" id="ship-carrier" required>
+            <option value="FedEx">FedEx</option>
+            <option value="UPS">UPS</option>
+            <option value="DHL">DHL</option>
+            <option value="BlueDart">BlueDart</option>
+            <option value="Delhivery">Delhivery</option>
+            <option value="USP">USPS</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-top:var(--space-4)">
+          <label class="form-label">Tracking Number</label>
+          <input class="form-control" type="text" id="ship-tracking" placeholder="e.g. 1Z999AA10123456784" required>
+        </div>
+        <button class="btn btn-primary btn-lg w-full" type="submit" style="margin-top:var(--space-6)">Update Shipping Status →</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Invoice Modal -->
+<div class="modal-overlay" id="custom-invoice-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>📄 Create Custom Invoice</h3>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body" style="max-height:80vh;overflow-y:auto">
+      <form id="custom-invoice-form" novalidate onsubmit="generateCustomInvoice(event)">
+        <!-- Section: Customer -->
+        <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin-bottom:var(--space-4)">👤 Customer Details</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Customer Name required *</label>
+            <input class="form-control" type="text" id="ci-customer-name" placeholder="John Doe" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Customer Email</label>
+            <input class="form-control" type="email" id="ci-customer-email" placeholder="john@example.com">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Billing/Shipping Address</label>
+            <textarea class="form-control" id="ci-customer-address" rows="2" placeholder="123 Main St..."></textarea>
+          </div>
+        </div>
+
+        <!-- Section: Items -->
+        <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">📦 Invoice Items</div>
+        <div id="ci-items-container" style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-3)">
+          <!-- Items injected here via JS -->
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="addInvoiceItemRow()" style="width:100%;border:1px dashed var(--clr-border)">＋ Add Item Row</button>
+
+        <!-- Section: Totals -->
+        <div class="form-section-title" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--clr-text-3);border-bottom:1px solid var(--clr-border);padding-bottom:var(--space-2);margin:var(--space-5) 0 var(--space-4)">💰 Tax & Discount</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Tax Rate (%)</label>
+            <input class="form-control" type="number" step="0.01" min="0" id="ci-tax-rate" placeholder="e.g. 10" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Discount Amount</label>
+            <input class="form-control" type="number" step="0.01" min="0" id="ci-discount" placeholder="e.g. 15.00" value="0">
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:var(--space-3);margin-top:var(--space-6)">
+          <button type="button" class="btn btn-ghost" onclick="closeAllModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-lg">📄 Generate Invoice</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Promo Code Modal -->
+<div class="modal-overlay" id="promo-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="promo-modal-title">➕ Create Promo Code</h3>
+      <button class="modal-close" onclick="closeAllModals()">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="promo-form" novalidate onsubmit="savePromo(event)">
+        <div class="form-group">
+          <label class="form-label">Discount Code *</label>
+          <input class="form-control" type="text" id="promo-code" placeholder="e.g. SUMMER20" required style="text-transform:uppercase">
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Discount Type *</label>
+            <select class="form-control" id="promo-type" required>
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed Amount</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Discount Value *</label>
+            <input class="form-control" type="number" step="0.01" min="0" id="promo-value" placeholder="e.g. 20" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Usage Limit (Leave empty for unlimited)</label>
+          <input class="form-control" type="number" min="1" id="promo-limit" placeholder="e.g. 100">
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:var(--space-2);cursor:pointer;font-size:.88rem;font-weight:500">
+            <input type="checkbox" id="promo-active" checked style="width:16px;height:16px;accent-color:var(--clr-primary)"> Enable Promo Code instantly
+          </label>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:var(--space-3);margin-top:var(--space-5)">
+          <button type="button" class="btn btn-ghost" onclick="closeAllModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">💾 Save Promo Code</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Review Reply Modal -->
+<div class="modal-overlay" id="review-reply-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>↩️ Reply to Review</h3>
+      <button class="modal-close" onclick="closeAllModals()">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="review-reply-context" style="margin-bottom:var(--space-4);padding:var(--space-3);background:var(--clr-surface);border-radius:var(--radius-md);border:1px solid var(--clr-border);">
+        <!-- Injected via JS -->
+      </div>
+      <form id="review-reply-form" novalidate onsubmit="submitReviewReply(event)">
+        <input type="hidden" id="reply-review-id">
+        <input type="hidden" id="reply-product-id">
+        <div class="form-group">
+          <label class="form-label">Your Reply</label>
+          <textarea class="form-control" id="review-reply-text" rows="4" placeholder="Thank the customer for their feedback..." required></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:var(--space-3);margin-top:var(--space-5)">
+          <button type="button" class="btn btn-ghost" onclick="closeAllModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">📤 Post Reply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Bulk Inventory Editor Modal -->
+<div class="modal-overlay" id="bulk-inventory-modal">
+  <div class="modal modal-lg" style="max-width:1000px; width:95%">
+    <div class="modal-header">
+      <h3>✏️ Bulk Inventory & Pricing Editor</h3>
+      <button class="modal-close" onclick="closeAllModals()">×</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div style="padding:var(--space-4); background:rgba(108,99,255,0.05); border-bottom:1px solid var(--clr-border); display:flex; justify-content:space-between; align-items:center">
+        <p style="margin:0; font-size:.85rem; color:var(--clr-text-2)">Quickly update stock levels and prices for all your products.</p>
+        <div style="display:flex; gap:var(--space-3)">
+          <button class="btn btn-ghost btn-sm" onclick="closeAllModals()">Cancel</button>
+          <button class="btn btn-primary btn-sm" onclick="saveBulkInventory()">💾 Save All Changes</button>
+        </div>
+      </div>
+      <div style="max-height:65vh; overflow-y:auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th style="width:140px">Pricing (USD)</th>
+              <th style="width:120px">Stock Level</th>
+              <th style="width:100px">Status</th>
+            </tr>
+          </thead>
+          <tbody id="bulk-inventory-table-body">
+            <!-- Injected via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Process Modal -->
+<div class="modal-overlay" id="order-process-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🚚 Update Order Fulfillment</h3>
+      <button class="modal-close" onclick="closeAllModals()">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Order Stepper -->
+      <div id="fulfillment-stepper" style="display:flex;justify-content:space-between;margin-bottom:var(--space-8);padding:0 var(--space-4);position:relative">
+        <div style="position:absolute;top:10px;left:var(--space-8);right:var(--space-8);height:2px;background:var(--clr-border);z-index:0"></div>
+        <div id="stepper-progress" style="position:absolute;top:10px;left:var(--space-8);width:0%;height:2px;background:var(--clr-primary);z-index:1;transition:width 0.4s ease"></div>
+        
+        <div class="step" data-status="pending" style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="step-circle" style="width:20px;height:20px;border-radius:50%;background:var(--clr-surface);border:2px solid var(--clr-border);display:flex;align-items:center;justify-content:center;transition:all 0.3s"></div>
+          <span style="font-size:0.65rem;font-weight:700;color:var(--clr-text-3)">Pending</span>
+        </div>
+        <div class="step" data-status="processing" style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="step-circle" style="width:20px;height:20px;border-radius:50%;background:var(--clr-surface);border:2px solid var(--clr-border);display:flex;align-items:center;justify-content:center;transition:all 0.3s"></div>
+          <span style="font-size:0.65rem;font-weight:700;color:var(--clr-text-3)">Processing</span>
+        </div>
+        <div class="step" data-status="ready_to_ship" style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="step-circle" style="width:20px;height:20px;border-radius:50%;background:var(--clr-surface);border:2px solid var(--clr-border);display:flex;align-items:center;justify-content:center;transition:all 0.3s"></div>
+          <span style="font-size:0.65rem;font-weight:700;color:var(--clr-text-3)">Ready</span>
+        </div>
+        <div class="step" data-status="shipped" style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="step-circle" style="width:20px;height:20px;border-radius:50%;background:var(--clr-surface);border:2px solid var(--clr-border);display:flex;align-items:center;justify-content:center;transition:all 0.3s"></div>
+          <span style="font-size:0.65rem;font-weight:700;color:var(--clr-text-3)">Shipped</span>
+        </div>
+        <div class="step" data-status="delivered" style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="step-circle" style="width:20px;height:20px;border-radius:50%;background:var(--clr-surface);border:2px solid var(--clr-border);display:flex;align-items:center;justify-content:center;transition:all 0.3s"></div>
+          <span style="font-size:0.65rem;font-weight:700;color:var(--clr-text-3)">Delivered</span>
+        </div>
+      </div>
+
+      <form id="order-process-form" onsubmit="submitOrderStatusUpdate(event)">
+        <input type="hidden" id="process-order-id">
+        <div class="form-group">
+          <label class="form-label">Update Status</label>
+          <select class="form-control" id="process-order-status" onchange="toggleTrackingFields(this.value)">
+            <option value="pending">🕐 Pending</option>
+            <option value="processing">⚙️ Processing</option>
+            <option value="ready_to_ship">📦 Ready to Ship</option>
+            <option value="shipped">🚚 Shipped</option>
+            <option value="delivered">✅ Delivered</option>
+            <option value="cancelled">❌ Cancelled</option>
+          </select>
+        </div>
+        <div id="tracking-fields" style="display:none; margin-top:var(--space-4)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Carrier</label>
+              <select class="form-control" id="process-carrier">
+                <option value="FedEx">FedEx</option>
+                <option value="UPS">UPS</option>
+                <option value="DHL">DHL</option>
+                <option value="BlueDart">BlueDart</option>
+                <option value="Default">Standard Shipping</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tracking ID</label>
+              <input class="form-control" type="text" id="process-tracking-id" placeholder="e.g. 1234567890">
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:var(--space-3); margin-top:var(--space-6)">
+          <button type="button" class="btn btn-ghost" onclick="closeAllModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Fulfillment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Documents Modal -->
+<div class="modal-overlay" id="bulk-docs-modal">
+  <div class="modal" style="max-width:800px; width:95%">
+    <div class="modal-header">
+      <h3 id="bulk-docs-title">📄 Bulk Documents</h3>
+      <button class="modal-close" onclick="closeAllModals()">×</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div style="padding:var(--space-4); background:var(--clr-bg-3); border-bottom:1px solid var(--clr-border); display:flex; justify-content:space-between; align-items:center">
+        <p style="margin:0; font-size:.85rem; color:var(--clr-text-3)">Print-ready view for selected orders</p>
+        <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Print All</button>
+      </div>
+      <div id="bulk-docs-content" style="max-height:70vh; overflow-y:auto; padding:var(--space-6)">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/seller.js"></script>
+</body>
+</html>
+
+

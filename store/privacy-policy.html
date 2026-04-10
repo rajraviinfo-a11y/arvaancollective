@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy | Arvaan Collective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=5.1">
+  <style>
+    .policy-content-card { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); padding: var(--space-10); margin-bottom: 60px; box-shadow: var(--shadow-sm); }
+    .policy-content { color: var(--clr-text-2); font-size: 1.05rem; line-height: 1.8; }
+    .policy-content h2 { font-family: var(--font-heading); font-size: 1.8rem; margin: 40px 0 20px; color: var(--clr-text); }
+    .policy-content h3 { font-size: 1.2rem; font-weight: 700; margin: 30px 0 15px; color: var(--clr-text); }
+    .policy-content ul { list-style-type: none; padding-left: 20px; margin-bottom: 20px; }
+    .policy-content li { margin-bottom: 10px; position: relative; }
+    .policy-content li::before { content: "•"; color: var(--clr-primary); position: absolute; left: -15px; font-weight: bold; }
+  </style>
+</head>
+<body class="policy-page-body">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" id="nav-search-input" placeholder="Search curated realms..." autocomplete="off">
+        <div class="search-results-dropdown hidden" id="search-results-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <select id="currency-select" class="currency-select">
+        <option value="INR">₹ INR</option>
+        <option value="USD">$ USD</option>
+      </select>
+
+      <div class="dropdown" id="nav-user-menu">
+        <button class="nav-action-btn" id="user-dropdown-toggle">
+          <div class="avatar avatar-sm" id="nav-avatar-initials">U</div>
+          <span class="nav-btn-label" id="nav-user-name-short">Me</span>
+        </button>
+        <div class="dropdown-menu" id="user-dropdown-menu">
+          <div class="user-dropdown-header">
+            <div class="user-name" id="nav-user-name">User</div>
+            <div class="user-email" id="nav-user-email">user@email.com</div>
+          </div>
+          <a href="account.html" class="dropdown-item">👤 My Account</a>
+          <a href="orders.html" class="dropdown-item">📦 My Orders</a>
+          <a href="wishlist.html" class="dropdown-item">❤️ Wishlist</a>
+          <div class="dropdown-divider"></div>
+          <a href="../seller/seller.html" class="dropdown-item">🏪 Seller Dashboard</a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" id="logout-btn" style="color:var(--clr-danger)">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <a href="wishlist.html" class="nav-action-btn" title="Wishlist">
+        <span>❤️</span>
+        <span class="nav-btn-label">Wishlist</span>
+      </a>
+
+      <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ CATEGORY NAV BAR ══ -->
+  <div class="cat-navbar" id="cat-navbar">
+    <div class="cat-navbar-inner">
+      <!-- Dynamic links injected by store.js -->
+    </div>
+  </div>
+</header>
+
+<main class="store-main">
+  <div class="page-container" style="padding-top:var(--space-10)">
+    <div class="section-title-row" style="margin-bottom:var(--space-8); justify-content:center; text-align:center">
+      <div>
+        <div class="section-eyebrow">Our Commitment to You</div>
+        <h1 class="section-heading">Privacy Policy</h1>
+        <p class="text-muted" style="max-width:600px; margin:16px auto 0">Last Updated: April 2026</p>
+      </div>
+    </div>
+
+    <div class="policy-content-card">
+      <div class="policy-content">
+        
+<h2>Your Privacy is Paramount</h2>
+<p>Arvaan Collective ("we," "our," "us") is committed to protecting your privacy. This policy outlines how we collect, use, and safeguard your personal information when you use our platform.</p>
+
+<h3>Information We Collect</h3>
+<ul>
+  <li><strong>Account Information:</strong> Name, email address, password, and contact details.</li>
+  <li><strong>Transaction Data:</strong> Payment details, shipping addresses, and purchase history.</li>
+  <li><strong>Technical Data:</strong> IP address, browser type, device information, and interaction metrics.</li>
+</ul>
+
+<h3>How We Use It</h3>
+<p>We utilize this data to process your orders, provide customer support, personalize your shopping experience, and inform you of relevant curations. We never sell your personal data to third parties.</p>
+
+<h3>Data Security</h3>
+<p>We implement state-of-the-art 256-bit SSL encryption and strict internal access protocols to ensure your data remains secure from unauthorized access.</p>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ GLOBAL FOOTER & MODALS ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=4"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=6"></script>
+</body>
+</html>

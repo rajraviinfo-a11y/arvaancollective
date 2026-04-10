@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Story — Arvaan Collective</title>
+  <meta name="description" content="Discover the story behind Arvaan Collective. We are dedicated to providing India with the finest curated premium products.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=5.1">
+</head>
+<body class="about-page">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" id="nav-search-input" placeholder="Search products, brands, categories…" autocomplete="off">
+        <div class="search-results-dropdown hidden" id="search-results-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <select id="currency-select" class="currency-select">
+        <option value="INR">₹ INR</option>
+        <option value="USD">$ USD</option>
+      </select>
+
+      <button class="nav-action-btn" id="nav-login-btn" title="Sign In">
+        <span>👤</span>
+        <span class="nav-btn-label">Account</span>
+      </button>
+
+      <div class="dropdown hidden" id="nav-user-menu">
+        <button class="nav-action-btn" id="user-dropdown-toggle">
+          <div class="avatar avatar-sm" id="nav-avatar-initials">U</div>
+          <span class="nav-btn-label" id="nav-user-name-short">Me</span>
+        </button>
+        <div class="dropdown-menu" id="user-dropdown-menu">
+          <div class="user-dropdown-header">
+            <div class="user-name" id="nav-user-name">User</div>
+            <div class="user-email" id="nav-user-email">user@email.com</div>
+          </div>
+          <a href="account.html" class="dropdown-item">👤 My Account</a>
+          <a href="orders.html" class="dropdown-item">📦 My Orders</a>
+          <a href="wishlist.html" class="dropdown-item">❤️ Wishlist</a>
+          <div class="dropdown-divider"></div>
+          <a href="../seller/seller.html" class="dropdown-item">🏪 Seller Dashboard</a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" style="color:var(--clr-text-3)">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <a href="wishlist.html" class="nav-action-btn" title="Wishlist">
+        <span>❤️</span>
+        <span class="nav-btn-label">Wishlist</span>
+      </a>
+
+      <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="nav-btn-label">Cart</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ CATEGORY NAV BAR ══ -->
+  <div class="cat-navbar" id="cat-navbar">
+    <div class="cat-navbar-inner">
+      <!-- Dynamic links injected by store.js -->
+    </div>
+  </div>
+</header>
+
+<main class="store-main">
+  <!-- ══ HERO SECTION ══ -->
+  <section class="section-block" style="padding: 100px 0; background: var(--clr-bg-2);">
+    <div class="page-container">
+      <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+        <div class="section-eyebrow">The Arvaan Legacy</div>
+        <h1 class="section-heading" style="font-size: 3.5rem; margin-bottom: 24px;">Curating Excellence, <br>Defining Lifestyle.</h1>
+        <p class="text-lg text-muted" style="line-height: 1.8;">Founded on the principles of uncompromising quality and artisanal precision, Arvaan Collective is more than a marketplace. We are a gallery of the fine works that represent the pinnacle of Indian and global craftsmanship.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ OUR VISION ══ -->
+  <section class="section-block">
+    <div class="page-container">
+      <div class="grid-2" style="align-items: center; gap: 60px;">
+        <div style="background: #111; height: 500px; border-radius: var(--radius-lg); overflow: hidden;">
+           <img src="../assets/about_hq.png" alt="Arvaan HQ" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9;">
+        </div>
+        <div>
+          <h2 class="section-heading" style="margin-bottom: 24px;">Our Vision</h2>
+          <p class="text-muted" style="margin-bottom: 20px;">We believe that luxury shouldn't be distant. It should be the quality of the tech you use daily, the comfort of the garments you wear, and the soul of the home you build.</p>
+          <p class="text-muted" style="margin-bottom: 30px;">Every product in our collective undergoes a rigorous 25-point quality assessment. If it doesn't meet the Arvaan standard, it doesn't enter our inventory. That is our promise to you.</p>
+          
+          <div class="stats-row" style="display: flex; gap: 40px; margin-top: 40px;">
+            <div class="stat-item">
+              <div style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--clr-primary);">500+</div>
+              <div class="text-sm text-muted">Premium Brands</div>
+            </div>
+            <div class="stat-item">
+              <div style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--clr-primary);">12k+</div>
+              <div class="text-sm text-muted">Aesthetic Acquisitions</div>
+            </div>
+            <div class="stat-item">
+              <div style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--clr-primary);">99%</div>
+              <div class="text-sm text-muted">Satisfaction Rate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CORE VALUES ══ -->
+  <section class="section-block" style="background: var(--clr-bg-alt); padding: 80px 0;">
+    <div class="page-container">
+      <div class="section-title-row" style="text-align: center; margin-bottom: 60px;">
+        <h2 class="section-heading">The Collective Pillars</h2>
+      </div>
+      <div class="product-grid-3">
+        <div class="card" style="padding: 40px; text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 20px;">🛡️</div>
+          <h3>Authenticity Guaranteed</h3>
+          <p class="text-sm text-muted">Direct sourcing from authorized distributors ensures every Arvaan acquisition is 100% genuine.</p>
+        </div>
+        <div class="card" style="padding: 40px; text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 20px;">🖋️</div>
+          <h3>Curated Artisanship</h3>
+          <p class="text-sm text-muted">We don't stock everything. We stock the best. Every item is hand-picked for its design and utility.</p>
+        </div>
+        <div class="card" style="padding: 40px; text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 20px;">📦</div>
+          <h3>Concierge Service</h3>
+          <p class="text-sm text-muted">Our dedicated client support team is available 24/7 to ensure your experience is nothing short of perfection.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ══ GLOBAL FOOTER & MODALS ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=4"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=7"></script>
+</body>
+</html>

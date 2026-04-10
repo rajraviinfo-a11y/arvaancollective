@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details | Arvaan Collective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=5.1">
+  <style>
+    .breadcrumb { margin-bottom: var(--space-6); display: flex; gap: 8px; font-size: 0.8rem; color: var(--clr-text-3); align-items: center; }
+    .breadcrumb a { color: inherit; text-decoration: none; transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--clr-primary); }
+    .product-main-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: var(--space-10); margin-bottom: var(--space-12); }
+    .gallery-container { position: sticky; top: 120px; }
+    .gallery-main-img { width: 100%; border-radius: var(--radius-lg); aspect-ratio: 1/1; object-fit: cover; border: 1px solid var(--clr-border); }
+    .gallery-thumbs { display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 5px; }
+    .thumb-img { width: 80px; height: 80px; border-radius: var(--radius-md); object-fit: cover; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; }
+    .thumb-img.active { border-color: var(--clr-primary); }
+    .info-container { display: flex; flex-direction: column; gap: var(--space-4); }
+    
+    .tab-panel.hidden { display: none; }
+    .tab-panel.active { display: block; }
+    
+    @media (max-width: 1024px) {
+      .product-main-grid { grid-template-columns: 1fr; }
+      .gallery-container { position: static; }
+    }
+  </style>
+</head>
+<body class="product-page-body">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" id="nav-search-input" placeholder="Search products, brands, categories…" autocomplete="off">
+        <div class="search-results-dropdown hidden" id="search-results-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <select id="currency-select" class="currency-select">
+        <option value="INR">₹ INR</option>
+        <option value="USD">$ USD</option>
+      </select>
+
+      <button class="nav-action-btn" id="nav-login-btn" title="Sign In">
+        <span>👤</span>
+        <span class="nav-btn-label">Account</span>
+      </button>
+
+      <div class="dropdown hidden" id="nav-user-menu">
+        <button class="nav-action-btn" id="user-dropdown-toggle">
+          <div class="avatar avatar-sm" id="nav-avatar-initials">U</div>
+          <span class="nav-btn-label" id="nav-user-name-short">Me</span>
+        </button>
+        <div class="dropdown-menu" id="user-dropdown-menu">
+          <div class="user-dropdown-header">
+            <div class="user-name" id="nav-user-name">User</div>
+            <div class="user-email" id="nav-user-email">user@email.com</div>
+          </div>
+          <a href="account.html" class="dropdown-item">👤 My Account</a>
+          <a href="orders.html" class="dropdown-item">📦 My Orders</a>
+          <a href="wishlist.html" class="dropdown-item">❤️ Wishlist</a>
+          <div class="dropdown-divider"></div>
+          <a href="../seller/seller.html" class="dropdown-item">🏪 Seller Dashboard</a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" id="logout-btn" style="color:var(--clr-danger)">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <a href="wishlist.html" class="nav-action-btn" title="Wishlist">
+        <span>❤️</span>
+        <span class="nav-btn-label">Wishlist</span>
+      </a>
+
+      <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="nav-btn-label">Cart</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ CATEGORY NAV BAR ══ -->
+  <div class="cat-navbar" id="cat-navbar">
+    <div class="cat-navbar-inner">
+      <a href="shop.html" class="cat-nav-link">All</a>
+      <a href="shop.html?cat=Electronics" class="cat-nav-link">📱 Electronics</a>
+      <a href="shop.html?cat=Fashion" class="cat-nav-link">👗 Fashion</a>
+      <a href="shop.html?cat=Furniture" class="cat-nav-link">🛋️ Furniture</a>
+      <a href="shop.html?cat=Kitchen" class="cat-nav-link">☕ Kitchen</a>
+      <a href="shop.html?cat=Wellness" class="cat-nav-link">🌿 Wellness</a>
+      <a href="shop.html?cat=Travel" class="cat-nav-link">✈️ Travel</a>
+      <a href="shop.html?cat=Home+Decor" class="cat-nav-link">🏠 Home Decor</a>
+      <a href="shop.html?filter=deals" class="cat-nav-link deals-link">🔥 Deals</a>
+      <a href="shop.html?filter=new" class="cat-nav-link new-link">✨ New</a>
+    </div>
+  </div>
+</header>
+
+<main class="store-main">
+  <div class="page-container" style="padding-top:var(--space-8)">
+    <nav class="breadcrumb">
+      <a href="index.html">Home</a> <span>/</span> <a href="shop.html" id="bread-category">Category</a> <span>/</span> <span id="bread-name" style="color:var(--clr-text-1); font-weight:600">Product</span>
+    </nav>
+
+    <div class="product-main-grid">
+      <!-- Gallery -->
+      <div class="gallery-container">
+        <img id="detail-gallery-main" class="gallery-main-img" src="" alt="Product Main Image">
+        <div class="gallery-thumbs" id="detail-gallery-thumbs"></div>
+      </div>
+
+      <!-- Info -->
+      <div class="info-container">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start">
+          <span class="badge badge-primary" id="detail-category">Category</span>
+          <div style="display:flex; gap:10px">
+            <button class="btn btn-icon btn-ghost" id="detail-share-btn" title="Share">🔗</button>
+            <button class="btn btn-icon btn-ghost" id="detail-wish-btn" title="Wishlist">🤍</button>
+          </div>
+        </div>
+        
+        <h1 id="detail-name" style="font-size:2.5rem; font-family:var(--font-heading); line-height:1.1">Product Name</h1>
+        <div id="detail-rating" style="display:flex; align-items:center; gap:8px"></div>
+        
+        <div class="product-detail-price" id="detail-price" style="font-size:1.8rem; font-weight:800; color:var(--clr-primary); margin:10px 0">—</div>
+        
+        <p id="detail-description" style="color:var(--clr-text-2); line-height:1.7; font-size:1.05rem"></p>
+        
+        <ul id="detail-highlights" class="editorial-highlights" style="padding-left:20px; color:var(--clr-text-2)"></ul>
+        
+        <div id="detail-variants" class="variant-selector"></div>
+        
+        <div class="divider" style="height:1px; background:var(--clr-border); margin:20px 0"></div>
+        
+        <div style="display:flex; align-items:center; gap:var(--space-4); margin:var(--space-4) 0">
+          <div style="font-weight:700; font-size:0.9rem">Quantity</div>
+          <div style="display:flex; align-items:center; background:var(--clr-bg-3); border-radius:var(--radius-md); padding:4px">
+            <button class="btn btn-icon btn-ghost btn-sm" onclick="adjustQty(-1)">−</button>
+            <input type="number" id="detail-qty" value="1" min="1" style="width:50px; border:none; background:transparent; text-align:center; font-weight:800" readonly>
+            <button class="btn btn-icon btn-ghost btn-sm" onclick="adjustQty(1)">+</button>
+          </div>
+          <div id="detail-stock" style="font-size:0.75rem; color:var(--clr-text-3)"></div>
+        </div>
+
+        <div class="detail-actions" style="display:flex; gap:12px; margin-top:var(--space-2)">
+          <button class="btn btn-primary" id="detail-add-cart" style="flex:1; height:56px; font-size:1.1rem; font-weight:700">Add To Collection</button>
+          <button class="btn btn-outline" id="detail-buy-now" style="flex:1; height:56px; font-weight:700">Buy Now</button>
+        </div>
+
+        <div class="divider" style="height:1px; background:var(--clr-border); margin:20px 0"></div>
+
+        <!-- Features grid -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4)">
+          <div style="display:flex; gap:12px; align-items:center">
+            <div style="font-size:1.5rem">🚚</div>
+            <div style="font-size:0.75rem; line-height:1.3"><strong>Free Shipping</strong><br>On orders over ₹999</div>
+          </div>
+          <div style="display:flex; gap:12px; align-items:center">
+            <div style="font-size:1.5rem">🛡️</div>
+            <div style="font-size:0.75rem; line-height:1.3"><strong>Genuine Artifact</strong><br>100% authenticity guaranteed</div>
+          </div>
+          <div style="display:flex; gap:12px; align-items:center">
+            <div style="font-size:1.5rem">↩️</div>
+            <div style="font-size:0.75rem; line-height:1.3"><strong>Noble Returns</strong><br>30-day effortless returns</div>
+          </div>
+          <div style="display:flex; gap:12px; align-items:center">
+            <div style="font-size:1.5rem">💎</div>
+            <div style="font-size:0.75rem; line-height:1.3"><strong>Prestige Rewards</strong><br>Earn points on this purchase</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Tabs -->
+    <div style="margin-top:var(--space-12)">
+      <div style="display:flex; gap:var(--space-6); border-bottom:1px solid var(--clr-border); margin-bottom:var(--space-6)">
+        <button class="product-tab-btn active" data-detail-tab="specs">Specifications</button>
+        <button class="product-tab-btn" data-detail-tab="reviews">Reviews</button>
+        <button class="product-tab-btn" data-detail-tab="shipping">Shipping & Returns</button>
+      </div>
+      
+      <div id="detail-specs-panel" class="tab-panel active">
+        <div id="detail-specs" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:var(--space-4)"></div>
+      </div>
+      
+      <div id="detail-reviews-panel" class="tab-panel hidden">
+        <div id="review-summary-box" style="margin-bottom:var(--space-6)"></div>
+        <div id="detail-reviews-list" style="display:flex; flex-direction:column; gap:var(--space-5)"></div>
+      </div>
+
+      <div id="detail-shipping-panel" class="tab-panel hidden">
+        <div style="max-width:700px; color:var(--clr-text-2); line-height:1.8">
+          <h3>Shipping Information</h3>
+          <p>Arvaan Collective partners with premier global logistics providers to ensure your collection arrives in pristine condition. All shipments are fully insured and require a signature upon delivery.</p>
+          <ul style="margin-top:10px; padding-left:20px">
+            <li>Standard Shipping (3-5 business days): Complimentary for orders above ₹999</li>
+            <li>Priority Concierge (Next-Day): ₹149.00</li>
+            <li>Global White-Glove Export: Inquire for rates</li>
+          </ul>
+          <h3 style="margin-top:30px">Returns & Exchanges</h3>
+          <p>We pride ourselves on the quality of our curations. If a masterpiece does not meet your expectations, we offer a 30-day return policy for unused items in their original premium packaging.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <section class="section-block" style="margin-top:var(--space-12)">
+      <div class="section-title-row">
+        <h2 class="section-heading">You Might Also Like</h2>
+      </div>
+      <div id="related-products-grid" class="product-grid-4"></div>
+    </section>
+  </div>
+</main>
+
+<!-- ══ GLOBAL FOOTER & MODALS ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=3"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=5"></script>
+<script>
+  function adjustQty(delta) {
+    const input = document.getElementById('detail-qty');
+    const newVal = Math.max(1, parseInt(input.value) + delta);
+    input.value = newVal;
+  }
+</script>
+</body>
+</html>

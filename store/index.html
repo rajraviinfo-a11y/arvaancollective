@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arvaan Collective — India's Premium Online Marketplace</title>
+  <meta name="description" content="Shop electronics, fashion, home decor, wellness & more at Arvaan Collective. Free shipping on ₹999+. Genuine products. Easy returns.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=6">
+</head>
+<body>
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" id="nav-search-input" placeholder="Search products, brands, categories…" autocomplete="off">
+        <div class="search-results-dropdown hidden" id="search-results-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <select id="currency-select" class="currency-select">
+        <option value="INR">₹ INR</option>
+        <option value="USD">$ USD</option>
+      </select>
+
+      <button class="nav-action-btn" id="nav-login-btn" title="Sign In">
+        <span>👤</span>
+        <span class="nav-btn-label">Account</span>
+      </button>
+
+      <div class="dropdown hidden" id="nav-user-menu">
+        <button class="nav-action-btn" id="user-dropdown-toggle">
+          <div class="avatar avatar-sm" id="nav-avatar-initials">U</div>
+          <span class="nav-btn-label" id="nav-user-name-short">Me</span>
+        </button>
+        <div class="dropdown-menu" id="user-dropdown-menu">
+          <div class="user-dropdown-header">
+            <div class="user-name" id="nav-user-name">User</div>
+            <div class="user-email" id="nav-user-email">user@email.com</div>
+          </div>
+          <a href="account.html" class="dropdown-item">👤 My Account</a>
+          <a href="orders.html" class="dropdown-item">📦 My Orders</a>
+          <a href="wishlist.html" class="dropdown-item">❤️ Wishlist</a>
+          <div class="dropdown-divider"></div>
+          <a href="../seller/seller.html" class="dropdown-item">🏪 Seller Dashboard</a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" id="logout-btn" style="color:var(--clr-danger)">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <a href="javascript:void(0)" id="nav-wishlist-btn" class="nav-action-btn" title="Wishlist">
+        <span>❤️</span>
+        <span class="nav-btn-label">Wishlist</span>
+      </a>
+
+      <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="nav-btn-label">Cart</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ DYNAMIC NAVIGATION ══ -->
+  <div id="global-nav-container"></div>
+
+  <!-- ══ CATEGORY NAV BAR ══ -->
+  <div class="cat-navbar" id="cat-navbar">
+    <div class="cat-navbar-inner">
+      <!-- Dynamic links injected by store.js -->
+    </div>
+  </div>
+</header>
+
+<main class="store-main">
+
+  <!-- ══ HERO BANNER ══ -->
+  <section class="hero-banner" id="hero-section">
+    <div class="hero-banner-content">
+      <div class="hero-text-block">
+        <div class="hero-label">✦ Curated for the Discerning Buyer</div>
+        <h1 class="hero-heading">Shop India's <br><em>Premium Brands</em><br>at Best Prices</h1>
+        <p class="hero-subtext">From top electronics to artisan wellness — discover 10,000+ products with guaranteed quality.</p>
+        <div class="hero-actions">
+          <a href="shop.html" class="btn-hero-primary">Shop All Products →</a>
+          <a href="shop.html?filter=deals" class="btn-hero-outline">🔥 Today's Deals</a>
+        </div>
+        <div class="hero-trust-bar">
+          <span>✓ 50,000+ Happy Buyers</span>
+          <span>✓ 100% Genuine Products</span>
+          <span>✓ Free Returns</span>
+        </div>
+      </div>
+      <div class="hero-visual-block">
+        <div class="hero-cards-stack">
+          <div class="hero-card hero-card-1">
+            <img src="../assets/hero_headphones.png" alt="Sony Headphones">
+            <div class="hero-card-label">⭐ 4.9 · Sony WH-1000XM5</div>
+          </div>
+          <div class="hero-card hero-card-2">
+            <img src="../assets/hero_shoes.png" alt="Nike Sneakers">
+            <div class="hero-card-label">🔥 25% OFF · Nike Air Max</div>
+          </div>
+          <div class="hero-badge-pill">
+            <span class="badge-pill-icon">📦</span>
+            <div>
+              <div style="font-weight:800;font-size:0.85rem">Free Delivery</div>
+              <div style="font-size:0.7rem;color:var(--clr-text-3)">On ₹999+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TRUST STRIP ══ -->
+  <div class="trust-strip">
+    <div class="trust-strip-inner">
+      <div class="trust-item">
+        <span class="trust-icon">🚚</span>
+        <div><div class="trust-title">Free Delivery</div><div class="trust-sub">On orders ₹999+</div></div>
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <span class="trust-icon">🔒</span>
+        <div><div class="trust-title">Secure Payment</div><div class="trust-sub">100% safe checkout</div></div>
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <span class="trust-icon">↩️</span>
+        <div><div class="trust-title">Easy Returns</div><div class="trust-sub">30-day window</div></div>
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <span class="trust-icon">✅</span>
+        <div><div class="trust-title">100% Genuine</div><div class="trust-sub">Verified sellers only</div></div>
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <span class="trust-icon">🎧</span>
+        <div><div class="trust-title">24/7 Support</div><div class="trust-sub">Always here to help</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FLASH SALE COUNTDOWN ══ -->
+  <section class="flash-sale-section" id="flash-sale-section">
+    <div class="page-container">
+      <div class="flash-sale-header">
+        <div class="flash-left">
+          <span class="flash-badge">⚡ Flash Sale</span>
+          <h2 class="flash-title">Today's Best Deals</h2>
+          <p class="flash-sub">Limited time offers — grab them before they're gone!</p>
+        </div>
+        <div class="flash-countdown" id="flash-countdown">
+          <div class="countdown-label">Ends in:</div>
+          <div class="countdown-timer">
+            <div class="countdown-block"><span id="cd-hours">00</span><span class="cd-label">HRS</span></div>
+            <span class="cd-colon">:</span>
+            <div class="countdown-block"><span id="cd-mins">00</span><span class="cd-label">MIN</span></div>
+            <span class="cd-colon">:</span>
+            <div class="countdown-block"><span id="cd-secs">00</span><span class="cd-label">SEC</span></div>
+          </div>
+        </div>
+        <a href="shop.html?filter=deals" class="view-all-link">See All Deals →</a>
+      </div>
+      <div class="product-grid-4-scroll" id="flash-deals-grid">
+        <!-- Injected by JS: deal products with % discount -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SHOP BY CATEGORY ══ -->
+  <section class="section-block">
+    <div class="page-container">
+      <div class="section-title-row">
+        <div>
+          <div class="section-eyebrow">Explore</div>
+          <h2 class="section-heading">Shop by Category</h2>
+        </div>
+        <a href="shop.html" class="view-all-link">All Products →</a>
+      </div>
+      <div class="categories-strip" id="category-grid"></div>
+    </div>
+  </section>
+
+  <!-- ══ BESTSELLERS ══ -->
+  <section class="section-block bg-alt">
+    <div class="page-container">
+      <div class="section-title-row">
+        <div>
+          <div class="section-eyebrow">Customers Love</div>
+          <h2 class="section-heading">🏆 Best Sellers</h2>
+        </div>
+        <a href="shop.html?filter=popular" class="view-all-link">View All →</a>
+      </div>
+      <div class="product-tabs">
+        <button class="product-tab-btn active" data-tab="all">All</button>
+        <button class="product-tab-btn" data-tab="Electronics">Electronics</button>
+        <button class="product-tab-btn" data-tab="Fashion">Fashion</button>
+        <button class="product-tab-btn" data-tab="Furniture">Furniture</button>
+        <button class="product-tab-btn" data-tab="Wellness">Wellness</button>
+      </div>
+      <div class="product-grid-4" id="featured-products"></div>
+    </div>
+  </section>
+
+  <!-- ══ DOUBLE PROMO BANNERS ══ -->
+  <section class="promo-feature-banner">
+    <div class="page-container">
+      <div class="promo-grid">
+        <div class="promo-card promo-card-dark" onclick="window.location.href='shop.html?filter=deals'">
+          <div class="promo-eyebrow">⚡ Limited Time</div>
+          <h3 class="promo-title">Up to 42% Off</h3>
+          <p class="promo-sub">Flash deals on top brands, today only</p>
+          <div class="promo-cta-btn">Shop Deals →</div>
+        </div>
+        <div class="promo-card promo-card-warm" onclick="window.location.href='shop.html?cat=Electronics'">
+          <div class="promo-eyebrow">📱 Tech Week</div>
+          <h3 class="promo-title">Premium Electronics</h3>
+          <p class="promo-sub">Apple, Samsung, Sony, Dyson & more</p>
+          <div class="promo-cta-btn">Explore Tech →</div>
+        </div>
+        <div class="promo-card promo-card-light" onclick="window.location.href='../seller/register.html'">
+          <div class="promo-eyebrow">🏪 For Sellers</div>
+          <h3 class="promo-title">Start Selling Today</h3>
+          <p class="promo-sub">Join 2,000+ sellers — Zero listing charges</p>
+          <div class="promo-cta-btn">Register Free →</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ NEW ARRIVALS ══ -->
+  <section class="section-block">
+    <div class="page-container">
+      <div class="section-title-row">
+        <div>
+          <div class="section-eyebrow">Just Arrived</div>
+          <h2 class="section-heading">✨ New Arrivals</h2>
+        </div>
+        <a href="shop.html?filter=new" class="view-all-link">See All New →</a>
+      </div>
+      <div class="product-grid-4" id="trending-products"></div>
+    </div>
+  </section>
+
+  <!-- ══ BRAND MARQUEE ══ -->
+  <div class="brand-marquee-section">
+    <div class="brand-marquee-label">India's Top Brands — All Under One Roof</div>
+    <div class="brand-marquee-track">
+      <div class="brand-marquee-inner">
+        <span class="brand-logo-pill">Apple</span>
+        <span class="brand-logo-pill">Samsung</span>
+        <span class="brand-logo-pill">Sony</span>
+        <span class="brand-logo-pill">Nike</span>
+        <span class="brand-logo-pill">Dyson</span>
+        <span class="brand-logo-pill">Ninja</span>
+        <span class="brand-logo-pill">Wildcraft</span>
+        <span class="brand-logo-pill">Forest Essentials</span>
+        <span class="brand-logo-pill">American Tourister</span>
+        <span class="brand-logo-pill">Instant Pot</span>
+        <!-- Duplicate for seamless loop -->
+        <span class="brand-logo-pill">Apple</span>
+        <span class="brand-logo-pill">Samsung</span>
+        <span class="brand-logo-pill">Sony</span>
+        <span class="brand-logo-pill">Nike</span>
+        <span class="brand-logo-pill">Dyson</span>
+        <span class="brand-logo-pill">Ninja</span>
+        <span class="brand-logo-pill">Wildcraft</span>
+        <span class="brand-logo-pill">Forest Essentials</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ VALUE PROPS ROW ══ -->
+  <section class="section-block bg-alt">
+    <div class="page-container">
+      <div class="value-props-grid">
+        <div class="value-prop-card">
+          <div class="vp-icon">📦</div>
+          <h3 class="vp-title">50,000+ Products</h3>
+          <p class="vp-sub">Across 20+ categories from verified sellers</p>
+        </div>
+        <div class="value-prop-card">
+          <div class="vp-icon">💳</div>
+          <h3 class="vp-title">Easy EMI</h3>
+          <p class="vp-sub">0% EMI available on orders above ₹3,000</p>
+        </div>
+        <div class="value-prop-card">
+          <div class="vp-icon">🛡️</div>
+          <h3 class="vp-title">Buyer Protection</h3>
+          <p class="vp-sub">Full refund if item doesn't arrive or isn't as described</p>
+        </div>
+        <div class="value-prop-card">
+          <div class="vp-icon">⭐</div>
+          <h3 class="vp-title">4.8★ Rated Platform</h3>
+          <p class="vp-sub">Over 52,000 verified buyer reviews</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TESTIMONIALS ══ -->
+  <section class="section-block">
+    <div class="page-container">
+      <div class="section-title-row centered">
+        <div>
+          <div class="section-eyebrow">Real Buyers, Real Words</div>
+          <h2 class="section-heading">Customer Reviews</h2>
+          <div class="rating-summary">⭐⭐⭐⭐⭐ <strong>4.8 / 5</strong> · <strong>52,000+</strong> verified reviews</div>
+        </div>
+      </div>
+      <div class="reviews-grid" id="testimonial-grid"></div>
+    </div>
+  </section>
+
+  <!-- ══ NEWSLETTER ══ -->
+  <section class="newsletter-section">
+    <div class="page-container">
+      <div class="newsletter-inner">
+        <div class="newsletter-icon">✉️</div>
+        <h2>Get Exclusive Offers in Your Inbox</h2>
+        <p>Subscribe for early access to flash sales, new arrivals, and member-only coupons.</p>
+        <form id="newsletter-form" class="newsletter-form">
+          <input type="email" placeholder="Enter your email address" required>
+          <button type="submit" class="btn-newsletter">Subscribe →</button>
+        </form>
+        <p class="newsletter-note">📧 No spam. Unsubscribe anytime. Join 15,000+ members.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MOBILE NAVIGATION DRAWER ══ -->
+  <div id="mobile-drawer-overlay" class="mobile-drawer-overlay" onclick="toggleMobileMenu()"></div>
+  <div id="mobile-drawer" class="mobile-drawer">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px">
+      <div class="navbar-brand">Arvaan <span>Collective</span></div>
+      <button onclick="toggleMobileMenu()" style="background:none;border:none;font-size:1.5rem">×</button>
+    </div>
+    <nav>
+      <a href="shop.html" class="mobile-nav-item"><span>📦</span> Shop All Products</a>
+      <a href="javascript:void(0)" onclick="toggleMobileMenu(); setTimeout(() => document.getElementById('nav-search-input').focus(), 300)" class="mobile-nav-item"><span>🔍</span> Search Products</a>
+      <a href="wishlist.html" class="mobile-nav-item"><span>❤️</span> My Wishlist</a>
+      <a href="account.html" class="mobile-nav-item" id="mobile-auth-link"><span>👤</span> My Account / Login</a>
+      <a href="cart.html" class="mobile-nav-item"><span>🛒</span> Shopping Cart</a>
+      <div style="margin-top:30px; padding-top:20px; border-top:1px solid var(--clr-border)">
+        <div class="text-sm text-muted" style="margin-bottom:15px">Shop by Category</div>
+        <div id="mobile-cat-list"></div>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ══ GLOBAL FOOTER & MODALS ══ -->
+  <div id="global-footer"></div>
+  <div id="global-modals"></div>
+
+  <script src="../js/data.js?v=6"></script>
+  <script src="../js/auth.js?v=3"></script>
+  <script src="../js/store.js?v=13"></script>
+</body>
+</html>
+

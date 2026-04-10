@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account | Arvaan Collective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=5.1">
+  <style>
+    .account-layout { display: grid; grid-template-columns: 240px 1fr; gap: var(--space-8); align-items: start; }
+    .account-sidebar { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); overflow: hidden; position: sticky; top: 120px; box-shadow: var(--shadow-sm); }
+    .account-nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--clr-text-2); width: 100%; text-align: left; transition: all 0.2s; border-left: 4px solid transparent; }
+    .account-nav-item:hover { background: var(--clr-bg-3); color: var(--clr-primary); }
+    .account-nav-item.active { background: rgba(108,99,255,0.06); color: var(--clr-primary); border-left-color: var(--clr-primary); }
+    .account-panel { display: none; }
+    .account-panel.active { display: block; animation: fadeIn 0.4s ease; }
+    .prestige-card { background: linear-gradient(135deg, #d4af37 0%, #f9f295 50%, #d4af37 100%); border-radius: var(--radius-lg); padding: var(--space-6); color: #1a1a1a; display: flex; align-items: center; gap: 24px; margin-bottom: var(--space-8); box-shadow: 0 10px 20px rgba(212,175,55,0.2); }
+    .card-account { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); padding: var(--space-8); box-shadow: var(--shadow-sm); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 992px) { .account-layout { grid-template-columns: 1fr; } .account-sidebar { position: static; margin-bottom: 30px; } }
+  </style>
+</head>
+<body class="account-page-body">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" id="nav-search-input" placeholder="Search curated catalog..." autocomplete="off">
+        <div class="search-results-dropdown hidden" id="search-results-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <select id="currency-select" class="currency-select">
+        <option value="INR">₹ INR</option>
+        <option value="USD">$ USD</option>
+      </select>
+
+      <div class="dropdown" id="nav-user-menu">
+        <button class="nav-action-btn" id="user-dropdown-toggle">
+          <div class="avatar avatar-sm" id="nav-avatar-initials">U</div>
+          <span class="nav-btn-label" id="nav-user-name-short">Me</span>
+        </button>
+        <div class="dropdown-menu" id="user-dropdown-menu">
+          <div class="user-dropdown-header">
+            <div class="user-name" id="nav-user-name">User</div>
+            <div class="user-email" id="nav-user-email">user@email.com</div>
+          </div>
+          <a href="account.html" class="dropdown-item">👤 My Account</a>
+          <a href="orders.html" class="dropdown-item">📦 My Orders</a>
+          <a href="wishlist.html" class="dropdown-item">❤️ Wishlist</a>
+          <div class="dropdown-divider"></div>
+          <a href="../seller/seller.html" class="dropdown-item">🏪 Seller Dashboard</a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" id="logout-btn" style="color:var(--clr-danger)">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <a href="wishlist.html" class="nav-action-btn" title="Wishlist">
+        <span>❤️</span>
+        <span class="nav-btn-label">Wishlist</span>
+      </a>
+
+      <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ CATEGORY NAV BAR ══ -->
+  <div class="cat-navbar" id="cat-navbar">
+    <div class="cat-navbar-inner">
+      <!-- Dynamic links injected by store.js -->
+    </div>
+  </div>
+</header>
+
+<main class="store-main">
+  <div class="page-container" style="padding-top:var(--space-10)">
+    <div class="section-title-row" style="margin-bottom:var(--space-8)">
+      <h1 class="section-heading">My Account</h1>
+    </div>
+
+    <div class="account-layout">
+      <!-- Sidebar Nav -->
+      <div class="account-sidebar">
+        <button class="account-nav-item active" onclick="showPanel('profile')">👤 Profile Overview</button>
+        <button class="account-nav-item" onclick="showPanel('addresses')">📍 Saved Addresses</button>
+        <a href="orders.html" class="account-nav-item" style="text-decoration:none">📦 My Orders</a>
+        <a href="wishlist.html" class="account-nav-item" style="text-decoration:none">❤️ My Wishlist</a>
+        <div style="border-top:1px solid var(--clr-border); margin-top:20px; padding:10px 0">
+          <button class="account-nav-item" id="account-logout-btn" style="color:var(--clr-danger)">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <!-- Content Panels -->
+      <div class="account-panels-container">
+        <!-- Profile Panel -->
+        <div class="account-panel active" id="panel-profile">
+          <div class="card-account">
+            <!-- Prestige Points -->
+            <div class="prestige-card">
+              <div style="font-size:3rem">🏆</div>
+              <div>
+                <div style="font-size:0.8rem; text-transform:uppercase; font-weight:900; letter-spacing:0.12em; opacity:0.8">Prestige Rewards Status</div>
+                <div style="font-size:2.4rem; font-weight:900; line-height:1"><span id="account-points-balance">2,450</span> PTS</div>
+                <div style="font-size:0.8rem; margin-top:6px; font-weight:600; background:rgba(255,255,255,0.4); display:inline-block; padding:2px 8px; border-radius:4px">Gold Tier Member</div>
+              </div>
+            </div>
+
+            <h3 style="margin-bottom:var(--space-6); font-size:1.2rem; font-family:var(--font-heading)">Personal Curations</h3>
+            <form id="profile-form" style="display:grid; gap:var(--space-5)">
+              <div class="form-group">
+                <label class="form-label">Display Name</label>
+                <input class="form-control" id="prof-name" type="text" placeholder="Your full name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Handle (Private)</label>
+                <input class="form-control" id="prof-email" type="email" readonly style="background:var(--clr-bg-3); cursor:not-allowed">
+                <small style="color:var(--clr-text-3); display:block; margin-top:4px">Email cannot be changed once verified.</small>
+              </div>
+              <div style="margin-top:10px">
+                <button type="button" class="btn btn-primary" id="save-profile-btn" style="height:50px; padding:0 30px">Update Profile Details</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Addresses Panel -->
+        <div class="account-panel" id="panel-addresses">
+          <div class="card-account">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-6)">
+              <h3 style="font-size:1.2rem; font-family:var(--font-heading)">Address Book</h3>
+              <button class="btn btn-outline btn-sm" id="add-new-address-btn">+ Add New Address</button>
+            </div>
+            <div id="address-list">
+              <div style="text-align:center; padding:60px; color:var(--clr-text-3); font-style:italic">No saved addresses found. Add one to speed up checkout.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ GLOBAL FOOTER & MODALS ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=3"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=5"></script>
+<script>
+  function showPanel(name) {
+    document.querySelectorAll('.account-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.account-nav-item').forEach(b => b.classList.remove('active'));
+    const panel = document.getElementById('panel-' + name);
+    if (panel) panel.classList.add('active');
+    document.querySelectorAll('.account-nav-item').forEach(b => {
+      if (b.getAttribute('onclick')?.includes(name)) b.classList.add('active');
+    });
+    if (name === 'addresses' && typeof renderAccountAddresses === 'function') renderAccountAddresses();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = Auth.getBuyer();
+    if (!user) { window.location.href = 'index.html'; return; }
+
+    // Initial state
+    const nameInput = document.getElementById('prof-name');
+    const emailInput = document.getElementById('prof-email');
+    if (nameInput) nameInput.value = user.name || '';
+    if (emailInput) emailInput.value = user.email || '';
+    
+    // Points
+    const pointsEl = document.getElementById('account-points-balance');
+    if (pointsEl) {
+      const orders = Store.getOrders().filter(o => o.userId === user.id);
+      const totalSpent = orders.reduce((acc, o) => acc + o.total, 0);
+      pointsEl.textContent = Math.floor(totalSpent).toLocaleString();
+    }
+
+    // Save Profile
+    document.getElementById('save-profile-btn')?.addEventListener('click', () => {
+      const updated = Auth.updateBuyer({ name: document.getElementById('prof-name').value.trim() });
+      if (updated) {
+        showToast('Profile Updated', 'Your changes have been saved successfully.', 'success');
+        updateAuthUI();
+      }
+    });
+
+    // Logout
+    document.getElementById('account-logout-btn')?.addEventListener('click', () => {
+      Auth.logoutBuyer();
+      window.location.href = 'index.html';
+    });
+    
+    document.getElementById('add-new-address-btn')?.addEventListener('click', () => {
+       if (typeof openAddressModal === 'function') openAddressModal();
+    });
+  });
+</script>
+</body>
+</html>

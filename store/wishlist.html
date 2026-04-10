@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Wishlist | Arvaan Collective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=5.1">
+  <style>
+    .wishlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-6); margin-bottom: 60px; }
+    .wishlist-card-new { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); overflow: hidden; transition: all 0.3s ease; position: relative; display: flex; flex-direction: column; }
+    .wishlist-card-new:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: var(--clr-primary-light); }
+    .wishlist-img-wrapper { position: relative; aspect-ratio: 1/1; overflow: hidden; }
+    .wishlist-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .wishlist-card-new:hover .wishlist-img { transform: scale(1.08); }
+    .wishlist-remove-btn { position: absolute; top: 12px; right: 12px; background: #fff; color: var(--clr-danger); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); z-index: 5; transition: all 0.2s; }
+    .wishlist-remove-btn:hover { background: var(--clr-danger); color: #fff; transform: scale(1.1); }
+    .wishlist-body { padding: var(--space-5); flex: 1; display: flex; flex-direction: column; }
+    .wishlist-cat { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--clr-text-3); margin-bottom: 6px; letter-spacing: 0.05em; }
+    .wishlist-name { font-size: 1rem; font-weight: 700; margin-bottom: 12px; line-height: 1.4; color: var(--clr-text); }
+    .wishlist-price { font-size: 1.1rem; font-weight: 900; color: var(--clr-primary); margin-bottom: 20px; margin-top: auto; }
+  </style>
+</head>
+<body class="wishlist-page-body">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" id="nav-search-input" placeholder="Search your saved curations..." autocomplete="off">
+        <div class="search-results-dropdown hidden" id="search-results-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <select id="currency-select" class="currency-select">
+        <option value="INR">₹ INR</option>
+        <option value="USD">$ USD</option>
+      </select>
+
+      <div class="dropdown" id="nav-user-menu">
+        <button class="nav-action-btn" id="user-dropdown-toggle">
+          <div class="avatar avatar-sm" id="nav-avatar-initials">U</div>
+          <span class="nav-btn-label" id="nav-user-name-short">Me</span>
+        </button>
+        <div class="dropdown-menu" id="user-dropdown-menu">
+           <div class="user-dropdown-header">
+            <div class="user-name" id="nav-user-name">User</div>
+            <div class="user-email" id="nav-user-email">user@email.com</div>
+          </div>
+          <a href="account.html" class="dropdown-item">👤 My Account</a>
+          <a href="orders.html" class="dropdown-item">📦 My Orders</a>
+          <a href="wishlist.html" class="dropdown-item">❤️ Wishlist</a>
+          <div class="dropdown-divider"></div>
+          <a href="../seller/seller.html" class="dropdown-item">🏪 Seller Dashboard</a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" id="logout-btn" style="color:var(--clr-danger)">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <a href="wishlist.html" class="nav-action-btn active" title="Wishlist">
+        <span>❤️</span>
+        <span class="nav-btn-label">Wishlist</span>
+      </a>
+
+      <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ CATEGORY NAV BAR ══ -->
+  <div class="cat-navbar" id="cat-navbar">
+    <div class="cat-navbar-inner">
+      <!-- Dynamic links injected by store.js -->
+    </div>
+  </div>
+</header>
+
+<main class="store-main">
+  <div class="page-container" style="padding-top:var(--space-10)">
+    <div class="section-title-row" style="margin-bottom:var(--space-8)">
+      <div>
+        <h1 class="section-heading">My Wishlist</h1>
+        <p class="text-muted" id="wishlist-count-label">0 items saved</p>
+      </div>
+      <button class="btn btn-primary" id="add-all-to-cart-btn" style="display:none; padding:12px 32px">🛒 Add All Items to Cart</button>
+    </div>
+
+    <div class="wishlist-grid" id="wishlist-grid">
+      <div style="grid-column:1/-1; text-align:center; padding:100px 0; color:var(--clr-text-3)">
+        <div style="font-size:4rem; margin-bottom:20px">💭</div>
+        <h3>Curating your space...</h3>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ GLOBAL FOOTER & MODALS ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=3"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=5"></script>
+<script>
+  function renderWishlist() {
+    if (typeof WishlistMgr === 'undefined') return;
+    const ids = WishlistMgr.get();
+    const products = Store.getProducts().filter(p => ids.includes(p.id));
+    const grid = document.getElementById('wishlist-grid');
+    const countLabel = document.getElementById('wishlist-count-label');
+    const addAllBtn = document.getElementById('add-all-to-cart-btn');
+
+    countLabel.textContent = `${products.length} Curated Item${products.length !== 1 ? 's' : ''}`;
+    addAllBtn.style.display = products.length > 0 ? 'block' : 'none';
+
+    if (products.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:100px 0; background:#fff; border:1px solid var(--clr-border); border-radius:var(--radius-lg)">
+        <div style="font-size:5rem; margin-bottom:24px">🤍</div>
+        <h3 style="font-family:var(--font-heading); font-size:1.8rem">Your wishlist is empty</h3>
+        <p style="color:var(--clr-text-3); margin-top:8px">Find masterpieces you'll love and save them here.</p>
+        <a href="shop.html" class="btn btn-primary" style="margin-top:32px; display:inline-block; padding:14px 40px; text-decoration:none">Start Exploring →</a>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = products.map(p => `
+      <div class="wishlist-card-new">
+        <div class="wishlist-img-wrapper">
+          <img class="wishlist-img" src="${p.images[0]}" alt="${escapeHtml(p.name)}" onerror="this.src='https://placehold.co/400x400/f5f5f5/999?text=Product'">
+          <button class="wishlist-remove-btn" onclick="removeFromWishlist('${p.id}')" title="Remove curation">✕</button>
+        </div>
+        <div class="wishlist-body">
+          <div class="wishlist-cat">${escapeHtml(p.category)}</div>
+          <div class="wishlist-name">${escapeHtml(p.name)}</div>
+          <div class="wishlist-price">${formatCurrency(p.price)}</div>
+          <button class="btn btn-primary btn-sm w-full" style="height:44px" onclick="addToCartFromWishlist('${p.id}')">🛒 Add to Cart</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function removeFromWishlist(id) {
+    WishlistMgr.toggle(id);
+    renderWishlist();
+    showToast('Removed', 'Item removed from your wishlist.', 'info');
+  }
+
+  function addToCartFromWishlist(id) {
+    if (typeof Cart !== 'undefined') {
+      Cart.add(id, 1);
+      showToast('Added! 🛒', 'Item added to your cart.', 'success');
+      if (UI.get('cart-overlay')) UI.get('cart-overlay').classList.add('open');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initial render
+    renderWishlist();
+
+    const addAllBtn = document.getElementById('add-all-to-cart-btn');
+    if (addAllBtn) {
+      addAllBtn.onclick = () => {
+        WishlistMgr.get().forEach(id => Cart.add(id, 1));
+        showToast('All Added! 🛒', 'Everything in your wishlist is now in your cart.', 'success');
+        if (UI.get('cart-overlay')) UI.get('cart-overlay').classList.add('open');
+      };
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics | Arvaan Collective Seller Center</title>
+  <link rel="stylesheet" href="../css/base.css?v=1.2">
+  <link rel="stylesheet" href="../css/components.css?v=1.2">
+  <link rel="stylesheet" href="../css/seller.css?v=1.2">
+</head>
+<body>
+
+<div class="seller-app" id="seller-app">
+
+  <!-- SIDEBAR -->
+  <aside class="seller-sidebar" id="seller-sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon" style="width:32px;height:32px;font-size:.9rem;display:flex;align-items:center;justify-content:center;background:var(--grad-primary);border-radius:var(--radius-sm)">🏪</div>
+      <div class="sidebar-brand">Arvaan<span> Collective</span></div>
+    </div>
+
+    <nav class="seller-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="seller-dashboard.html" class="nav-item" data-page="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="seller-products.html" class="nav-item" data-page="products">
+        <span class="nav-icon">📦</span> Products
+      </a>
+      <a href="seller-promotions.html" class="nav-item" data-page="promotions">
+        <span class="nav-icon">🏷️</span> Promotions
+      </a>
+      <a href="seller-orders.html" class="nav-item" data-page="orders">
+        <span class="nav-icon">📋</span> Orders
+        <span class="nav-badge" id="orders-nav-badge" style="display:none">0</span>
+      </a>
+      <a href="seller-reviews.html" class="nav-item" data-page="reviews">
+        <span class="nav-icon">⭐</span> Reviews
+      </a>
+      <div class="nav-section-label">Insights</div>
+      <a href="seller-analytics.html" class="nav-item active" data-page="analytics">
+        <span class="nav-icon">📈</span> Analytics
+      </a>
+      <a href="seller-financials.html" class="nav-item" data-page="financials">
+        <span class="nav-icon">💰</span> Financials
+      </a>
+      <div class="nav-section-label">Account</div>
+      <a href="seller-settings.html" class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+      <div class="nav-item">
+        <a href="../store/index.html" style="display:flex;align-items:center;gap:var(--space-3);color:inherit;width:100%">
+          <span class="nav-icon">🛍️</span> View Store
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:var(--space-3)">
+        <div class="avatar avatar-sm" id="sidebar-seller-avatar">S</div>
+        <div style="overflow:hidden">
+          <div style="font-size:.82rem;font-weight:600;white-space:nowrap" id="sidebar-seller-name">Seller</div>
+          <div style="font-size:.72rem;color:var(--clr-text-3);white-space:nowrap" id="sidebar-seller-email">seller@email.com</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm w-full" id="seller-logout-btn" style="margin-top:var(--space-3)">🚪 Log Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="seller-main">
+    <header class="seller-topbar">
+      <div style="display:flex;align-items:center;gap:var(--space-4)">
+        <button class="btn btn-icon btn-ghost sidebar-toggle" id="sidebar-toggle-btn">☰</button>
+        <h2 class="page-title">📈 Analytics</h2>
+      </div>
+      <div class="topbar-actions">
+        <div class="dropdown" id="user-dropdown">
+          <div class="avatar avatar-sm" id="topbar-seller-avatar" style="cursor:pointer" onclick="toggleUserDropdown(event)"></div>
+          <div class="dropdown-menu" id="user-dropdown-menu">
+            <div class="user-dropdown-header">
+              <div class="user-name" id="dropdown-seller-name">Seller</div>
+              <div class="user-email" id="dropdown-seller-email">seller@email.com</div>
+            </div>
+            <a href="seller-settings.html" class="dropdown-item">⚙️ Settings</a>
+            <a href="seller-financials.html" class="dropdown-item">💰 Financials</a>
+            <div class="divider"></div>
+            <div class="dropdown-item" onclick="Auth.logoutSeller()">🚪 Log Out</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="seller-content">
+      <section class="page-section active" id="section-analytics">
+        
+        <!-- Header Controls -->
+        <div class="dashboard-controls fade-in-up" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:var(--space-6)">
+          <div class="page-header-left">
+            <h2 style="font-size:1.4rem; font-family:var(--font-heading)">Business Intelligence</h2>
+            <p style="font-size:0.8rem; color:var(--clr-text-3)">Deep dive into your store's performance & demographics</p>
+          </div>
+          <div class="segmented-control glass-card" id="analytics-period-selector" style="padding:4px">
+            <button class="segment" onclick="changeDashboardPeriod(7, this)">7D</button>
+            <button class="segment active" onclick="changeDashboardPeriod(30, this)">30D</button>
+            <button class="segment" onclick="changeDashboardPeriod('all', this)">All Time</button>
+          </div>
+        </div>
+
+        <!-- Geographic Intelligence -->
+        <div class="card glass-card fade-in-up" style="margin-bottom:var(--space-6); animation-delay:0.1s">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center">
+            <h4 style="font-size:0.95rem">🌍 Customer Location Coverage</h4>
+            <div style="font-size:0.75rem; color:var(--clr-text-3)">Global Sales Intensity</div>
+          </div>
+          <div class="card-body" style="padding:var(--space-4); display:grid; grid-template-columns: 2fr 1fr; gap:var(--space-6)">
+            <div id="sales-map-container" style="position:relative; background:rgba(0,0,0,0.02); border-radius:var(--radius-md); min-height:400px; display:flex; align-items:center; justify-content:center; overflow:hidden">
+              <!-- SVG Map will be injected here -->
+              <div id="map-tooltip" class="glass-card" style="position:absolute; display:none; padding:8px 12px; border-radius:8px; font-size:0.75rem; z-index:100; pointer-events:none; box-shadow:var(--shadow-lg)"></div>
+            </div>
+            <div class="map-legend">
+              <h5 style="font-size:0.8rem; margin-bottom:var(--space-4); color:var(--clr-text-2)">Top Regions</h5>
+              <div id="top-regions-list" style="display:flex; flex-direction:column; gap:var(--space-3)">
+                <!-- Dynamic Regions -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-grid" style="grid-template-columns: 1fr 1fr; gap:var(--space-6)">
+          
+          <!-- Top Products -->
+          <div class="card glass-card fade-in-up" style="animation-delay:0.2s">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center">
+              <h4 style="font-size:0.95rem">🏆 Top Performing Products</h4>
+              <div style="font-size:0.75rem; color:var(--clr-text-3)">By Revenue</div>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table class="data-table table-sm">
+                  <thead>
+                    <tr><th>Product</th><th>Units Sold</th><th>Total Revenue</th><th class="text-right">Action</th></tr>
+                  </thead>
+                  <tbody id="top-products-list">
+                    <!-- Dynamic Content -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Customers -->
+          <div class="card glass-card fade-in-up" style="animation-delay:0.3s">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center">
+              <h4 style="font-size:0.95rem">💎 Top Customers (VIPs)</h4>
+              <div style="font-size:0.75rem; color:var(--clr-text-3)">LTV Ranking</div>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table class="data-table table-sm">
+                  <thead>
+                    <tr><th>Customer</th><th>Total Orders</th><th>Sales Value</th><th class="text-right">Level</th></tr>
+                  </thead>
+                  <tbody id="top-customers-list">
+                    <!-- Dynamic Content -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/seller.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    initSellerPage();
+  });
+</script>
+</body>
+</html>
+
+

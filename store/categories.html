@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curated Realms — Arvaan Collective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=5.1">
+</head>
+<body class="categories-page-body">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" id="nav-search-input" placeholder="Search curated realms..." autocomplete="off">
+        <div class="search-results-dropdown hidden" id="search-results-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <select id="currency-select" class="currency-select">
+        <option value="INR">₹ INR</option>
+        <option value="USD">$ USD</option>
+      </select>
+
+      <div class="dropdown" id="nav-user-menu">
+        <button class="nav-action-btn" id="user-dropdown-toggle">
+          <div class="avatar avatar-sm" id="nav-avatar-initials">U</div>
+          <span class="nav-btn-label" id="nav-user-name-short">Me</span>
+        </button>
+        <div class="dropdown-menu" id="user-dropdown-menu">
+          <div class="user-dropdown-header">
+            <div class="user-name" id="nav-user-name">User</div>
+            <div class="user-email" id="nav-user-email">user@email.com</div>
+          </div>
+          <a href="account.html" class="dropdown-item">👤 My Account</a>
+          <a href="orders.html" class="dropdown-item">📦 My Orders</a>
+          <a href="wishlist.html" class="dropdown-item">❤️ Wishlist</a>
+          <div class="dropdown-divider"></div>
+          <a href="../seller/seller.html" class="dropdown-item">🏪 Seller Dashboard</a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" id="logout-btn" style="color:var(--clr-danger)">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <a href="wishlist.html" class="nav-action-btn" title="Wishlist">
+        <span>❤️</span>
+        <span class="nav-btn-label">Wishlist</span>
+      </a>
+
+      <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ CATEGORY NAV BAR ══ -->
+  <div class="cat-navbar" id="cat-navbar">
+    <div class="cat-navbar-inner">
+      <!-- Dynamic links injected by store.js -->
+    </div>
+  </div>
+</header>
+
+<main class="store-main">
+  <div class="page-container" style="padding-top:var(--space-10)">
+    <div class="section-title-row" style="margin-bottom:var(--space-12)">
+      <div>
+        <div class="section-eyebrow">Explore The Architecture of Quality</div>
+        <h1 class="section-heading">Curated Realms</h1>
+        <p class="text-muted" style="max-width:600px; margin-top:16px">Our categories aren't just lists; they are meticulously segmented galleries, each a testament to the lifestyle you deserve.</p>
+      </div>
+    </div>
+
+    <div class="categories-explore-grid" id="cat-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:32px; margin-bottom:80px">
+      <!-- Dynamic category realms injected by JS -->
+    </div>
+
+    <!-- Master List CTA -->
+    <section class="promo-feature-banner" style="margin-bottom:80px">
+      <div class="promo-grid" style="grid-template-columns:1fr">
+        <div class="promo-card promo-card-dark" style="text-align:center; padding:60px 40px">
+          <div class="promo-eyebrow">Discover Everything</div>
+          <h2 class="promo-title" style="font-size:2.5rem; margin:16px 0">Unveil Every Masterpiece</h2>
+          <p class="promo-sub" style="max-width:600px; margin:0 auto 32px; font-size:1.1rem">Dive into the complete Arvaan catalog. Filter by essence, price, and brand to find your next acquisition.</p>
+          <a href="shop.html" class="btn btn-primary btn-lg" style="display:inline-block; line-height:30px; text-decoration:none">Browse Full Collection →</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ══ GLOBAL FOOTER & MODALS ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=3"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=5"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Standard initialization is handled by store.js
+    // We just ensure the categories grid is rendered if not already
+    if (typeof renderCategoryGrid === 'function') {
+      renderCategoryGrid('cat-grid', true); // true for large cards
+    }
+  });
+</script>
+</body>
+</html>

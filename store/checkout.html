@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | Arvaan Collective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=5.1">
+  <style>
+    .checkout-layout { display: grid; grid-template-columns: 1fr 380px; gap: var(--space-8); align-items: start; }
+    .checkout-steps { display: flex; gap: 0; margin-bottom: var(--space-8); border-bottom: 1px solid var(--clr-border); padding-bottom: 20px; }
+    .checkout-step-item { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--clr-text-3); flex: 1; }
+    .checkout-step-item.active { color: var(--clr-primary); }
+    .checkout-step-item.done { color: var(--clr-success); }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--clr-bg-3); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; transition: all 0.3s; }
+    .checkout-step-item.active .step-num { background: var(--clr-primary); color: #fff; transform: scale(1.1); }
+    .checkout-step-item.done .step-num { background: var(--clr-success); color: #fff; }
+    .order-summary-sidebar { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); padding: var(--space-6); position: sticky; top: 120px; box-shadow: var(--shadow-sm); }
+    .checkout-panel { display: none; margin-bottom: 40px; }
+    .checkout-panel.active { display: block; animation: fadeIn 0.4s ease; }
+    .card-checkout { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-4); }
+    .success-screen { text-align: center; padding: var(--space-16) var(--space-6); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 992px) { .checkout-layout { grid-template-columns: 1fr; } .order-summary-sidebar { position: static; } }
+  </style>
+</head>
+<body class="checkout-page-body">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger" style="pointer-events:none; opacity:0.5">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" placeholder="Checkout mode..." disabled>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+       <a href="index.html" class="btn btn-ghost btn-sm">← Continue Shopping</a>
+       <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main class="store-main">
+  <div class="page-container" style="padding-top:var(--space-10)">
+    <div class="section-title-row" style="margin-bottom:var(--space-8)">
+      <h1 class="section-heading">Secure Checkout</h1>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="checkout-steps" id="step-indicator">
+      <div class="checkout-step-item active" id="step-label-1"><div class="step-num">1</div> Address</div>
+      <div class="checkout-step-item" id="step-label-2"><div class="step-num">2</div> Payment</div>
+      <div class="checkout-step-item" id="step-label-3"><div class="step-num">3</div> Review</div>
+    </div>
+
+    <div class="checkout-layout" id="checkout-main-layout">
+      <!-- Left: Panels -->
+      <div class="checkout-panels-container">
+        <!-- Panel 1: Address -->
+        <div class="checkout-panel active" id="panel-1">
+          <div class="card-checkout">
+            <h3 style="font-size:1.2rem; margin-bottom:var(--space-6)">📍 Shipping Address</h3>
+            <div id="saved-addresses-selector" style="display:none; margin-bottom:var(--space-6)">
+              <div style="font-size:0.75rem; font-weight:800; color:var(--clr-text-3); text-transform:uppercase; margin-bottom:12px; letter-spacing:0.05em">Recently Used Addresses</div>
+              <div id="checkout-address-list" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:12px"></div>
+              <div class="divider" style="height:1px; background:var(--clr-border); margin:24px 0"></div>
+            </div>
+            <form id="address-form" style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4)">
+              <div style="grid-column:span 2"><label class="form-label">Full Name *</label><input class="form-control" placeholder="Recipient name" id="addr-name" required></div>
+              <div style="grid-column:span 2"><label class="form-label">Address Line 1 *</label><input class="form-control" placeholder="House/Flat No, Street, Landmark" id="addr-line1" required></div>
+              <div><label class="form-label">City *</label><input class="form-control" placeholder="Mumbai" id="addr-city" required></div>
+              <div><label class="form-label">Zip/Postal Code *</label><input class="form-control" placeholder="400001" id="addr-zip" required></div>
+            </form>
+
+            <div style="margin-top:var(--space-8); padding:var(--space-5); background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.2); border-radius:var(--radius-lg); display:flex; justify-content:space-between; align-items:center">
+              <div>
+                <div style="font-weight:800; color:var(--clr-primary); font-size:1rem">🎁 Premium Gift Wrapping (+<span id="gift-wrap-price">₹149</span>)</div>
+                <div style="font-size:0.8rem; color:var(--clr-text-2); margin-top:4px">Luxury gold embossed paper with a personalized card</div>
+              </div>
+              <input type="checkbox" id="gift-wrap-toggle" style="width:24px; height:24px; cursor:pointer; accent-color:var(--clr-primary)">
+            </div>
+            
+            <div style="margin-top:24px">
+              <label class="form-label">Special Order Notes (optional)</label>
+              <textarea class="form-control" id="order-notes" rows="3" placeholder="Any specific delivery instructions..."></textarea>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <button class="btn btn-primary" id="next-1" style="height:60px; padding:0 40px; font-size:1.1rem">Continue to Payment →</button>
+          </div>
+        </div>
+
+        <!-- Panel 2: Payment -->
+        <div class="checkout-panel" id="panel-2">
+          <div class="card-checkout">
+            <h3 style="font-size:1.2rem; margin-bottom:var(--space-6)">💳 Payment Method</h3>
+            <div style="display:flex; flex-direction:column; gap:12px">
+              <label style="display:flex; align-items:center; gap:16px; padding:var(--space-5); border:1px solid var(--clr-border); border-radius:var(--radius-lg); cursor:pointer; transition:all 0.2s" class="payment-method-label">
+                <input type="radio" name="payment" value="Card" checked style="width:20px; height:20px; accent-color:var(--clr-primary)">
+                <div>
+                  <div style="font-weight:700">Credit / Debit Card</div>
+                  <div style="font-size:0.75rem; color:var(--clr-text-3)">Visa, Mastercard, RuPay, Amex</div>
+                </div>
+              </label>
+              <label style="display:flex; align-items:center; gap:16px; padding:var(--space-5); border:1px solid var(--clr-border); border-radius:var(--radius-lg); cursor:pointer; transition:all 0.2s" class="payment-method-label">
+                <input type="radio" name="payment" value="UPI" style="width:20px; height:20px; accent-color:var(--clr-primary)">
+                <div>
+                  <div style="font-weight:700">UPI / Google Pay / PhonePe</div>
+                  <div style="font-size:0.75rem; color:var(--clr-text-3)">Scan & Pay or direct VPA</div>
+                </div>
+              </label>
+              <label style="display:flex; align-items:center; gap:16px; padding:var(--space-5); border:1px solid var(--clr-border); border-radius:var(--radius-lg); cursor:pointer; transition:all 0.2s" class="payment-method-label">
+                <input type="radio" name="payment" value="COD" style="width:20px; height:20px; accent-color:var(--clr-primary)">
+                <div>
+                  <div style="font-weight:700">Cash on Delivery</div>
+                  <div style="font-size:0.75rem; color:var(--clr-text-3)">Pay when your collection arrives</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:var(--space-4)">
+            <button class="btn btn-outline" id="back-2" style="height:56px; padding:0 30px">← Back</button>
+            <button class="btn btn-primary" id="next-2" style="height:56px; padding:0 40px; font-size:1.1rem">Review Order →</button>
+          </div>
+        </div>
+
+        <!-- Panel 3: Review -->
+        <div class="checkout-panel" id="panel-3">
+          <div class="card-checkout">
+            <h3 style="font-size:1.2rem; margin-bottom:var(--space-6)">📋 Final Review</h3>
+            <div id="review-items" style="display:flex; flex-direction:column; gap:16px"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:var(--space-4)">
+            <button class="btn btn-outline" id="back-3" style="height:56px; padding:0 30px">← Back</button>
+            <button class="btn btn-primary" id="place-order-btn" style="height:60px; padding:0 60px; font-size:1.2rem; background:var(--clr-success); border:none">✅ Confirm & Place Order</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Summary -->
+      <div class="order-summary-sidebar">
+        <h3 style="font-size:1.1rem; border-bottom:1px solid var(--clr-border); padding-bottom:12px; margin-bottom:20px">Order Summary</h3>
+        <div id="summary-items" style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px; max-height:300px; overflow-y:auto"></div>
+        <div style="display:flex; flex-direction:column; gap:10px; border-top:1px solid var(--clr-border); padding-top:20px">
+          <div style="display:flex; justify-content:space-between; color:var(--clr-text-2)"><span>Subtotal</span><span id="sum-subtotal">₹0</span></div>
+          <div style="display:flex; justify-content:space-between; color:var(--clr-text-2)"><span>Shipping</span><span id="sum-shipping" style="color:var(--clr-success); font-weight:700">FREE</span></div>
+          <div style="display:flex; justify-content:space-between; color:var(--clr-text-2)"><span>Taxes (GST)</span><span id="sum-tax">₹0</span></div>
+          <div id="gift-wrap-line" style="display:none; justify-content:space-between; color:var(--clr-primary); font-weight:600"><span>🎁 Gift Wrap</span><span id="sum-gift-wrap">₹149</span></div>
+          <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.4rem; border-top:2px solid var(--clr-primary); padding-top:16px; margin-top:10px"><span>Total</span><span id="sum-total">₹0</span></div>
+        </div>
+
+        <div style="margin-top:24px; display:flex; gap:8px">
+          <input type="text" id="promo-input" class="form-control" placeholder="Promo Code" style="height:48px">
+          <button class="btn btn-outline btn-sm" onclick="PromoMgr.apply(document.getElementById('promo-input').value)" style="height:48px">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success screen -->
+    <div class="checkout-panel success-screen" id="panel-success">
+      <div style="font-size:6rem; margin-bottom:24px">🎉</div>
+      <h2 style="font-family:var(--font-heading); font-size:2.8rem; margin-bottom:12px">Order Placed!</h2>
+      <p style="color:var(--clr-text-2); max-width:500px; margin:0 auto 32px; font-size:1.1rem; line-height:1.6">Thank you for choosing Arvaan Collective. Your order has been registered and is being prepared for dispatch.</p>
+      <div id="success-order-id" style="font-family:monospace; font-size:1.4rem; font-weight:900; color:var(--clr-primary); background:var(--clr-bg-3); display:inline-block; padding:12px 24px; border-radius:var(--radius-md); margin-bottom:40px">Order ID: ORD-001</div>
+      <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap">
+        <a href="orders.html" class="btn btn-outline" style="height:60px; padding:0 30px; line-height:58px; text-decoration:none">📦 Track Order Status</a>
+        <a href="index.html" class="btn btn-primary" style="height:60px; padding:0 40px; line-height:60px; text-decoration:none">🛍️ Return to Shop</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ GLOBAL FOOTER & MODALS ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=3"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=5"></script>
+<script>
+  function goToStep(step) {
+    StoreState.checkoutStep = step;
+    renderCheckoutStep();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    
+    // Update step indicator
+    document.querySelectorAll('.checkout-step-item').forEach((el, idx) => {
+      const s = idx + 1;
+      el.classList.toggle('active', s === step);
+      el.classList.toggle('done', s < step);
+    });
+  }
+
+  function updateSummary() {
+    UI.safeHTML('sum-subtotal', formatCurrency(Cart.subtotal()));
+    UI.safeHTML('sum-shipping', Cart.shipping() === 0 ? 'FREE' : formatCurrency(Cart.shipping()));
+    UI.safeHTML('sum-tax', formatCurrency(Cart.tax()));
+    
+    if (UI.get('gift-wrap-line')) {
+      UI.get('gift-wrap-line').style.display = StoreState.isGiftWrapped ? 'flex' : 'none';
+      UI.safeHTML('sum-gift-wrap', formatCurrency(149));
+    }
+    UI.safeHTML('sum-total', formatCurrency(Cart.total() + (StoreState.isGiftWrapped ? 149 : 0)));
+
+    const summaryItems = UI.get('summary-items');
+    if (summaryItems) {
+      summaryItems.innerHTML = Cart.get().map(item => `
+        <div style="display:flex; gap:16px; align-items:center">
+          <div style="position:relative">
+            <img src="${item.image}" style="width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid var(--clr-border)">
+            <span style="position:absolute; top:-8px; right:-8px; background:var(--clr-primary); color:#fff; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800">${item.qty}</span>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:0.85rem; font-weight:700; color:var(--clr-text)">${escapeHtml(item.name)}</div>
+            <div style="font-size:0.8rem; color:var(--clr-text-3)">Unit: ${formatCurrency(item.price)}</div>
+          </div>
+          <div style="font-size:0.9rem; font-weight:900">${formatCurrency(item.price * item.qty)}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  function renderReview() {
+    const reviewEl = UI.get('review-items');
+    if (!reviewEl) return;
+    reviewEl.innerHTML = Cart.get().map(item => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--clr-border)">
+        <div>
+          <div style="font-weight:700">${escapeHtml(item.name)}</div>
+          <div style="font-size:0.8rem; color:var(--clr-text-3)">Quantity: ${item.qty}</div>
+        </div>
+        <span style="font-weight:900">${formatCurrency(item.price * item.qty)}</span>
+      </div>
+    `).join('') + (StoreState.isGiftWrapped ? `<div style="display:flex; justify-content:space-between; padding:16px 0; border-bottom:1px solid var(--clr-border); color:var(--clr-primary); font-weight:700"><span>🎁 Gift Wrapping Service</span><span>${formatCurrency(149)}</span></div>` : '') +
+    `<div style="display:flex; justify-content:space-between; padding:24px 0; font-weight:900; font-size:1.4rem"><span>Grand Total</span><span>${formatCurrency(Cart.total() + (StoreState.isGiftWrapped ? 149 : 0))}</span></div>`;
+  }
+
+  function renderSavedAddresses() {
+    const user = Auth.getBuyer();
+    if (!user) return;
+    const addresses = JSON.parse(localStorage.getItem(`arvaan_addresses_${user.id}`) || '[]');
+    const selector = UI.get('saved-addresses-selector');
+    const container = UI.get('checkout-address-list');
+    if (!container || !selector || addresses.length === 0) return;
+    selector.style.display = 'block';
+    container.innerHTML = addresses.map(a => `
+      <div style="padding:16px; border:2px solid ${StoreState.selectedAddressId===a.id?'var(--clr-primary)':'var(--clr-border)'}; border-radius:var(--radius-lg); cursor:pointer; min-width:180px; background:${StoreState.selectedAddressId===a.id?'rgba(108,99,255,0.06)':'#fff'}; transition:all 0.2s" onclick="selectAddr('${a.id}','${escapeHtml(a.name)}','${escapeHtml(a.line1)}','${escapeHtml(a.city)}','${escapeHtml(a.zip)}')">
+        <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px; color:var(--clr-primary)">${escapeHtml(a.name)}</div>
+        <div style="font-size:0.75rem; color:var(--clr-text-2); line-height:1.4">${escapeHtml(a.line1)}<br>${escapeHtml(a.city)}, ${escapeHtml(a.zip)}</div>
+      </div>`).join('');
+  }
+
+  function selectAddr(id, name, line1, city, zip) {
+    StoreState.selectedAddressId = id;
+    UI.safeSet('addr-name', 'value', name);
+    UI.safeSet('addr-line1', 'value', line1);
+    UI.safeSet('addr-city', 'value', city);
+    UI.safeSet('addr-zip', 'value', zip);
+    renderSavedAddresses();
+  }
+
+  function doPlaceOrder() {
+    const user = Auth.getBuyer();
+    const cartItems = Cart.get();
+    if (!cartItems.length) return;
+
+    const orders = Store.getOrders();
+    const newOrder = {
+      id: `ORD-${Date.now().toString().slice(-6)}`,
+      userId: user.id,
+      subtotal: Cart.subtotal(),
+      shipping: Cart.shipping(),
+      tax: Cart.tax(),
+      giftWrapFee: StoreState.isGiftWrapped ? 149 : 0,
+      total: Cart.total() + (StoreState.isGiftWrapped ? 149 : 0),
+      status: 'pending',
+      date: new Date().toISOString().slice(0, 10),
+      items: cartItems,
+      address: `${UI.get('addr-name').value}, ${UI.get('addr-line1').value}, ${UI.get('addr-city').value} - ${UI.get('addr-zip').value}`,
+      paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'Card',
+      isGiftWrapped: StoreState.isGiftWrapped,
+      orderNotes: UI.get('order-notes').value.trim()
+    };
+
+    orders.push(newOrder);
+    Store.setOrders(orders);
+    Cart.clear();
+
+    // Show success screen
+    document.getElementById('checkout-main-layout').style.display = 'none';
+    document.getElementById('step-indicator').style.display = 'none';
+    document.querySelectorAll('.checkout-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-success').classList.add('active');
+    document.getElementById('success-order-id').textContent = `Order ID: ${newOrder.orderId || newOrder.id}`;
+
+    showToast('Success! 🎉', 'Your order has been placed.', 'success');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = Auth.getBuyer();
+    if (!user) { window.location.href = 'index.html'; return; }
+
+    if (Cart.count() === 0 && !UI.get('panel-success')?.classList.contains('active')) {
+      UI.get('checkout-main-layout').innerHTML = `
+        <div style="grid-column:span 2; text-align:center; padding:100px 0">
+          <div style="font-size:5rem">🛒</div>
+          <h2 style="font-family:var(--font-heading); font-size:2rem; margin-top:20px">Your cart is empty</h2>
+          <p style="color:var(--clr-text-3); margin:12px 0 32px">Explore our collection to add masterpieces to your cart.</p>
+          <a href="shop.html" class="btn btn-primary" style="padding:16px 40px; text-decoration:none">Start Shopping →</a>
+        </div>`;
+      return;
+    }
+
+    // Saved Addresses
+    renderSavedAddresses();
+
+    // Gift wrap
+    const giftToggle = UI.get('gift-wrap-toggle');
+    if (giftToggle) {
+      giftToggle.onchange = e => {
+        StoreState.isGiftWrapped = e.target.checked;
+        updateSummary();
+      };
+    }
+    
+    UI.safeHTML('gift-wrap-price', formatCurrency(149));
+    updateSummary();
+
+    // Navigation
+    UI.get('next-1').onclick = () => {
+      if (!UI.get('addr-name').value || !UI.get('addr-line1').value) {
+        showToast('Required Field', 'Please provide a shipping name and address.', 'warning');
+        return;
+      }
+      goToStep(2);
+    };
+    UI.get('next-2').onclick = () => { renderReview(); goToStep(3); };
+    UI.get('back-2').onclick = () => goToStep(1);
+    UI.get('back-3').onclick = () => goToStep(2);
+    UI.get('place-order-btn').onclick = doPlaceOrder;
+  });
+</script>
+</body>
+</html>

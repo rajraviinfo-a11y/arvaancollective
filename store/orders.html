@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders | Arvaan Collective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=5.1">
+  <style>
+    .order-card-new { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); padding: var(--space-6); margin-bottom: var(--space-5); transition: all 0.3s ease; box-shadow: var(--shadow-sm); }
+    .order-card-new:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--clr-primary-light); }
+    .order-status-tabs { display: flex; gap: 10px; margin-bottom: var(--space-8); overflow-x: auto; padding-bottom: 15px; scrollbar-width: thin; border-bottom: 1px solid var(--clr-border); }
+    .o-tab { padding: 12px 24px; font-size: 0.9rem; font-weight: 700; color: var(--clr-text-3); cursor: pointer; border: 1px solid var(--clr-border); border-radius: 30px; background: #fff; white-space: nowrap; transition: all 0.2s; }
+    .o-tab:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
+    .o-tab.active { background: var(--clr-primary); color: #fff; border-color: var(--clr-primary); box-shadow: 0 4px 10px rgba(108,99,255,0.3); }
+    .timeline-new { display: flex; gap: 6px; margin: 20px 0; }
+    .timeline-segment { flex: 1; height: 6px; border-radius: 10px; background: var(--clr-bg-3); position: relative; }
+    .timeline-segment.active { background: var(--clr-primary); box-shadow: 0 0 8px rgba(108,99,255,0.4); }
+    .item-pill { display: flex; align-items: center; gap: 12px; background: var(--clr-bg-3); border-radius: 12px; padding: 10px; min-width: 220px; border: 1px solid transparent; transition: border-color 0.2s; }
+    .item-pill:hover { border-color: var(--clr-border); }
+  </style>
+</head>
+<body class="orders-page-body">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" id="nav-search-input" placeholder="Track your curated items..." autocomplete="off">
+        <div class="search-results-dropdown hidden" id="search-results-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <select id="currency-select" class="currency-select">
+        <option value="INR">₹ INR</option>
+        <option value="USD">$ USD</option>
+      </select>
+
+      <div class="dropdown" id="nav-user-menu">
+        <button class="nav-action-btn" id="user-dropdown-toggle">
+          <div class="avatar avatar-sm" id="nav-avatar-initials">U</div>
+          <span class="nav-btn-label" id="nav-user-name-short">Me</span>
+        </button>
+        <div class="dropdown-menu" id="user-dropdown-menu">
+          <div class="user-dropdown-header">
+            <div class="user-name" id="nav-user-name">User</div>
+            <div class="user-email" id="nav-user-email">user@email.com</div>
+          </div>
+          <a href="account.html" class="dropdown-item">👤 My Account</a>
+          <a href="orders.html" class="dropdown-item">📦 My Orders</a>
+          <a href="wishlist.html" class="dropdown-item">❤️ Wishlist</a>
+          <div class="dropdown-divider"></div>
+          <a href="../seller/seller.html" class="dropdown-item">🏪 Seller Dashboard</a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" id="logout-btn" style="color:var(--clr-danger)">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <a href="wishlist.html" class="nav-action-btn" title="Wishlist">
+        <span>❤️</span>
+        <span class="nav-btn-label">Wishlist</span>
+      </a>
+
+      <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ CATEGORY NAV BAR ══ -->
+  <div class="cat-navbar" id="cat-navbar">
+    <div class="cat-navbar-inner">
+      <!-- Dynamic links injected by store.js -->
+    </div>
+  </div>
+</header>
+
+<main class="store-main">
+  <div class="page-container" style="padding-top:var(--space-10)">
+    <div class="section-title-row" style="margin-bottom:var(--space-8)">
+      <div>
+        <h1 class="section-heading">Order History</h1>
+        <p class="text-muted">Review, track, and manage your past curations.</p>
+      </div>
+      <a href="shop.html" class="btn btn-outline" style="text-decoration:none">🛍️ Continue Shopping</a>
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="order-status-tabs">
+      <button class="o-tab active" onclick="filterOrders('all', this)">All Orders</button>
+      <button class="o-tab" onclick="filterOrders('pending', this)">🕐 Pending</button>
+      <button class="o-tab" onclick="filterOrders('processing', this)">⚙️ Processing</button>
+      <button class="o-tab" onclick="filterOrders('shipped', this)">🚚 Shipped</button>
+      <button class="o-tab" onclick="filterOrders('delivered', this)">✅ Delivered</button>
+    </div>
+
+    <div id="orders-list" style="margin-bottom:60px">
+      <div style="text-align:center; padding:100px 0; color:var(--clr-text-3)">
+        <div style="font-size:4rem; margin-bottom:20px">📦</div>
+        <h3>Curating your order history...</h3>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ GLOBAL FOOTER & MODALS ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=3"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=5"></script>
+<script>
+  let _allOrders = [];
+
+  function filterOrders(status, btn) {
+    document.querySelectorAll('.o-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const filtered = status === 'all' ? _allOrders : _allOrders.filter(o => o.status === status);
+    renderOrdersList(filtered);
+  }
+
+  function renderOrdersList(orders) {
+    const container = document.getElementById('orders-list');
+    if (!container) return;
+    if (!orders.length) {
+      container.innerHTML = `<div style="text-align:center; padding:100px 0; background:#fff; border-radius:var(--radius-lg); border:1px solid var(--clr-border)">
+        <div style="font-size:4rem; margin-bottom:24px">📭</div>
+        <h3 style="font-family:var(--font-heading); font-size:1.5rem">No orders found</h3>
+        <p style="color:var(--clr-text-3); margin-top:8px">Ready to find your next masterpiece?</p>
+        <a href="shop.html" class="btn btn-primary" style="margin-top:24px; display:inline-block; text-decoration:none; padding:12px 32px">Start Discovering →</a>
+      </div>`;
+      return;
+    }
+
+    const stages = ['pending','processing','ready_to_ship','shipped','delivered'];
+    container.innerHTML = orders.map(o => {
+      const idx = stages.indexOf(o.status || 'pending');
+      const timeline = stages.map((s,i) => `<div class="timeline-segment ${i<=idx?'active':''}"></div>`).join('');
+      return `
+        <div class="order-card-new">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+            <div>
+              <div style="font-family:monospace; font-weight:900; font-size:1.1rem; letter-spacing:0.05em; color:var(--clr-primary)">${o.id}</div>
+              <div style="font-size:0.8rem; color:var(--clr-text-3); margin-top:4px">${formatDate(o.date)}</div>
+            </div>
+            ${typeof getStatusBadge === 'function' ? getStatusBadge(o.status) : `<span class="badge">${o.status}</span>`}
+          </div>
+          <div class="timeline-new">${timeline}</div>
+          <div style="display:flex; gap:12px; margin:24px 0; overflow-x:auto; padding-bottom:8px; scrollbar-width:none">
+            ${o.items.map(item => `
+              <div class="item-pill">
+                ${item.image ? `<img src="${item.image}" style="width:48px; height:48px; object-fit:cover; border-radius:8px; border:1px solid var(--clr-border)">` : '<div style="width:48px; height:48px; background:var(--clr-bg-3); border-radius:8px"></div>'}
+                <div style="flex:1">
+                  <div style="font-size:0.85rem; font-weight:800; color:var(--clr-text)">${escapeHtml(item.name)}</div>
+                  <div style="font-size:0.75rem; color:var(--clr-text-3); margin-top:2px">${item.qty} Unit${item.qty>1?'s':''} · ${formatCurrency(item.price)}</div>
+                </div>
+              </div>`).join('')}
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--clr-border); padding-top:20px; margin-top:10px">
+            <div>
+              <span style="font-size:0.85rem; color:var(--clr-text-2)">${o.items.length} Item${o.items.length!==1?'s':''} · Total: </span>
+              <span style="font-weight:900; font-size:1.2rem; color:var(--clr-text)">${formatCurrency(o.total)}</span>
+            </div>
+            <div style="display:flex; gap:12px">
+              <button class="btn btn-outline btn-sm" onclick="showToast('Success', 'Order summary generated', 'info')">📄 Invoice</button>
+              ${o.status==='delivered' ? `<button class="btn btn-primary btn-sm" onclick="reorderItems(${JSON.stringify(o.items.map(i=>i.id))})">🔁 Reorder All</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function reorderItems(ids) {
+    if (typeof Cart !== 'undefined' && Cart.add) {
+      ids.forEach(id => Cart.add(id, 1));
+      showToast('Reordered! 🛒', 'Original items added to your cart.', 'success');
+      if (UI.get('cart-overlay')) UI.get('cart-overlay').classList.add('open');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = Auth.getBuyer();
+    if (user) {
+      _allOrders = (Store.getOrders ? Store.getOrders() : []).filter(o => o.userId === user.id).sort((a,b) => new Date(b.date)-new Date(a.date));
+      renderOrdersList(_allOrders);
+    } else {
+      window.location.href = 'index.html';
+    }
+  });
+</script>
+</body>
+</html>

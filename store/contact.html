@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us — Arvaan Collective</title>
+  <meta name="description" content="Reach out to the Arvaan Collective team for any inquiries, support, or feedback. We're here to assist you with your premium experience.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=5.1">
+</head>
+<body class="contact-page">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+    <span class="announce-item">🎁 Use code <strong>WELCOME10</strong> for 10% off your first order</span>
+    <span class="announce-item">↩️ 30-Day Easy Returns — Zero Hassle</span>
+  </div>
+  <button class="announce-close" onclick="this.closest('.announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header">
+  <nav class="navbar" id="navbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">✦</div>
+      <span>Arvaan <em>Collective</em></span>
+    </a>
+
+    <div class="navbar-center">
+      <div class="search-box-nav" id="nav-search-box-trigger">
+        <span class="search-icon-nav">🔍</span>
+        <input type="text" id="nav-search-input" placeholder="Search products, brands, categories…" autocomplete="off">
+        <div class="search-results-dropdown hidden" id="search-results-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <select id="currency-select" class="currency-select">
+        <option value="INR">₹ INR</option>
+        <option value="USD">$ USD</option>
+      </select>
+
+      <button class="nav-action-btn" id="nav-login-btn" title="Sign In">
+        <span>👤</span>
+        <span class="nav-btn-label">Account</span>
+      </button>
+
+      <a href="wishlist.html" class="nav-action-btn" title="Wishlist">
+        <span>❤️</span>
+        <span class="nav-btn-label">Wishlist</span>
+      </a>
+
+      <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="nav-btn-label">Cart</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ CATEGORY NAV BAR ══ -->
+  <div class="cat-navbar" id="cat-navbar">
+    <div class="cat-navbar-inner">
+      <!-- Dynamic links injected by store.js -->
+    </div>
+  </div>
+</header>
+
+<main class="store-main">
+  <section class="section-block" style="padding: 100px 0;">
+    <div class="page-container">
+      <div class="grid-2" style="gap: 80px;">
+        <!-- INFO SIDE -->
+        <div>
+          <div class="section-eyebrow">Connect with Us</div>
+          <h1 class="section-heading" style="margin-bottom: 30px;">How can we <br>assist you today?</h1>
+          <p class="text-muted" style="margin-bottom: 40px;">Our dedicated concierge and support teams are available around the clock to provide you with the premium experience you expect from Arvaan.</p>
+          
+          <div class="contact-info-list" style="display: flex; flex-direction: column; gap: 30px;">
+            <div style="display: flex; gap: 20px;">
+              <div style="font-size: 1.5rem; background: var(--clr-bg-alt); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">📞</div>
+              <div>
+                <h4 style="margin-bottom: 5px;">Call Us</h4>
+                <p class="text-sm text-muted">+91 012 345 6789 (24/7 Concierge)</p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 20px;">
+              <div style="font-size: 1.5rem; background: var(--clr-bg-alt); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">✉️</div>
+              <div>
+                <h4 style="margin-bottom: 5px;">Email Support</h4>
+                <p class="text-sm text-muted">concierge@arvaancollective.com</p>
+                <p class="text-sm text-muted">media@arvaancollective.com (PR & Media)</p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 20px;">
+              <div style="font-size: 1.5rem; background: var(--clr-bg-alt); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">📍</div>
+              <div>
+                <h4 style="margin-bottom: 5px;">Headquarters</h4>
+                <p class="text-sm text-muted">Arvaan Collective Tower, MG Road,</p>
+                <p class="text-sm text-muted">Gurugram, HR - 122002, India.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORM SIDE -->
+        <div class="card" style="padding: 50px;">
+          <h3 style="margin-bottom: 30px;">Send a Message</h3>
+          <form id="contact-form">
+            <div class="grid-2" style="gap: 20px; margin-bottom: 20px;">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" name="name" placeholder="John Doe" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control" name="email" placeholder="john@example.com" required>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label class="form-label">Subject</label>
+              <select class="form-control" name="subject">
+                <option value="general">General Inquiry</option>
+                <option value="order">Order Support</option>
+                <option value="returns">Returns & Exchanges</option>
+                <option value="seller">Become a Seller</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 30px;">
+              <label class="form-label">Your Message</label>
+              <textarea class="form-control" name="message" rows="6" placeholder="Describe your inquiry..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">Send Inquiry →</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ══ GLOBAL FOOTER & MODALS ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=4"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=7"></script>
+<script>
+  document.getElementById('contact-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    showToast('🎉 Message Sent', 'We have received your inquiry. A concierge will respond within 2-4 hours.', 'success');
+    this.reset();
+  });
+</script>
+</body>
+</html>
