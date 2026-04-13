@@ -11,8 +11,9 @@ try {
 const StoreState = {
   products: [],
   filteredProducts: [],
-  currentCategory: 'All', // Still used for breadcrumbs/single-select views
-  selectedCategories: [], // NEW: Multi-select
+  currentCategory: 'All', 
+  currentSubCategory: null, // NEW: Sub-category filtering
+  selectedCategories: [], 
   selectedBrands: [],     // NEW: Multi-select brands/sellers
   currentFilter: null,    // 'deals', 'new'
   searchQuery: '',
@@ -726,6 +727,9 @@ function applyFilters() {
     list = list.filter(p => StoreState.selectedCategories.includes(p.category));
   } else if (StoreState.currentCategory && StoreState.currentCategory !== 'All') {
     list = list.filter(p => p.category === StoreState.currentCategory);
+    if (StoreState.currentSubCategory) {
+      list = list.filter(p => p.subCategory === StoreState.currentSubCategory);
+    }
   }
 
   // 2. Quick Filters (Deals, New)
@@ -1536,6 +1540,7 @@ function initShopPage() {
   else if (path.includes('fashion.html')) StoreState.currentCategory = 'Fashion';
   
   if (urlParams.get('cat')) StoreState.currentCategory = urlParams.get('cat');
+  if (urlParams.get('subcat')) StoreState.currentSubCategory = urlParams.get('subcat');
   if (urlParams.get('filter')) StoreState.currentFilter = urlParams.get('filter');
   if (urlParams.get('search')) StoreState.searchQuery = urlParams.get('search').toLowerCase();
   
@@ -1609,16 +1614,24 @@ function bindGlobalUI() {
     const target = e.target;
 
     // 1. Dropdown Delegation
-    const isDropdownToggle = target.closest('#user-dropdown-toggle');
-    const isInsideDropdown = target.closest('#nav-user-menu');
+    const isUserToggle = target.closest('#user-dropdown-toggle');
+    const isUserMenu = target.closest('#nav-user-menu');
+    const isCatToggle = target.closest('#categories-dropdown-toggle');
+    const isCatMenu = target.closest('#nav-categories-dropdown');
 
-    if (isDropdownToggle) {
+    if (isUserToggle) {
       const menu = document.getElementById('nav-user-menu');
       if (menu) menu.classList.toggle('active');
       return;
     }
 
-    if (!isInsideDropdown) {
+    if (isCatToggle) {
+      const menu = document.getElementById('nav-categories-dropdown');
+      if (menu) menu.classList.toggle('active');
+      return;
+    }
+
+    if (!isUserMenu && !isCatMenu) {
       closeAllDropdowns();
     }
 
@@ -1721,37 +1734,51 @@ function openCartDrawer() {
 
 
 function renderGlobalNavigation() {
-  const container = document.querySelector('.cat-navbar-inner');
-  if (!container) {
-    const fallback = document.getElementById('cat-navbar');
-    if (fallback && !fallback.querySelector('.cat-navbar-inner')) {
-       fallback.innerHTML = '<div class="cat-navbar-inner"></div>';
-       setTimeout(() => renderGlobalNavigation(), 10);
-       return;
-    }
-    return;
-  }
+  const container = document.getElementById('categories-dropdown-menu');
+  if (!container) return;
 
-  const categories = [
+  const CATEGORIES = [
     { name: 'All', icon: '✨', slug: 'All' },
-    { name: 'Electronics', icon: '📱', slug: 'Electronics' },
-    { name: 'Fashion', icon: '👗', slug: 'Fashion' },
-    { name: 'Furniture', icon: '🛋️', slug: 'Furniture' },
-    { name: 'Kitchen', icon: '☕', slug: 'Kitchen' },
-    { name: 'Wellness', icon: '🌿', slug: 'Wellness' },
-    { name: 'Travel', icon: '🎒', slug: 'Travel' },
-    { name: 'Home Decor', icon: '🏠', slug: 'Home Decor' },
+    { 
+      name: 'Electronics', icon: '📱', slug: 'Electronics',
+      subs: ['Mobiles', 'Tablets', 'Audio'] 
+    },
+    { 
+      name: 'Fashion', icon: '👗', slug: 'Fashion',
+      subs: ['Apparel', 'Footwear']
+    },
+    { 
+      name: 'Furniture', icon: '🛋️', slug: 'Furniture',
+      subs: ['Living Room', 'Workplace'] 
+    },
+    { 
+      name: 'Kitchen', icon: '☕', slug: 'Kitchen',
+      subs: ['Appliances', 'Cooking']
+    },
+    { 
+      name: 'Wellness', icon: '🌿', slug: 'Wellness',
+      subs: ['Personal Care', 'Skincare', 'Fitness']
+    },
+    { 
+      name: 'Travel', icon: '🎒', slug: 'Travel',
+      subs: ['Luggage', 'Outdoor Gear']
+    },
+    { 
+      name: 'Home Decor', icon: '🏠', slug: 'Home Decor',
+      subs: ['Lighting', 'Wall Art']
+    },
     { name: 'Deals', icon: '🔥', slug: 'deals', isFilter: true },
     { name: 'New', icon: '✨', slug: 'new', isFilter: true }
   ];
 
   const params = new URLSearchParams(window.location.search);
   const currentCat = params.get('cat');
+  const currentSub = params.get('subcat');
   const currentFilter = params.get('filter');
   const path = window.location.pathname.toLowerCase();
 
   try {
-    container.innerHTML = categories.map(cat => {
+    container.innerHTML = CATEGORIES.map((cat, idx) => {
       let href = 'shop.html';
       let isActive = false;
 
@@ -1768,11 +1795,26 @@ function renderGlobalNavigation() {
         isActive = currentCat === cat.slug;
       }
 
+      const hasSubs = cat.subs && cat.subs.length > 0;
+      
       return `
-        <a href="${href}" class="cat-nav-link ${isActive ? 'active' : ''} ${cat.isFilter ? 'filter-link' : ''}">
-          <span class="cat-icon">${cat.icon}</span>
-          <span class="cat-name">${cat.name}</span>
-        </a>`;
+        <div class="categories-menu-item-wrap ${hasSubs ? 'has-subs' : ''}">
+          <a href="${href}" class="categories-menu-item ${isActive ? 'active' : ''}">
+            <span class="cat-icon">${cat.icon}</span>
+            <span class="cat-name">${cat.name}</span>
+            ${hasSubs ? '<span class="cat-chevron">›</span>' : ''}
+          </a>
+          ${hasSubs ? `
+            <div class="sub-menu">
+              ${cat.subs.map(sub => `
+                <a href="shop.html?cat=${encodeURIComponent(cat.slug)}&subcat=${encodeURIComponent(sub)}" 
+                   class="sub-menu-item ${currentSub === sub ? 'active' : ''}">
+                  ${sub}
+                </a>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>`;
     }).join('');
   } catch (err) {
     console.error("Failed to render global navigation:", err);

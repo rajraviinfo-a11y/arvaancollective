@@ -6,7 +6,7 @@
   <title>My Wishlist | Arvaan Collective</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/store.css?v=5.1">
+  <link rel="stylesheet" href="../css/store.css?v=8.1">
   <style>
     .wishlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-6); margin-bottom: 60px; }
     .wishlist-card-new { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); overflow: hidden; transition: all 0.3s ease; position: relative; display: flex; flex-direction: column; }
@@ -42,6 +42,17 @@
       <div class="brand-icon">✦</div>
       <span>Arvaan <em>Collective</em></span>
     </a>
+
+    <!-- ══ CATEGORIES DROPDOWN ══ -->
+    <div class="dropdown categories-dropdown" id="nav-categories-dropdown">
+      <button class="nav-action-btn" id="categories-dropdown-toggle">
+        <span>📂</span>
+        <span class="nav-btn-label">Categories</span>
+      </button>
+      <div class="dropdown-menu" id="categories-dropdown-menu">
+        <!-- Categories dynamic links injected by store.js -->
+      </div>
+    </div>
 
     <div class="navbar-center">
       <div class="search-box-nav" id="nav-search-box-trigger">
