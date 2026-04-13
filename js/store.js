@@ -2095,14 +2095,14 @@ function initHomePage() {
   
   // Mapping admin section types to DOM IDs and existing render functions
   const sectionMap = {
-    'hero': { selector: '.hero-container', render: null },
-    'featured-categories': { selector: '.category-grid', render: renderCategoryChips },
-    'featured-products': { selector: '#featured-slider', render: () => renderFeaturedProducts(8) },
-    'promo-banner': { selector: '.promo-grid', render: null },
-    'flash-sale': { selector: '.flash-deals', render: renderFlashDeals },
-    'new-arrivals': { selector: '.trending-grid', render: () => renderTrendingProducts(8) },
-    'testimonials': { selector: '.testimonial-section', render: renderReviews },
-    'newsletter': { selector: '.newsletter', render: null }
+    'hero': { selector: '#hero-section', render: null },
+    'featured-categories': { selector: '#category-grid', render: renderCategoryChips },
+    'featured-products': { selector: '#featured-products', render: () => renderFeaturedProducts(8) },
+    'promo-banner': { selector: '.promo-feature-banner', render: null },
+    'flash-sale': { selector: '#flash-sale-section', render: renderFlashDeals },
+    'new-arrivals': { selector: '#trending-products', render: () => renderTrendingProducts(8) },
+    'testimonials': { selector: '#testimonial-grid', render: renderReviews },
+    'newsletter': { selector: '.newsletter-section', render: null }
   };
 
   const mainEl = document.querySelector('main');
