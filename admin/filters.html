@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Filter Manager | Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-brand">
+          <div class="admin-brand-icon">A</div>
+          <div>
+            <div class="admin-brand-text">Arvaan Admin</div>
+            <div class="admin-brand-sub">Storefront Manager</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="admin-nav">
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Overview</div>
+          <a href="dashboard.html" class="admin-nav-item">
+            <span class="nav-icon">📊</span> Dashboard
+          </a>
+          <a href="#" class="admin-nav-item preview-btn" onclick="openStorefrontPreview(); return false;" style="margin-top: 10px;">
+            <span class="nav-icon">👁️</span> Live Storefront
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Storefront Content</div>
+          <a href="categories.html" class="admin-nav-item">
+            <span class="nav-icon">📁</span> Category Manager
+          </a>
+          <a href="homepage.html" class="admin-nav-item">
+            <span class="nav-icon">🏠</span> Homepage Manager
+          </a>
+          <a href="filters.html" class="admin-nav-item active">
+            <span class="nav-icon">🎛️</span> Filters Manager
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Configuration</div>
+          <a href="settings.html" class="admin-nav-item">
+            <span class="nav-icon">⚙️</span> Site Settings
+          </a>
+        </div>
+      </div>
+      
+      <div class="admin-sidebar-footer">
+        <a href="#" class="admin-nav-item" id="admin-logout-btn">
+          <span class="nav-icon">🚪</span> Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN APP -->
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div class="admin-topbar-title" id="topbar-title">Filters Manager</div>
+        <div class="admin-topbar-right">
+          <div class="admin-topbar-email" id="topbar-email">admin@domain.com</div>
+          <div class="admin-avatar" id="topbar-avatar">A</div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        
+        <div class="admin-page-header">
+          <div>
+            <h1 class="admin-page-title">Sidebar Filters</h1>
+            <p class="admin-page-sub">Configure the product filtering options for each main category.</p>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <select id="category-selector" class="form-select" style="min-width: 200px;"></select>
+            <button class="btn btn-primary" onclick="createNewFilter()">+ Add Filter</button>
+          </div>
+        </div>
+
+        <div class="split-layout">
+          
+          <!-- LEFT: FILTER LIST -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title">Filter Order</h2>
+            </div>
+            <div class="admin-card-body" style="padding: 12px; background: var(--admin-bg);">
+              <div id="filter-list" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- JS Rendered -->
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: CONFIG PANEL -->
+          <div class="admin-card config-panel" id="edit-panel" style="display: none;">
+            <div class="config-panel-header" id="edit-panel-title">
+              Edit Filter
+            </div>
+            <div class="config-panel-body">
+              <form id="filter-form">
+                <input type="hidden" id="f-id">
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Filter Label</label>
+                    <input type="text" id="f-label" class="form-input" required placeholder="e.g. Brand">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">UI Type</label>
+                    <select id="f-type" class="form-select">
+                      <option value="checkbox">Checkbox List (Multi-select)</option>
+                      <option value="radio">Radio Buttons (Single-select)</option>
+                      <option value="dropdown">Dropdown (Single-select)</option>
+                      <option value="range">Slider/Range</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <label class="toggle-wrap" style="margin-top: 6px;">
+                    <div class="toggle">
+                      <input type="checkbox" id="f-active" checked>
+                      <div class="toggle-track"></div>
+                    </div>
+                    <span class="toggle-label text-sm">Active on Storefront</span>
+                  </label>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--admin-border); margin: 24px 0;">
+
+                <!-- Options Input (for checkbox, radio, dropdown) -->
+                <div id="type-options" class="form-group">
+                  <label class="form-label">Filter Options (Type comma and press Enter)</label>
+                  <div class="tags-wrap" id="f-values-wrap">
+                    <input type="text" class="tags-input" placeholder="Add option...">
+                  </div>
+                </div>
+
+                <!-- Range Input (for range) -->
+                <div id="type-range" style="display: none;">
+                  <div class="form-row-3">
+                    <div class="form-group">
+                      <label class="form-label">Min Value</label>
+                      <input type="number" id="f-min" class="form-input" value="0">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Max Value</label>
+                      <input type="number" id="f-max" class="form-input" value="10000">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Step</label>
+                      <input type="number" id="f-step" class="form-input" value="100">
+                    </div>
+                  </div>
+                  <div class="form-group" style="max-width: 33%;">
+                    <label class="form-label">Unit Symbol</label>
+                    <input type="text" id="f-unit" class="form-input" placeholder="e.g. ₹ or kg">
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                  <button type="button" class="btn btn-danger" id="btn-delete" style="margin-right: auto;">Delete</button>
+                  <button type="button" class="btn btn-outline" onclick="closeEditPanel()">Cancel</button>
+                  <button type="submit" class="btn btn-success">Save Filter</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <div class="admin-card config-panel" id="empty-state">
+            <div class="empty-state">
+              <div class="empty-icon">🎛️</div>
+              <div class="empty-title">Select a filter to edit</div>
+              <div class="empty-sub">Choose a filter from the list or add a new one. Each main category has its own distinct filter set.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    adminAuthGuard();
+    setupTopbar('Filters Manager');
+
+    let allFilters = AdminStore.getAllFilters();
+    let categories = AdminStore.getCategories().filter(c => c.isVisible);
+    
+    let currentCatSlug = '';
+    let currentFilters = [];
+    let selectedFilterId = null;
+    let tagsCtrl = null;
+
+    // ── INIT SELECTOR ──
+    const selector = document.getElementById('category-selector');
+    categories.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.slug; opt.textContent = c.name;
+      selector.appendChild(opt);
+    });
+
+    if(categories.length > 0) {
+      currentCatSlug = categories[0].slug;
+      loadFiltersForCategory();
+    }
+
+    selector.addEventListener('change', (e) => {
+      currentCatSlug = e.target.value;
+      closeEditPanel();
+      loadFiltersForCategory();
+    });
+
+    function loadFiltersForCategory() {
+      currentFilters = allFilters[currentCatSlug] || [];
+      renderList();
+    }
+
+    // ── RENDER LIST ──
+    function renderList() {
+      const listEl = document.getElementById('filter-list');
+      listEl.innerHTML = '';
+      
+      currentFilters.sort((a,b) => (a.order || 0) - (b.order || 0));
+
+      if (currentFilters.length === 0) {
+        listEl.innerHTML = `<div class="empty-state" style="padding: 20px;">No filters configured for ${currentCatSlug}.</div>`;
+        return;
+      }
+
+      currentFilters.forEach(f => {
+        const item = document.createElement('div');
+        item.className = `filter-item ${selectedFilterId === f.id ? 'selected' : ''}`;
+        item.dataset.id = f.id;
+        item.innerHTML = `
+          <div class="section-drag">≡</div>
+          <div style="flex:1;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--admin-text);">${f.label}</div>
+            <div style="display:flex; gap:8px; align-items:center; margin-top:4px;">
+              <span class="filter-type-pill type-${f.type}">${f.type}</span>
+              ${!f.isActive ? '<span class="badge badge-gray">Inactive</span>' : ''}
+              <span style="font-size:0.7rem; color:var(--admin-text-2);">${f.values ? f.values.length + ' options' : 'Range'}</span>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-icon" onclick="event.stopPropagation(); editFilter('${f.id}')">✏️</button>
+        `;
+        item.onclick = () => editFilter(f.id);
+        listEl.appendChild(item);
+      });
+
+      enableDragReorder(listEl, '.filter-item', (items) => {
+        const ids = items.map(el => el.dataset.id);
+        currentFilters.forEach(f => { f.order = ids.indexOf(f.id); });
+        saveFilters();
+        adminToast('Filter order updated');
+        renderList();
+      });
+    }
+
+    // ── EDIT / CREATE ──
+    function toggleTypeFields() {
+      const isRange = document.getElementById('f-type').value === 'range';
+      document.getElementById('type-options').style.display = isRange ? 'none' : 'block';
+      document.getElementById('type-range').style.display = isRange ? 'block' : 'none';
+    }
+
+    document.getElementById('f-type').addEventListener('change', toggleTypeFields);
+
+    function closeEditPanel() {
+      selectedFilterId = null;
+      document.getElementById('edit-panel').style.display = 'none';
+      document.getElementById('empty-state').style.display = 'block';
+      renderList();
+    }
+
+    function editFilter(id) {
+      selectedFilterId = id;
+      renderList();
+      
+      const filter = currentFilters.find(f => f.id === id);
+      if(!filter) return;
+
+      document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('edit-panel').style.display = 'block';
+      document.getElementById('edit-panel-title').textContent = `Edit Filter: ${filter.label}`;
+      
+      document.getElementById('f-id').value = filter.id;
+      document.getElementById('f-label').value = filter.label;
+      document.getElementById('f-type').value = filter.type;
+      document.getElementById('f-active').checked = filter.isActive !== false;
+
+      // Type specific
+      toggleTypeFields();
+      if(filter.type === 'range') {
+        document.getElementById('f-min').value = filter.min || 0;
+        document.getElementById('f-max').value = filter.max || 10000;
+        document.getElementById('f-step').value = filter.step || 100;
+        document.getElementById('f-unit').value = filter.unit || '';
+      } else {
+        if(tagsCtrl) {
+          tagsCtrl.setTags(filter.values || []);
+        } else {
+          tagsCtrl = initTagsInput(document.getElementById('f-values-wrap'), filter.values || []);
+        }
+      }
+
+      document.getElementById('btn-delete').onclick = () => {
+        if(confirm(`Delete filter "${filter.label}"?`)) {
+          currentFilters = currentFilters.filter(f => f.id !== id);
+          saveFilters();
+          closeEditPanel();
+          adminToast('Filter deleted');
+        }
+      };
+    }
+
+    function createNewFilter() {
+      const id = AdminStore.genId('f');
+      const newFilter = { id, label: 'New Filter', type: 'checkbox', values: [], order: currentFilters.length, isActive: true };
+      currentFilters.push(newFilter);
+      saveFilters();
+      editFilter(id);
+    }
+
+    // ── SAVE ──
+    function saveFilters() {
+      allFilters[currentCatSlug] = currentFilters;
+      AdminStore.setAllFilters(allFilters);
+    }
+
+    document.getElementById('filter-form').onsubmit = (e) => {
+      e.preventDefault();
+      const id = document.getElementById('f-id').value;
+      const filter = currentFilters.find(f => f.id === id);
+      if(!filter) return;
+
+      filter.label = document.getElementById('f-label').value.trim();
+      filter.type = document.getElementById('f-type').value;
+      filter.isActive = document.getElementById('f-active').checked;
+
+      if(filter.type === 'range') {
+        filter.min = parseFloat(document.getElementById('f-min').value) || 0;
+        filter.max = parseFloat(document.getElementById('f-max').value) || 10000;
+        filter.step = parseFloat(document.getElementById('f-step').value) || 100;
+        filter.unit = document.getElementById('f-unit').value.trim();
+        filter.values = []; // clear arrays
+      } else {
+        filter.values = tagsCtrl ? tagsCtrl.getTags() : filter.values;
+        // reset range
+        delete filter.min; delete filter.max; delete filter.step; delete filter.unit;
+      }
+
+      saveFilters();
+      renderList();
+      adminToast('Filter saved successfully');
+    };
+
+    // Initialize tags input cleanly
+    tagsCtrl = initTagsInput(document.getElementById('f-values-wrap'), []);
+
+  </script>
+</body>
+</html>

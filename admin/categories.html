@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category Manager | Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-brand">
+          <div class="admin-brand-icon">A</div>
+          <div>
+            <div class="admin-brand-text">Arvaan Admin</div>
+            <div class="admin-brand-sub">Storefront Manager</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="admin-nav">
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Overview</div>
+          <a href="dashboard.html" class="admin-nav-item">
+            <span class="nav-icon">📊</span> Dashboard
+          </a>
+          <a href="#" class="admin-nav-item preview-btn" onclick="openStorefrontPreview(); return false;" style="margin-top: 10px;">
+            <span class="nav-icon">👁️</span> Live Storefront
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Storefront Content</div>
+          <a href="categories.html" class="admin-nav-item active">
+            <span class="nav-icon">📁</span> Category Manager
+          </a>
+          <a href="homepage.html" class="admin-nav-item">
+            <span class="nav-icon">🏠</span> Homepage Manager
+          </a>
+          <a href="filters.html" class="admin-nav-item">
+            <span class="nav-icon">🎛️</span> Filters Manager
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Configuration</div>
+          <a href="settings.html" class="admin-nav-item">
+            <span class="nav-icon">⚙️</span> Site Settings
+          </a>
+        </div>
+      </div>
+      
+      <div class="admin-sidebar-footer">
+        <a href="#" class="admin-nav-item" id="admin-logout-btn">
+          <span class="nav-icon">🚪</span> Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN APP -->
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div class="admin-topbar-title" id="topbar-title">Category Manager</div>
+        <div class="admin-topbar-right">
+          <div class="admin-topbar-email" id="topbar-email">admin@domain.com</div>
+          <div class="admin-avatar" id="topbar-avatar">A</div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        
+        <div class="admin-page-header">
+          <div>
+            <h1 class="admin-page-title">Category Manager</h1>
+            <p class="admin-page-sub">Configure the main navigation and category tree for the storefront.</p>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="createNewParent()">+ Add Parent Category</button>
+          </div>
+        </div>
+
+        <div class="split-layout">
+          
+          <!-- LEFT: CATEGORY TREE -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title">Navigation Tree</h2>
+            </div>
+            <div class="admin-card-body" style="padding: 12px; background: var(--admin-bg);">
+              <div id="category-tree" class="cat-tree">
+                <!-- Javascript will render the tree here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: EDIT PANEL -->
+          <div class="admin-card config-panel" id="edit-panel" style="display: none;">
+            <div class="config-panel-header" id="edit-panel-title">
+              Edit Category
+            </div>
+            <div class="config-panel-body">
+              <form id="category-form">
+                <input type="hidden" id="cat-id">
+                <input type="hidden" id="cat-parent-id">
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Category Name</label>
+                    <input type="text" id="cat-name" class="form-input" required placeholder="e.g. Menswear">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">URL Slug</label>
+                    <input type="text" id="cat-slug" class="form-input" required placeholder="e.g. menswear">
+                    <div class="form-hint">Used in URLs: /category/menswear</div>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Icon / Emoji (Optional)</label>
+                    <input type="text" id="cat-icon" class="form-input" placeholder="e.g. 👕 or url">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Visibility</label>
+                    <label class="toggle-wrap" style="margin-top: 10px;">
+                      <div class="toggle">
+                        <input type="checkbox" id="cat-visible" checked>
+                        <div class="toggle-track"></div>
+                      </div>
+                      <span class="toggle-label text-sm">Show in storefront navigation</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Description (Optional)</label>
+                  <textarea id="cat-desc" class="form-textarea" placeholder="Brief description for SEO or internal use..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                  <button type="button" class="btn btn-danger" id="btn-delete-cat" style="margin-right: auto;">Delete</button>
+                  <button type="button" class="btn btn-outline" onclick="closeEditPanel()">Cancel</button>
+                  <button type="submit" class="btn btn-success">Save Category</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- EMPTY STATE FOR EDIT PANEL -->
+          <div class="admin-card config-panel" id="empty-edit-state">
+            <div class="empty-state">
+              <div class="empty-icon">👈</div>
+              <div class="empty-title">Select a category to edit</div>
+              <div class="empty-sub">Click any parent or child category from the tree on the left to configure its details.</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    adminAuthGuard();
+    setupTopbar('Category Manager');
+
+    let categories = AdminStore.getCategories() || [];
+    let selectedCatId = null;
+    let isEditingChild = false;
+
+    // ── RENDER TREE ──
+    function renderTree() {
+      categories.sort((a, b) => (a.order || 0) - (b.order || 0));
+      categories.forEach(p => {
+        if (p.children) p.children.sort((a, b) => (a.order || 0) - (b.order || 0));
+      });
+
+      const tree = document.getElementById('category-tree');
+      tree.innerHTML = '';
+
+      if (categories.length === 0) {
+        tree.innerHTML = `<div class="empty-state" style="padding: 20px;">No categories configured.</div>`;
+        return;
+      }
+
+      categories.forEach(parent => {
+        const pEl = document.createElement('div');
+        pEl.className = `cat-tree-item ${selectedCatId === parent.id ? 'selected' : ''}`;
+        pEl.dataset.id = parent.id;
+        
+        let childrenHtml = '';
+        if (parent.children && parent.children.length > 0) {
+          childrenHtml = parent.children.map(child => `
+            <div class="cat-child-item ${selectedCatId === child.id ? 'selected' : ''}" data-id="${child.id}" data-parent="${parent.id}">
+              <div class="cat-drag-handle">≡</div>
+              <div class="cat-child-name">${child.icon ? child.icon+' ' : ''}${child.name}</div>
+              ${!child.isVisible ? '<span class="badge badge-gray">Hidden</span>' : ''}
+              <div class="cat-tree-actions" style="margin-left: auto;">
+                <button class="btn btn-icon btn-ghost" onclick="editCategory('${child.id}', true, '${parent.id}', event)">✏️</button>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        pEl.innerHTML = `
+          <div class="cat-tree-header" onclick="editCategory('${parent.id}', false, null, event)">
+            <div class="cat-drag-handle">≡</div>
+            <div class="cat-tree-icon">${parent.icon || '📁'}</div>
+            <div class="cat-tree-name">${parent.name}</div>
+            ${!parent.isVisible ? '<span class="badge badge-gray">Hidden</span>' : ''}
+            <div class="cat-tree-actions">
+              <button class="btn btn-icon btn-ghost" onclick="event.stopPropagation(); editCategory('${parent.id}', false, null, event)">✏️</button>
+            </div>
+          </div>
+          <div class="cat-children" id="children-${parent.id}">
+            ${childrenHtml}
+            <button class="add-child-btn" onclick="createNewChild('${parent.id}')">
+              <span>+</span> Add Sub-Category
+            </button>
+          </div>
+        `;
+        tree.appendChild(pEl);
+      });
+
+      // Enable drag reorder for parents
+      enableDragReorder(tree, '.cat-tree-item', (items) => {
+        const newOrder = items.map(el => el.dataset.id);
+        categories.forEach(c => { c.order = newOrder.indexOf(c.id); });
+        AdminStore.setCategories(categories);
+        renderTree();
+        adminToast('Navigation order updated');
+      });
+
+      // Enable drag reorder for children within each parent
+      categories.forEach(parent => {
+        const childContainer = document.getElementById(`children-${parent.id}`);
+        if(childContainer) {
+          enableDragReorder(childContainer, '.cat-child-item', (items) => {
+            const newOrder = items.map(el => el.dataset.id);
+            const parentCat = categories.find(c => c.id === parent.id);
+            if (parentCat && parentCat.children) {
+              parentCat.children.forEach(c => { c.order = newOrder.indexOf(c.id); });
+              AdminStore.setCategories(categories);
+              renderTree();
+              adminToast('Sub-category order updated');
+            }
+          });
+        }
+      });
+    }
+
+    // ── EDITING ──
+    function closeEditPanel() {
+      selectedCatId = null;
+      document.getElementById('edit-panel').style.display = 'none';
+      document.getElementById('empty-edit-state').style.display = 'block';
+      renderTree(); // remove selection highlight
+    }
+
+    function editCategory(id, isChild, parentId = null, event) {
+      if (event) event.stopPropagation();
+      selectedCatId = id;
+      isEditingChild = isChild;
+      renderTree(); // trigger highlight
+
+      let catData = null;
+      if (isChild) {
+        const parent = categories.find(c => c.id === parentId);
+        if (parent && parent.children) catData = parent.children.find(c => c.id === id);
+      } else {
+        catData = categories.find(c => c.id === id);
+      }
+
+      if (!catData) return;
+
+      document.getElementById('empty-edit-state').style.display = 'none';
+      document.getElementById('edit-panel').style.display = 'block';
+      document.getElementById('edit-panel-title').textContent = isChild ? `Edit Sub-Category: ${catData.name}` : `Edit Parent: ${catData.name}`;
+      
+      document.getElementById('cat-id').value = catData.id;
+      document.getElementById('cat-parent-id').value = parentId || '';
+      document.getElementById('cat-name').value = catData.name;
+      document.getElementById('cat-slug').value = catData.slug;
+      document.getElementById('cat-icon').value = catData.icon || '';
+      document.getElementById('cat-visible').checked = catData.isVisible !== false;
+      document.getElementById('cat-desc').value = catData.description || '';
+
+      // Delete handler
+      const delBtn = document.getElementById('btn-delete-cat');
+      delBtn.onclick = () => {
+        if (confirm(`Are you sure you want to delete "${catData.name}"?`)) {
+          if (isChild) {
+            const parent = categories.find(c => c.id === parentId);
+            parent.children = parent.children.filter(c => c.id !== id);
+          } else {
+            categories = categories.filter(c => c.id !== id);
+          }
+          AdminStore.setCategories(categories);
+          closeEditPanel();
+          adminToast('Category deleted');
+        }
+      };
+    }
+
+    // ── CREATING ──
+    function createNewParent() {
+      const id = AdminStore.genId('cat');
+      categories.push({ id, name: 'New Category', slug: 'new-category', isVisible: true, order: categories.length, children: [] });
+      AdminStore.setCategories(categories);
+      renderTree();
+      editCategory(id, false);
+    }
+
+    function createNewChild(parentId) {
+      const parent = categories.find(c => c.id === parentId);
+      if (!parent) return;
+      if (!parent.children) parent.children = [];
+      const id = AdminStore.genId('sub');
+      parent.children.push({ id, parentId, name: 'New Sub-Category', slug: 'new-sub', isVisible: true, order: parent.children.length });
+      AdminStore.setCategories(categories);
+      renderTree();
+      editCategory(id, true, parentId);
+    }
+
+    // Auto-slug
+    document.getElementById('cat-name').addEventListener('input', e => {
+      document.getElementById('cat-slug').value = generateSlug(e.target.value);
+    });
+
+    // ── SAVING ──
+    document.getElementById('category-form').onsubmit = (e) => {
+      e.preventDefault();
+      const id = document.getElementById('cat-id').value;
+      const parentId = document.getElementById('cat-parent-id').value;
+
+      const updates = {
+        name: document.getElementById('cat-name').value.trim(),
+        slug: document.getElementById('cat-slug').value.trim(),
+        icon: document.getElementById('cat-icon').value.trim(),
+        isVisible: document.getElementById('cat-visible').checked,
+        description: document.getElementById('cat-desc').value.trim()
+      };
+
+      if (parentId) {
+        const parent = categories.find(c => c.id === parentId);
+        const child = parent.children.find(c => c.id === id);
+        Object.assign(child, updates);
+      } else {
+        const cat = categories.find(c => c.id === id);
+        Object.assign(cat, updates);
+      }
+
+      AdminStore.setCategories(categories);
+      renderTree();
+      adminToast('Category saved successfully');
+    };
+
+    renderTree();
+  </script>
+</body>
+</html>

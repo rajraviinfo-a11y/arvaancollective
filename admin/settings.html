@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Settings | Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-brand">
+          <div class="admin-brand-icon">A</div>
+          <div>
+            <div class="admin-brand-text">Arvaan Admin</div>
+            <div class="admin-brand-sub">Storefront Manager</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="admin-nav">
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Overview</div>
+          <a href="dashboard.html" class="admin-nav-item">
+            <span class="nav-icon">📊</span> Dashboard
+          </a>
+          <a href="#" class="admin-nav-item preview-btn" onclick="openStorefrontPreview(); return false;" style="margin-top: 10px;">
+            <span class="nav-icon">👁️</span> Live Storefront
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Storefront Content</div>
+          <a href="categories.html" class="admin-nav-item">
+            <span class="nav-icon">📁</span> Category Manager
+          </a>
+          <a href="homepage.html" class="admin-nav-item">
+            <span class="nav-icon">🏠</span> Homepage Manager
+          </a>
+          <a href="filters.html" class="admin-nav-item">
+            <span class="nav-icon">🎛️</span> Filters Manager
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Configuration</div>
+          <a href="settings.html" class="admin-nav-item active">
+            <span class="nav-icon">⚙️</span> Site Settings
+          </a>
+        </div>
+      </div>
+      
+      <div class="admin-sidebar-footer">
+        <a href="#" class="admin-nav-item" id="admin-logout-btn">
+          <span class="nav-icon">🚪</span> Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN APP -->
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div class="admin-topbar-title" id="topbar-title">Site Settings</div>
+        <div class="admin-topbar-right">
+          <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Changes</button>
+          <div class="admin-topbar-email" id="topbar-email" style="margin-left: 10px;">admin@domain.com</div>
+          <div class="admin-avatar" id="topbar-avatar">A</div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        
+        <div class="admin-page-header">
+          <div>
+            <h1 class="admin-page-title">Global Settings</h1>
+            <p class="admin-page-sub">Configure the foundational identity, colors, and footers of your storefront.</p>
+          </div>
+        </div>
+
+        <form id="settings-form" onsubmit="event.preventDefault(); saveSettings();">
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+            
+            <!-- LEFT COLUMN -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+              
+              <!-- Brand Identity -->
+              <div class="admin-card">
+                <div class="admin-card-header"><h2 class="admin-card-title">Brand Identity</h2></div>
+                <div class="admin-card-body">
+                  <div class="form-group">
+                    <label class="form-label">Store Name</label>
+                    <input type="text" id="s-name" class="form-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Tagline</label>
+                    <input type="text" id="s-tagline" class="form-input">
+                  </div>
+                  
+                  <div class="form-row" style="margin-top: 20px;">
+                    <div class="form-group">
+                      <label class="form-label">Primary Color</label>
+                      <div class="color-input-wrap">
+                        <div class="color-swatch" id="swatch-1"><input type="color"></div>
+                        <input type="text" class="color-hex-input" id="hex-1" value="#6C3BFF">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Accent Color</label>
+                      <div class="color-input-wrap">
+                        <div class="color-swatch" id="swatch-2"><input type="color"></div>
+                        <input type="text" class="color-hex-input" id="hex-2" value="#FF6B35">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SEO Defaults -->
+              <div class="admin-card">
+                <div class="admin-card-header"><h2 class="admin-card-title">SEO Defaults</h2></div>
+                <div class="admin-card-body">
+                  <div class="form-group">
+                    <label class="form-label">Title Template</label>
+                    <input type="text" id="s-seo-title" class="form-input">
+                    <div class="form-hint">Use %s where the dynamic page title should go. Example: %s | My Store</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Meta Description</label>
+                    <textarea id="s-seo-desc" class="form-textarea" style="min-height: 100px;"></textarea>
+                    <div class="form-hint">Optimal length: 150-160 characters.</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+              
+              <!-- Contact Info -->
+              <div class="admin-card">
+                <div class="admin-card-header"><h2 class="admin-card-title">Contact Information</h2></div>
+                <div class="admin-card-body">
+                  <div class="form-group">
+                    <label class="form-label">Support Email</label>
+                    <input type="email" id="s-em" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Support Phone</label>
+                    <input type="text" id="s-ph" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Physical Address</label>
+                    <textarea id="s-add" class="form-textarea" style="min-height: 80px;"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Social Links -->
+              <div class="admin-card">
+                <div class="admin-card-header"><h2 class="admin-card-title">Social Media Links</h2></div>
+                <div class="admin-card-body">
+                  <div class="form-row">
+                    <div class="form-group"><label class="form-label">Instagram URL</label><input type="url" id="s-ig" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">Facebook URL</label><input type="url" id="s-fb" class="form-input"></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group"><label class="form-label">Twitter / X URL</label><input type="url" id="s-tw" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">YouTube URL</label><input type="url" id="s-yt" class="form-input"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="admin-card">
+                <div class="admin-card-header"><h2 class="admin-card-title">Footer Detail</h2></div>
+                <div class="admin-card-body">
+                  <div class="form-group">
+                    <label class="form-label">Copyright Text</label>
+                    <input type="text" id="s-copy" class="form-input">
+                  </div>
+                  <div style="margin-top: 16px; padding: 12px; background: var(--admin-bg); border-radius: 8px; font-size: 0.8rem; color: var(--admin-text-2);">
+                    Footer navigational links (About, Terms, etc.) are managed dynamically from the storefront pages in this version.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+          
+          <!-- Sticky Save Bar on Mobile if needed -->
+          <button type="submit" style="display: none;"></button>
+
+        </form>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    adminAuthGuard();
+    setupTopbar('Global Settings');
+
+    let siteConfig = AdminStore.getSiteConfig();
+
+    // Populate Fields
+    document.getElementById('s-name').value = siteConfig.siteName || '';
+    document.getElementById('s-tagline').value = siteConfig.tagline || '';
+    
+    // Setup Colors
+    const primaryCtrl = initColorInput('swatch-1', 'hex-1');
+    if(siteConfig.primaryColor) primaryCtrl.setValue(siteConfig.primaryColor);
+    
+    const accentCtrl = initColorInput('swatch-2', 'hex-2');
+    if(siteConfig.accentColor) accentCtrl.setValue(siteConfig.accentColor);
+
+    // SEO
+    if(siteConfig.seo) {
+      document.getElementById('s-seo-title').value = siteConfig.seo.titleTemplate || '';
+      document.getElementById('s-seo-desc').value = siteConfig.seo.metaDescription || '';
+    }
+
+    // Contact
+    if(siteConfig.contact) {
+      document.getElementById('s-em').value = siteConfig.contact.email || '';
+      document.getElementById('s-ph').value = siteConfig.contact.phone || '';
+      document.getElementById('s-add').value = siteConfig.contact.address || '';
+    }
+
+    // Social
+    if(siteConfig.social) {
+      document.getElementById('s-ig').value = siteConfig.social.instagram || '';
+      document.getElementById('s-fb').value = siteConfig.social.facebook || '';
+      document.getElementById('s-tw').value = siteConfig.social.twitter || '';
+      document.getElementById('s-yt').value = siteConfig.social.youtube || '';
+    }
+
+    // Footer
+    if(siteConfig.footer) {
+      document.getElementById('s-copy').value = siteConfig.footer.copyright || '';
+    }
+
+    function saveSettings() {
+      if(!document.getElementById('settings-form').reportValidity()) return;
+
+      siteConfig.siteName = document.getElementById('s-name').value.trim();
+      siteConfig.tagline = document.getElementById('s-tagline').value.trim();
+      siteConfig.primaryColor = primaryCtrl.getValue();
+      siteConfig.accentColor = accentCtrl.getValue();
+
+      siteConfig.seo = siteConfig.seo || {};
+      siteConfig.seo.titleTemplate = document.getElementById('s-seo-title').value.trim();
+      siteConfig.seo.metaDescription = document.getElementById('s-seo-desc').value.trim();
+
+      siteConfig.contact = siteConfig.contact || {};
+      siteConfig.contact.email = document.getElementById('s-em').value.trim();
+      siteConfig.contact.phone = document.getElementById('s-ph').value.trim();
+      siteConfig.contact.address = document.getElementById('s-add').value.trim();
+
+      siteConfig.social = siteConfig.social || {};
+      siteConfig.social.instagram = document.getElementById('s-ig').value.trim();
+      siteConfig.social.facebook = document.getElementById('s-fb').value.trim();
+      siteConfig.social.twitter = document.getElementById('s-tw').value.trim();
+      siteConfig.social.youtube = document.getElementById('s-yt').value.trim();
+
+      siteConfig.footer = siteConfig.footer || { links: [] };
+      siteConfig.footer.copyright = document.getElementById('s-copy').value.trim();
+
+      AdminStore.setSiteConfig(siteConfig);
+      adminToast('Global settings saved successfully');
+      
+      // Instantly inject latest CSS vars to admin right now to preview color update
+      document.documentElement.style.setProperty('--admin-accent', siteConfig.primaryColor);
+    }
+  </script>
+</body>
+</html>

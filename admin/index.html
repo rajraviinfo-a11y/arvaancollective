@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | Arvaan Collective</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-login-page">
+
+  <div class="admin-login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">AC</div>
+      <h1>Admin Control Panel</h1>
+      <p>Log in to manage your storefront</p>
+    </div>
+
+    <div id="login-error" class="login-error">Invalid email or password.</div>
+
+    <form id="admin-login-form">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" id="email" class="form-input" placeholder="admin@arvaan.com" required value="admin@arvaan.com">
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label class="form-label">Password</label>
+        <input type="password" id="password" class="form-input" placeholder="••••••••" required value="admin123">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 0.9rem;">
+        Login to Dashboard
+      </button>
+    </form>
+    
+    <!-- DEV NOTE -->
+    <div style="margin-top: 24px; text-align: center; font-size: 0.75rem; color: var(--admin-text-2); background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px;">
+      <b>Demo Credentials</b><br>
+      admin@arvaan.com / admin123
+    </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    if (typeof AdminStore !== 'undefined' && AdminStore.isLoggedIn()) {
+      window.location.href = 'dashboard.html';
+    }
+
+    document.getElementById('admin-login-form').onsubmit = (e) => {
+      e.preventDefault();
+      const em = document.getElementById('email').value.trim();
+      const pw = document.getElementById('password').value;
+      const errEl = document.getElementById('login-error');
+      
+      if (AdminStore.login(em, pw)) {
+        window.location.href = 'dashboard.html';
+      } else {
+        errEl.classList.add('show');
+      }
+    };
+  </script>
+</body>
+</html>

@@ -539,71 +539,97 @@ function renderSidebarFilters() {
   if (!sidebar) return;
 
   const products = StoreState.products;
-  const categories = [...new Set(products.map(p => p.category))].sort();
-  const brands = [...new Set(products.map(p => p.brand || p.sellerName || 'Other'))].sort();
   const maxPrice = getMaxPrice();
 
-  sidebar.innerHTML = `
-    <!-- Categories Widget -->
-    <div class="sidebar-widget">
-      <h4 class="sidebar-widget-title">Categories</h4>
-      <div class="sidebar-filter-list">
-        ${categories.map(cat => `
-          <label class="filter-checkbox-label">
-            <input type="checkbox" value="${cat}" class="cat-filter" 
-                   ${StoreState.selectedCategories.includes(cat) ? 'checked' : ''}>
-            <span class="checkbox-custom"></span>
-            <span class="filter-label-text">${cat}</span>
-          </label>
-        `).join('')}
-      </div>
-    </div>
+  let adminFilters = [];
+  try {
+    if (typeof AdminStore !== 'undefined') {
+      const catSlug = StoreState.currentCategory && StoreState.currentCategory !== 'All' 
+        ? StoreState.currentCategory 
+        : 'Electronics'; // Fallback
+      adminFilters = AdminStore.getFilters(catSlug).filter(f => f.isActive);
+    }
+  } catch (e) { console.error("AdminStore not loaded", e); }
 
-    <!-- Brand Widget -->
-    <div class="sidebar-widget">
-      <h4 class="sidebar-widget-title">Brand / Seller</h4>
-      <div class="sidebar-filter-list">
-        ${brands.map(brand => `
-          <label class="filter-checkbox-label">
-            <input type="checkbox" value="${brand}" class="brand-filter" 
-                   ${StoreState.selectedBrands.includes(brand) ? 'checked' : ''}>
-            <span class="checkbox-custom"></span>
-            <span class="filter-label-text">${brand}</span>
-          </label>
-        `).join('')}
+  if (adminFilters.length === 0) {
+    // Fallback to minimal static if no admin config found
+    const categories = [...new Set(products.map(p => p.category))].sort();
+    const brands = [...new Set(products.map(p => p.brand || p.sellerName || 'Other'))].sort();
+    sidebar.innerHTML = `
+      <div class="sidebar-widget">
+        <h4 class="sidebar-widget-title">Brand</h4>
+        <div class="sidebar-filter-list">
+          ${brands.slice(0,8).map(brand => `
+            <label class="filter-checkbox-label">
+              <input type="checkbox" value="${brand}" class="brand-filter" 
+                     ${StoreState.selectedBrands.includes(brand) ? 'checked' : ''}>
+              <span class="checkbox-custom"></span><span class="filter-label-text">${brand}</span>
+            </label>
+          `).join('')}
+        </div>
       </div>
-    </div>
+    `;
+    bindSidebarEvents();
+    return;
+  }
 
-    <!-- Price Widget -->
-    <div class="sidebar-widget">
-      <h4 class="sidebar-widget-title">
-        <span>Price Range</span>
-        <span id="price-max-label" style="text-transform:none; font-weight:700">${formatCurrency(StoreState.priceMax)}</span>
-      </h4>
-      <input type="range" id="price-range" class="range-input" 
-             min="0" max="${maxPrice}" step="100" value="${StoreState.priceMax}">
-      <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--clr-text-3); margin-top:8px">
-        <span>₹0</span>
-        <span>${formatCurrency(maxPrice)}</span>
-      </div>
-    </div>
+  // Generate strictly from AdminConfig
+  sidebar.innerHTML = adminFilters.map(f => {
+    
+    if (f.type === 'checkbox') {
+      return `
+        <div class="sidebar-widget">
+          <h4 class="sidebar-widget-title">${f.label}</h4>
+          <div class="sidebar-filter-list">
+            ${f.values.map(v => `
+              <label class="filter-checkbox-label">
+                <input type="checkbox" value="${v}" 
+                       class="${f.label.toLowerCase() === 'brand' ? 'brand-filter' : 'generic-filter'}">
+                <span class="checkbox-custom"></span><span class="filter-label-text">${v}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+    
+    if (f.type === 'range') {
+      const currentMax = StoreState.priceMax || f.max;
+      return `
+        <div class="sidebar-widget">
+          <h4 class="sidebar-widget-title" style="display:flex; justify-content:space-between; width:100%;">
+            <span>${f.label}</span>
+            <span id="price-max-label" style="text-transform:none; font-weight:700">${f.unit || ''}${currentMax}</span>
+          </h4>
+          <input type="range" id="price-range" class="range-input" 
+                 min="${f.min}" max="${f.max}" step="${f.step}" value="${currentMax}">
+          <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--clr-text-3); margin-top:8px">
+            <span>${f.unit || ''}${f.min}</span>
+            <span>${f.unit || ''}${f.max}</span>
+          </div>
+        </div>`;
+    }
 
-    <!-- Rating Widget -->
-    <div class="sidebar-widget">
-      <h4 class="sidebar-widget-title">Minimum Rating</h4>
-      <div class="sidebar-filter-list">
-        ${[4, 3, 2].map(r => `
-          <label class="filter-radio-label">
-            <input type="radio" name="rating-filter" value="${r}" class="rating-filter" 
-                   ${StoreState.minRating === r ? 'checked' : ''}>
-            <span class="radio-custom"></span>
-            <span class="filter-label-text">${r}★ & Above</span>
-          </label>
-        `).join('')}
-      </div>
-    </div>
+    if (f.type === 'radio') {
+      return `
+        <div class="sidebar-widget">
+          <h4 class="sidebar-widget-title">${f.label}</h4>
+          <div class="sidebar-filter-list">
+            ${f.values.map((v, i) => `
+              <label class="filter-radio-label">
+                <input type="radio" name="${f.id}" value="${v}" 
+                       class="rating-filter">
+                <span class="radio-custom"></span><span class="filter-label-text">${v}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>`;
+    }
 
-    <!-- Quick Stats -->
+    return '';
+  }).join('');
+
+  // Append Reset button
+  sidebar.innerHTML += `
     <div class="sidebar-widget" style="border-bottom:none; margin-bottom:0">
        <button class="btn btn-outline btn-sm" style="width:100%" onclick="resetFilters()">Reset All Filters</button>
     </div>
@@ -1737,39 +1763,27 @@ function renderGlobalNavigation() {
   const container = document.getElementById('categories-dropdown-menu');
   if (!container) return;
 
-  const CATEGORIES = [
-    { name: 'All', icon: '✨', slug: 'All' },
-    { 
-      name: 'Electronics', icon: '📱', slug: 'Electronics',
-      subs: ['Mobiles', 'Tablets', 'Audio'] 
-    },
-    { 
-      name: 'Fashion', icon: '👗', slug: 'Fashion',
-      subs: ['Apparel', 'Footwear']
-    },
-    { 
-      name: 'Furniture', icon: '🛋️', slug: 'Furniture',
-      subs: ['Living Room', 'Workplace'] 
-    },
-    { 
-      name: 'Kitchen', icon: '☕', slug: 'Kitchen',
-      subs: ['Appliances', 'Cooking']
-    },
-    { 
-      name: 'Wellness', icon: '🌿', slug: 'Wellness',
-      subs: ['Personal Care', 'Skincare', 'Fitness']
-    },
-    { 
-      name: 'Travel', icon: '🎒', slug: 'Travel',
-      subs: ['Luggage', 'Outdoor Gear']
-    },
-    { 
-      name: 'Home Decor', icon: '🏠', slug: 'Home Decor',
-      subs: ['Lighting', 'Wall Art']
-    },
-    { name: 'Deals', icon: '🔥', slug: 'deals', isFilter: true },
-    { name: 'New', icon: '✨', slug: 'new', isFilter: true }
-  ];
+  let CATEGORIES = [];
+  try {
+    const adminCats = typeof AdminStore !== 'undefined' ? AdminStore.getCategories().filter(c => c.isVisible) : [];
+    
+    CATEGORIES = adminCats.map(cat => ({
+      name: cat.name,
+      icon: cat.icon || '📁',
+      slug: cat.slug || cat.name,
+      subs: (cat.children || []).filter(c => c.isVisible).map(c => c.name)
+    }));
+
+    // Prepend 'All'
+    CATEGORIES.unshift({ name: 'All', icon: '✨', slug: 'All' });
+    
+    // Append Deals/New
+    CATEGORIES.push({ name: 'Deals', icon: '🔥', slug: 'deals', isFilter: true });
+    CATEGORIES.push({ name: 'New', icon: '✨', slug: 'new', isFilter: true });
+    
+  } catch(e) {
+    console.error("Failed to load AdminStore categories, using fallback empty array", e);
+  }
 
   const params = new URLSearchParams(window.location.search);
   const currentCat = params.get('cat');
@@ -1784,15 +1798,12 @@ function renderGlobalNavigation() {
 
       if (cat.name === 'All') {
         isActive = (path.includes('shop.html') || path.endsWith('/')) && !currentCat && !currentFilter;
-      } else if (cat.name === 'Electronics') {
-        href = 'electronics.html';
-        isActive = path.includes('electronics.html') || (path.includes('shop.html') && currentCat === 'Electronics');
       } else if (cat.isFilter) {
         href = `shop.html?filter=${cat.slug}`;
         isActive = currentFilter === cat.slug;
       } else {
         href = `shop.html?cat=${encodeURIComponent(cat.slug)}`;
-        isActive = currentCat === cat.slug;
+        isActive = currentCat === cat.slug || (path.includes('electronics.html') && cat.name === 'Electronics');
       }
 
       const hasSubs = cat.subs && cat.subs.length > 0;
@@ -2071,11 +2082,54 @@ function initProductTabs() {
 
 
 function initHomePage() {
-  renderCategoryChips();
-  renderFlashDeals();
-  renderFeaturedProducts(8);
-  renderTrendingProducts(4);
-  renderReviews();
+  let homeConfig = { sections: [] };
+  try {
+    if (typeof AdminStore !== 'undefined') {
+      homeConfig = AdminStore.getHomepage();
+    }
+  } catch (e) {
+    console.error("AdminStore error", e);
+  }
+
+  const sectionsList = homeConfig.sections || [];
+  
+  // Mapping admin section types to DOM IDs and existing render functions
+  const sectionMap = {
+    'hero': { selector: '.hero-container', render: null },
+    'featured-categories': { selector: '.category-grid', render: renderCategoryChips },
+    'featured-products': { selector: '#featured-slider', render: () => renderFeaturedProducts(8) },
+    'promo-banner': { selector: '.promo-grid', render: null },
+    'flash-sale': { selector: '.flash-deals', render: renderFlashDeals },
+    'new-arrivals': { selector: '.trending-grid', render: () => renderTrendingProducts(8) },
+    'testimonials': { selector: '.testimonial-section', render: renderReviews },
+    'newsletter': { selector: '.newsletter', render: null }
+  };
+
+  const mainEl = document.querySelector('main');
+  if (mainEl && !mainEl.style.display) {
+    mainEl.style.display = 'flex';
+    mainEl.style.flexDirection = 'column';
+  }
+
+  sectionsList.forEach(sec => {
+    const mapping = sectionMap[sec.type];
+    if (mapping) {
+      // Find the parent section block to reorder and toggle (often the immediate parent of the selector or the section itself)
+      const innerEl = document.querySelector(mapping.selector);
+      const sectionEl = innerEl ? innerEl.closest('section') : null;
+      
+      if (sectionEl) {
+        if (!sec.isEnabled) {
+          sectionEl.style.display = 'none';
+        } else {
+          sectionEl.style.display = '';
+          sectionEl.style.order = sec.order;
+          if (mapping.render) mapping.render(sec.config);
+        }
+      }
+    }
+  });
+
   initRevealOnScroll();
   initHeroBadgePrice();
   initFlashCountdown();
@@ -2187,6 +2241,9 @@ function initStore() {
        StoreState.products = Store.getProducts();
     }
     
+    // Inject Dynamic Site Configuration from AdminStore First
+    applyAdminSiteConfig();
+
     // 2. Critical Shell Components
     renderGlobalNavigation();
     renderGlobalModals();
@@ -2212,3 +2269,33 @@ if (document.readyState === 'loading') {
   initStore();
 }
 
+function applyAdminSiteConfig() {
+  try {
+    if (typeof AdminStore !== 'undefined') {
+      const siteConfig = AdminStore.getSiteConfig();
+      if (!siteConfig) return;
+
+      const root = document.documentElement;
+      if (siteConfig.primaryColor) root.style.setProperty('--clr-primary', siteConfig.primaryColor);
+      if (siteConfig.accentColor)  root.style.setProperty('--clr-accent', siteConfig.accentColor);
+
+      if (siteConfig.seo) {
+        if (siteConfig.seo.titleTemplate) {
+          const baseName = document.title.split('|')[0].trim();
+          document.title = siteConfig.seo.titleTemplate.replace('%s', baseName);
+        }
+        if (siteConfig.seo.metaDescription) {
+          let metaDesc = document.querySelector('meta[name="description"]');
+          if (!metaDesc) {
+            metaDesc = document.createElement('meta');
+            metaDesc.name = "description";
+            document.head.appendChild(metaDesc);
+          }
+          metaDesc.content = siteConfig.seo.metaDescription;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Failed to apply admin site config", e);
+  }
+}

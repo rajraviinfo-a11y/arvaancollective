@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-brand">
+          <div class="admin-brand-icon">A</div>
+          <div>
+            <div class="admin-brand-text">Arvaan Admin</div>
+            <div class="admin-brand-sub">Storefront Manager</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="admin-nav">
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Overview</div>
+          <a href="dashboard.html" class="admin-nav-item active">
+            <span class="nav-icon">📊</span> Dashboard
+          </a>
+          <a href="#" class="admin-nav-item preview-btn" onclick="openStorefrontPreview(); return false;" style="margin-top: 10px;">
+            <span class="nav-icon">👁️</span> Live Storefront
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Storefront Content</div>
+          <a href="categories.html" class="admin-nav-item">
+            <span class="nav-icon">📁</span> Category Manager
+          </a>
+          <a href="homepage.html" class="admin-nav-item">
+            <span class="nav-icon">🏠</span> Homepage Manager
+          </a>
+          <a href="filters.html" class="admin-nav-item">
+            <span class="nav-icon">🎛️</span> Filters Manager
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-label">Configuration</div>
+          <a href="settings.html" class="admin-nav-item">
+            <span class="nav-icon">⚙️</span> Site Settings
+          </a>
+        </div>
+      </div>
+      
+      <div class="admin-sidebar-footer">
+        <a href="#" class="admin-nav-item" id="admin-logout-btn">
+          <span class="nav-icon">🚪</span> Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN APP -->
+    <main class="admin-main">
+      
+      <!-- TOPBAR -->
+      <header class="admin-topbar">
+        <div class="admin-topbar-title" id="topbar-title">Dashboard Overview</div>
+        <div class="admin-topbar-right">
+          <div class="admin-topbar-email" id="topbar-email">admin@domain.com</div>
+          <div class="admin-avatar" id="topbar-avatar">A</div>
+        </div>
+      </header>
+
+      <!-- CONTENT -->
+      <div class="admin-content">
+        
+        <div class="admin-page-header">
+          <div>
+            <h1 class="admin-page-title">Welcome back, Admin 👋</h1>
+            <p class="admin-page-sub">Here is the current state of your storefront configuration.</p>
+          </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📁</div>
+            <div class="stat-label">Total Categories</div>
+            <div class="stat-value" id="stat-cats">0</div>
+            <div class="stat-sub">Parent categories</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📑</div>
+            <div class="stat-label">Sub-Categories</div>
+            <div class="stat-value" id="stat-subs">0</div>
+            <div class="stat-sub">Nested items in navigation</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏠</div>
+            <div class="stat-label">Active Homepage Sections</div>
+            <div class="stat-value" id="stat-home">0</div>
+            <div class="stat-sub">Enabled blocks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎛️</div>
+            <div class="stat-label">Global Filters</div>
+            <div class="stat-value" id="stat-filters">0</div>
+            <div class="stat-sub">Across all categories</div>
+          </div>
+        </div>
+
+        <!-- QUICK LINKS -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h2 class="admin-card-title">Quick Actions</h2>
+          </div>
+          <div class="admin-card-body">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <a href="categories.html" class="btn btn-primary">Manage Categories</a>
+              <a href="homepage.html" class="btn btn-outline">Edit Homepage</a>
+              <a href="settings.html" class="btn btn-outline">Update Site Colors</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    adminAuthGuard();
+    setupTopbar('Dashboard Overview');
+
+    // Populate Stats
+    function loadStats() {
+      const cats = AdminStore.getCategories() || [];
+      let parentCount = cats.length;
+      let subCount = cats.reduce((acc, curr) => acc + (curr.children ? curr.children.length : 0), 0);
+      
+      const home = AdminStore.getHomepage() || { sections: [] };
+      let activeHome = home.sections.filter(s => s.isEnabled).length;
+
+      const filters = AdminStore.getAllFilters() || {};
+      let filterCount = Object.values(filters).reduce((acc, catFilters) => acc + catFilters.length, 0);
+
+      document.getElementById('stat-cats').textContent = parentCount;
+      document.getElementById('stat-subs').textContent = subCount;
+      document.getElementById('stat-home').textContent = activeHome;
+      document.getElementById('stat-filters').textContent = filterCount;
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>
