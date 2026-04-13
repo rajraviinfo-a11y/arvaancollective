@@ -84,35 +84,57 @@
         </div>
 
         <!-- STATS -->
-        <div class="stat-grid">
-          <div class="stat-card">
-            <div class="stat-icon">📁</div>
+        <div class="stat-grid" style="margin-top: 10px;">
+          
+          <div class="admin-card interactive stat-card" style="position: relative; overflow: hidden; border-top: 4px solid var(--admin-accent);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div class="stat-icon" style="background: var(--admin-accent-light); color: var(--admin-accent); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 16px;">📁</div>
+              <div class="badge badge-success" style="padding: 4px 8px;">+12%</div>
+            </div>
             <div class="stat-label">Total Categories</div>
             <div class="stat-value" id="stat-cats">0</div>
-            <div class="stat-sub">Parent categories</div>
+            <div class="stat-sub">Active parent categories</div>
+            <!-- Decorative circle -->
+            <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: radial-gradient(circle, var(--admin-accent-light) 0%, transparent 70%); border-radius: 50%; opacity: 0.5;"></div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">📑</div>
+          
+          <div class="admin-card interactive stat-card" style="position: relative; overflow: hidden; border-top: 4px solid #3B82F6;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div class="stat-icon" style="background: #DBEAFE; color: #3B82F6; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 16px;">📑</div>
+              <div class="badge badge-success" style="padding: 4px 8px;">+4%</div>
+            </div>
             <div class="stat-label">Sub-Categories</div>
             <div class="stat-value" id="stat-subs">0</div>
             <div class="stat-sub">Nested items in navigation</div>
+            <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: radial-gradient(circle, #DBEAFE 0%, transparent 70%); border-radius: 50%; opacity: 0.5;"></div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">🏠</div>
-            <div class="stat-label">Active Homepage Sections</div>
+          
+          <div class="admin-card interactive stat-card" style="position: relative; overflow: hidden; border-top: 4px solid #10B981;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div class="stat-icon" style="background: #D1FAE5; color: #10B981; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 16px;">🏠</div>
+              <div class="badge badge-gray" style="padding: 4px 8px;">Stable</div>
+            </div>
+            <div class="stat-label">Homepage Sections</div>
             <div class="stat-value" id="stat-home">0</div>
-            <div class="stat-sub">Enabled blocks</div>
+            <div class="stat-sub">Enabled storefront blocks</div>
+            <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: radial-gradient(circle, #D1FAE5 0%, transparent 70%); border-radius: 50%; opacity: 0.5;"></div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">🎛️</div>
+          
+          <div class="admin-card interactive stat-card" style="position: relative; overflow: hidden; border-top: 4px solid #F59E0B;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div class="stat-icon" style="background: #FEF3C7; color: #F59E0B; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 16px;">🎛️</div>
+              <div class="badge badge-warning" style="padding: 4px 8px;">Needs Setup</div>
+            </div>
             <div class="stat-label">Global Filters</div>
             <div class="stat-value" id="stat-filters">0</div>
             <div class="stat-sub">Across all categories</div>
+            <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: radial-gradient(circle, #FEF3C7 0%, transparent 70%); border-radius: 50%; opacity: 0.5;"></div>
           </div>
+
         </div>
 
         <!-- QUICK LINKS -->
-        <div class="admin-card">
+        <div class="admin-card" style="margin-top: 16px;">
           <div class="admin-card-header">
             <h2 class="admin-card-title">Quick Actions</h2>
           </div>

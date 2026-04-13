@@ -6,25 +6,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --admin-sidebar-w: 240px;
-  --admin-bg: #F5F6FA;
-  --admin-sidebar-bg: #0F1117;
-  --admin-sidebar-text: rgba(255,255,255,0.75);
+  --admin-sidebar-w: 260px;
+  --admin-bg: #F3F4F8;
+  --admin-sidebar-bg: #0B0E14;
+  --admin-sidebar-text: rgba(255,255,255,0.7);
   --admin-sidebar-active: #ffffff;
   --admin-sidebar-accent: #6C63FF;
   --admin-accent: #6C63FF;
-  --admin-accent-light: #EEF0FF;
-  --admin-success: #22C55E;
+  --admin-accent-light: rgba(108, 99, 255, 0.1);
+  --admin-success: #10B981;
   --admin-danger: #EF4444;
   --admin-warning: #F59E0B;
   --admin-text: #111827;
   --admin-text-2: #6B7280;
   --admin-border: #E5E7EB;
   --admin-card-bg: #ffffff;
-  --admin-radius: 10px;
-  --admin-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --admin-shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-  --trans: 0.18s ease;
+  --admin-radius: 12px;
+  --admin-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --admin-shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+  --admin-shadow-hover: 0 14px 30px -5px rgba(0,0,0,0.08);
+  --trans: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -167,16 +168,19 @@ input, select, textarea { font-family: inherit; }
 }
 
 .admin-topbar {
-  background: #fff;
-  border-bottom: 1px solid var(--admin-border);
-  padding: 0 28px;
-  height: 60px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+  padding: 0 32px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 50;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .admin-topbar-title {
@@ -240,6 +244,12 @@ input, select, textarea { font-family: inherit; }
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius);
   box-shadow: var(--admin-shadow);
+  transition: transform var(--trans), box-shadow var(--trans);
+}
+
+.admin-card.interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-hover);
 }
 
 .admin-card-header {
@@ -299,7 +309,12 @@ input, select, textarea { font-family: inherit; }
   border: 1.5px solid var(--admin-border);
   color: var(--admin-text-2);
 }
-.btn-outline:hover { border-color: var(--admin-accent); color: var(--admin-accent); }
+.btn-outline:hover { 
+  border-color: var(--admin-accent); 
+  color: var(--admin-accent); 
+  background: var(--admin-accent-light);
+  transform: translateY(-1px);
+}
 
 .btn-ghost {
   background: transparent;
@@ -340,7 +355,7 @@ input, select, textarea { font-family: inherit; }
 
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   border-color: var(--admin-accent);
-  box-shadow: 0 0 0 3px rgba(108,99,255,0.12);
+  box-shadow: 0 0 0 4px var(--admin-accent-light);
 }
 
 .form-textarea { resize: vertical; min-height: 80px; }
@@ -791,12 +806,29 @@ input, select, textarea { font-family: inherit; }
 /* ── EMPTY STATE ── */
 .empty-state {
   text-align: center;
-  padding: 48px 24px;
+  padding: 64px 32px;
   color: var(--admin-text-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-.empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
-.empty-title { font-size: 0.9rem; font-weight: 600; color: var(--admin-text); margin-bottom: 6px; }
-.empty-sub { font-size: 0.8rem; }
+.empty-icon { 
+  font-size: 3.5rem; 
+  margin-bottom: 16px; 
+  opacity: 0.8;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+.empty-icon.pulse {
+  animation: floatEmpty 3s ease-in-out infinite;
+}
+@keyframes floatEmpty {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+.empty-title { font-size: 1.05rem; font-weight: 700; color: var(--admin-text); margin-bottom: 8px; }
+.empty-sub { font-size: 0.85rem; max-width: 250px; line-height: 1.6; }
 
 /* ── LOGIN PAGE ── */
 .admin-login-page {
