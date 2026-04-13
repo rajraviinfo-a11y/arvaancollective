@@ -2515,6 +2515,8 @@ function initSellerApp() {
       renderSellerApp();
       navigateTo('dashboard');
       showToast('Welcome back!', `Hello, ${result.seller.name.split(' ')[0]} 👋`, 'success');
+    } else {
+      showToast('Login Failed', result.message, 'error');
     }
   });
 
