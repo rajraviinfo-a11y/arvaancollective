@@ -429,10 +429,46 @@ const ADMIN_DEFAULT_SITE = {
   tagline: "India's Premium Online Marketplace",
   primaryColor: '#6C3BFF',
   accentColor: '#FF6B35',
+  
+  // Theme & Identity
+  appearance: {
+    headingFont: 'Playfair Display',
+    bodyFont: 'Inter',
+    logoUrl: '',
+    faviconUrl: '',
+    logoStyle: 'brand-text' // 'image' | 'brand-text'
+  },
+  
+  // Layout & Global Behavior
+  layout: {
+    stickyHeader: true,
+    productCardStyle: 'glass', // 'glass' | 'flat' | 'outline'
+    defaultSort: 'trending',
+    gridColumns: 4
+  },
+  
+  // SEO & Marketing
   seo: {
     titleTemplate: '%s | Arvaan Collective',
     metaDescription: 'Shop electronics, fashion, home decor, wellness & more at Arvaan Collective. Free shipping on ₹999+. Genuine products. Easy returns.'
   },
+  
+  // Announcement Bar
+  announcement: {
+    active: true,
+    text: '🚚 Free Delivery on orders above ₹999',
+    link: 'shop.html'
+  },
+  
+  // Advanced Hooks
+  scripts: {
+    customCss: '',
+    googleAnalyticsId: '',
+    fbPixelId: ''
+  },
+
+  maintenanceMode: false,
+
   footer: {
     copyright: '© 2026 Arvaan Collective. All rights reserved.',
     links: [
@@ -446,8 +482,31 @@ const ADMIN_DEFAULT_SITE = {
     ]
   },
   social: { instagram: '', facebook: '', twitter: '', youtube: '' },
-  contact: { email: 'support@arvaancollective.com', phone: '+91 98765 43210', address: 'Mumbai, Maharashtra, India' }
+  contact: { email: 'support@arvaancollective.com', phone: '+91 98765 43210', address: 'Mumbai, Maharashtra, India' },
+  
+  // Payment Settings
+  payment: {
+    upiEnabled: true,
+    upiId: 'pay@upi',
+    payeeName: 'Arvaan Collective',
+    gateway: {
+      enabled: false,
+      type: 'razorpay',
+      apiKey: '',
+      mode: 'test'
+    }
+  }
 };
+
+const ADMIN_DEFAULT_PAGES = [
+  { slug: 'faq', title: 'Frequently Asked Questions', lastUpdated: 'April 2026', isActive: true, isSeed: true, content: `<h2>How can we assist you?</h2><p>Find quick answers to common questions about shopping with Arvaan Collective.</p><h3>Orders & Payments</h3><p><strong>What payment methods do you accept?</strong><br>We accept all major Credit/Debit Cards, UPI (Google Pay, PhonePe, Paytm), and Cash on Delivery (for eligible pin codes).</p><p><strong>Can I modify an order after placing it?</strong><br>Orders can be cancelled or modified within 2 hours of placement. Please visit the Orders section in your account.</p><h3>Shipping & Returns</h3><p><strong>Do you ship internationally?</strong><br>Currently, Arvaan Collective curates and ships exclusively within India. We plan to expand globally in late 2027.</p><p><strong>How long does a refund take?</strong><br>Following quality check approval at our facility, refunds typically reflect in your bank account within 5-7 business days.</p><h3>Account & Prestige Points</h3><p><strong>How does the Prestige Rewards program work?</strong><br>For every unit spent, you earn 1 Prestige Point. Points define your tier (Silver, Gold, Platinum) and unlock exclusive early-access sales and priority support. Points are valid for 12 months from the date of earning.</p>` },
+  { slug: 'privacy-policy', title: 'Privacy Policy', lastUpdated: 'April 2026', isActive: true, isSeed: true, content: `<h2>Your Privacy is Our Priority</h2><p>We are fully committed to protecting your data and handling it with transparency.</p><h3>Information We Collect</h3><p>We collect device information, IP addresses, and account details securely encrypted at rest. We never sell your personal information to third-party data brokers.</p>` },
+  { slug: 'terms-of-service', title: 'Terms of Service', lastUpdated: 'April 2026', isActive: true, isSeed: true, content: `<h2>Terms of Service</h2><p>By using Arvaan Collective, you agree to these conditions. Please read them carefully.</p><h3>Account Security</h3><p>You are responsible for maintaining the confidentiality of your account and password and for restricting access to your computer.</p>` },
+  { slug: 'return-policy', title: 'Return Policy', lastUpdated: 'April 2026', isActive: true, isSeed: true, content: `<h2>Returns & Exchanges</h2><p>Our goal is 100% customer satisfaction.</p><h3>30-Day Guarantee</h3><p>If you are not entirely satisfied with your purchase, you may return the item in its original condition and packaging within 30 days of receipt for a full refund or exchange.</p>` },
+  { slug: 'shipping-policy', title: 'Shipping Policy', lastUpdated: 'April 2026', isActive: true, isSeed: true, content: `<h2>Shipping Details</h2><p>Getting your purchase safely to you is our priority.</p><h3>Transit Times</h3><p>Standard delivery takes 3-5 business days. Express delivery guarantees arrival within 1-2 business days across major metros.</p>` },
+  { slug: 'about', title: 'Our Story', lastUpdated: 'April 2026', isActive: true, isSeed: true, content: `<div style="text-align: center; max-width: 800px; margin: 0 auto; margin-bottom:40px;"><h2>Curating Excellence, Defining Lifestyle.</h2><p>Founded on the principles of uncompromising quality and artisanal precision, Arvaan Collective is more than a marketplace. We are a gallery of the fine works that represent the pinnacle of Indian and global craftsmanship.</p></div><h2>Our Vision</h2><p>We believe that luxury shouldn't be distant. It should be the quality of the tech you use daily, the comfort of the garments you wear, and the soul of the home you build.</p><p>Every product in our collective undergoes a rigorous 25-point quality assessment. If it doesn't meet the Arvaan standard, it doesn't enter our inventory. That is our promise to you.</p>` },
+  { slug: 'contact', title: 'Contact Us', lastUpdated: 'April 2026', isActive: true, isSeed: true, content: `<h2>We're Here for You</h2><p>Have a question or need assistance? Reach out to our concierge service 24/7.</p><h3>Customer Support</h3><p>Email: support@arvaancollective.com<br>Phone: +91 98765 43210</p><h3>Corporate Office</h3><p>Arvaan Collective HQ<br>Bandra Kurla Complex<br>Mumbai, Maharashtra, India 400051</p>` }
+];
 
 const AdminStore = {
   _key(k) { return `arvaan_admin_${k}`; },
@@ -479,6 +538,11 @@ const AdminStore = {
   getSiteConfig() { return this.get('site') || ADMIN_DEFAULT_SITE; },
   setSiteConfig(cfg) { this.set('site', cfg); },
 
+  // Pages
+  getPages() { return this.get('pages') || ADMIN_DEFAULT_PAGES; },
+  setPages(pages) { this.set('pages', pages); },
+  getPage(slug) { return this.getPages().find(p => p.slug === slug); },
+
   // Admin session
   getSession() { return this.get('session'); },
   setSession(s) { this.set('session', s); },
@@ -503,6 +567,7 @@ const AdminStore = {
     if (!this.get('homepage'))   this.setHomepage(ADMIN_DEFAULT_HOMEPAGE);
     if (!this.get('filters'))    this.setAllFilters(ADMIN_DEFAULT_FILTERS);
     if (!this.get('site'))       this.setSiteConfig(ADMIN_DEFAULT_SITE);
+    if (!this.get('pages'))      this.setPages(ADMIN_DEFAULT_PAGES);
   },
 
   genId(prefix) { return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`; }

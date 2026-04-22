@@ -10,61 +10,12 @@
 
   <div class="admin-layout">
     
-    <!-- SIDEBAR -->
-    <aside class="admin-sidebar" id="admin-sidebar">
-      <div class="admin-sidebar-header">
-        <div class="admin-brand">
-          <div class="admin-brand-icon">A</div>
-          <div>
-            <div class="admin-brand-text">Arvaan Admin</div>
-            <div class="admin-brand-sub">Storefront Manager</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="admin-nav">
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Overview</div>
-          <a href="dashboard.html" class="admin-nav-item">
-            <span class="nav-icon">📊</span> Dashboard
-          </a>
-          <a href="#" class="admin-nav-item preview-btn" onclick="openStorefrontPreview(); return false;" style="margin-top: 10px;">
-            <span class="nav-icon">👁️</span> Live Storefront
-          </a>
-        </div>
-        
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Storefront Content</div>
-          <a href="categories.html" class="admin-nav-item">
-            <span class="nav-icon">📁</span> Category Manager
-          </a>
-          <a href="homepage.html" class="admin-nav-item active">
-            <span class="nav-icon">🏠</span> Homepage Manager
-          </a>
-          <a href="filters.html" class="admin-nav-item">
-            <span class="nav-icon">🎛️</span> Filters Manager
-          </a>
-        </div>
-        
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Configuration</div>
-          <a href="settings.html" class="admin-nav-item">
-            <span class="nav-icon">⚙️</span> Site Settings
-          </a>
-        </div>
-      </div>
-      
-      <div class="admin-sidebar-footer">
-        <a href="#" class="admin-nav-item" id="admin-logout-btn">
-          <span class="nav-icon">🚪</span> Logout
-        </a>
-      </div>
-    </aside>
+    <!-- SIDEBAR will be injected by JS in renderAdminSidebar() -->
 
     <!-- MAIN APP -->
     <main class="admin-main">
       <header class="admin-topbar">
-        <div class="admin-topbar-title" id="topbar-title">Homepage Manager</div>
+        <div class="admin-topbar-title" id="topbar-title">Homepage Builder</div>
         <div class="admin-topbar-right">
           <div class="admin-topbar-email" id="topbar-email">admin@domain.com</div>
           <div class="admin-avatar" id="topbar-avatar">A</div>
@@ -75,8 +26,11 @@
         
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">Homepage Sections</h1>
-            <p class="admin-page-sub">Drag to reorder sections. Toggle visibility or select a section to configure its content.</p>
+            <h1 class="admin-page-title">Storefront Builder</h1>
+            <p class="admin-page-sub">Drag and drop sections to arrange your homepage. Each block represents a curated storefront row.</p>
+          </div>
+          <div>
+            <button class="btn btn-outline" onclick="openStorefrontPreview()">👁️ View Live Home</button>
           </div>
         </div>
 
@@ -84,21 +38,28 @@
           
           <!-- LEFT: SECTION LIST -->
           <div>
-            <div id="section-list" style="display: flex; flex-direction: column; gap: 8px;">
-              <!-- Rendered via JS -->
+            <div class="admin-card glass-panel" style="margin-bottom: 20px;">
+                <div class="admin-card-header">
+                    <h2 class="admin-card-title">Homepage Layout</h2>
+                </div>
+                <div class="admin-card-body" style="padding: 12px; background: rgba(243,244,248,0.3);">
+                    <div id="section-list" style="display: flex; flex-direction: column; gap: 10px;">
+                      <!-- Rendered via JS -->
+                    </div>
+                </div>
             </div>
           </div>
 
           <!-- RIGHT: CONFIG PANEL -->
-          <div class="admin-card config-panel" id="config-panel" style="display: none;">
+          <div class="admin-card config-panel glass-panel" id="config-panel" style="display: none;">
             <div class="config-panel-header">
-              <span id="config-title">Edit Section</span>
+              <span id="config-title">Configure Block</span>
               <label class="toggle-wrap" style="float: right;">
                 <div class="toggle">
                   <input type="checkbox" id="section-enabled">
                   <div class="toggle-track"></div>
                 </div>
-                <span class="toggle-label text-sm" style="font-weight: 600;">Enabled</span>
+                <span class="toggle-label text-sm" style="font-weight: 700;">Visible</span>
               </label>
             </div>
             
@@ -109,18 +70,18 @@
                 <!-- Dynamic Form Fields will be injected here -->
                 <div id="dynamic-fields"></div>
 
-                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
-                  <button type="submit" class="btn btn-success">Save Configuration</button>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px; border-top: 1px solid var(--admin-border); padding-top: 24px;">
+                  <button type="submit" class="btn btn-success">Update Storefront Block</button>
                 </div>
               </form>
             </div>
           </div>
           
-          <div class="admin-card config-panel interactive" id="empty-state" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: linear-gradient(180deg, #fff 0%, var(--admin-bg) 100%);">
+          <div class="admin-card config-panel interactive glass-panel" id="empty-state" style="display: flex; align-items: center; justify-content: center; min-height: 480px; background: rgba(255,255,255,0.4);">
             <div class="empty-state">
-              <div class="empty-icon pulse" style="font-size: 4rem;">✨</div>
-              <div class="empty-title">Select a section to configure</div>
-              <div class="empty-sub">Click any block from the list to edit its content and settings.</div>
+              <div class="empty-icon pulse" style="font-size: 4rem;">🏠</div>
+              <div class="empty-title">Craft Your Store Experience</div>
+              <div class="empty-sub">Select a block from the layout on the left to customize its content, products, or visibility.</div>
             </div>
           </div>
 
@@ -133,27 +94,32 @@
   <script src="../js/admin.js"></script>
   <script>
     adminAuthGuard();
-    setupTopbar('Homepage Manager');
+    setupTopbar('Storefront Builder');
 
     let homeConfig = AdminStore.getHomepage();
     let selectedType = null;
     
-    const SECTION_ICONS = {
-      'hero': '✨', 'featured-categories': '📁', 'featured-products': '🔥',
-      'flash-sale': '⚡', 'promo-banner': '🖼️', 'new-arrivals': '🆕',
-      'testimonials': '💬', 'newsletter': '✉️'
+    const SECTION_PREVIEWS = {
+      'hero': '<div class="mini-hero" style="width:100%; height:100%; background:var(--admin-accent); opacity:0.6; display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px;">HERO</div>',
+      'featured-categories': '<div class="mini-grid"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>',
+      'featured-products': '<div class="mini-grid"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>',
+      'flash-sale': '<div style="width:100%; height:12px; background:var(--admin-warning); border-radius:2px; margin-top:6px;"></div>',
+      'promo-banner': '<div style="display:flex; gap:2px; height:100%;"><div style="flex:1; background:#CBD5E1;"></div><div style="flex:1; background:#94A3B8;"></div></div>',
+      'new-arrivals': '<div class="mini-grid"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>',
+      'testimonials': '<div style="display:flex; flex-direction:column; gap:2px; padding:4px;"><div style="width:60%; height:3px; background:#CBD5E1;"></div><div style="width:40%; height:3px; background:#CBD5E1;"></div></div>',
+      'newsletter': '<div style="width:100%; height:14px; background:#000; margin-top:5px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:6px;">@</div>'
     };
+
     const SECTION_NAMES = {
-      'hero': 'Hero Banner', 'featured-categories': 'Featured Categories', 'featured-products': 'Best Sellers Grid',
-      'flash-sale': 'Flash Sale Slider', 'promo-banner': 'Promo Cards', 'new-arrivals': 'New Arrivals',
-      'testimonials': 'Customer Reviews', 'newsletter': 'Newsletter Strip'
+      'hero': 'Modern Hero Banner', 'featured-categories': 'Category Quick-Links', 'featured-products': 'Top Rated Spotlight',
+      'flash-sale': 'Flash Sale Ticker', 'promo-banner': 'Seasonal Promo Cards', 'new-arrivals': 'New Season Grid',
+      'testimonials': 'Trust Badges & Reviews', 'newsletter': 'Email Signup Footer'
     };
 
     function renderList() {
       const listEl = document.getElementById('section-list');
       listEl.innerHTML = '';
       
-      // Sort by order
       homeConfig.sections.sort((a,b) => a.order - b.order);
 
       homeConfig.sections.forEach(sec => {
@@ -161,13 +127,15 @@
         item.className = `section-item ${selectedType === sec.type ? 'active-section' : ''} ${!sec.isEnabled ? 'disabled-section' : ''}`;
         item.dataset.type = sec.type;
         item.innerHTML = `
-          <div class="section-drag">≡</div>
-          <div class="section-icon">${SECTION_ICONS[sec.type] || '📦'}</div>
+          <div class="section-drag" title="Drag to reorder">≡</div>
+          <div class="block-preview">
+            ${SECTION_PREVIEWS[sec.type] || '📦'}
+          </div>
           <div class="section-info">
             <div class="section-name">${SECTION_NAMES[sec.type]}</div>
-            <div class="section-desc">${sec.isEnabled ? 'Visible on storefront' : 'Hidden'}</div>
+            <div class="section-desc">${sec.isEnabled ? 'Visible on storefront' : 'Hidden Row'}</div>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editSection('${sec.type}')">Edit</button>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editSection('${sec.type}')">Configure</button>
         `;
         item.onclick = () => editSection(sec.type);
         listEl.appendChild(item);
@@ -177,7 +145,7 @@
         const types = items.map(el => el.dataset.type);
         homeConfig.sections.forEach(s => { s.order = types.indexOf(s.type); });
         AdminStore.setHomepage(homeConfig);
-        adminToast('Homepage order updated');
+        adminToast('Homepage layout updated');
         renderList();
       });
     }
@@ -193,13 +161,10 @@
       document.getElementById('config-panel').style.display = 'block';
       document.getElementById('config-title').textContent = SECTION_NAMES[type];
       document.getElementById('section-type').value = type;
-      
-      const enableCb = document.getElementById('section-enabled');
-      enableCb.checked = sec.isEnabled;
+      document.getElementById('section-enabled').checked = sec.isEnabled === true;
       
       const dyn = document.getElementById('dynamic-fields');
       dyn.innerHTML = '';
-
       const { config } = sec;
 
       if(type === 'hero') {
@@ -207,47 +172,26 @@
           <div class="form-group"><label class="form-label">Headline</label><input type="text" id="cfg-hd" class="form-input" value="${config.headline||''}"></div>
           <div class="form-group"><label class="form-label">Sub Text</label><textarea id="cfg-sub" class="form-textarea">${config.subText||''}</textarea></div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">Primary CTA Label</label><input type="text" id="cfg-btn1" class="form-input" value="${config.ctaLabel||''}"></div>
-            <div class="form-group"><label class="form-label">Primary CTA URL</label><input type="text" id="cfg-url1" class="form-input" value="${config.ctaUrl||''}"></div>
+            <div class="form-group"><label class="form-label">Primary Button</label><input type="text" id="cfg-btn1" class="form-input" value="${config.btn1Label||config.ctaLabel||''}"></div>
+            <div class="form-group"><label class="form-label">Target Link</label><input type="text" id="cfg-url1" class="form-input" value="${config.btn1Url||config.ctaUrl||''}"></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">Secondary CTA Label</label><input type="text" id="cfg-btn2" class="form-input" value="${config.ctaSecondaryLabel||''}"></div>
-            <div class="form-group"><label class="form-label">Secondary CTA URL</label><input type="text" id="cfg-url2" class="form-input" value="${config.ctaSecondaryUrl||''}"></div>
+            <div class="form-group"><label class="form-label">Secondary Button</label><input type="text" id="cfg-btn2" class="form-input" value="${config.btn2Label||config.ctaSecondaryLabel||''}"></div>
+            <div class="form-group"><label class="form-label">Secondary Link</label><input type="text" id="cfg-url2" class="form-input" value="${config.btn2Url||config.ctaSecondaryUrl||''}"></div>
           </div>
         `;
       } 
-      else if(type === 'featured-categories') {
-        // Multi-select for categories
-        const cats = AdminStore.getCategories() || [];
-        const opts = cats.map(c => `
-          <label style="display:flex; gap:8px; align-items:center; margin-bottom:6px; font-size:0.85rem;">
-            <input type="checkbox" name="cfg-cats" value="${c.id}" ${(config.categoryIds||[]).includes(c.id)?'checked':''}>
-            ${c.icon||''} ${c.name}
-          </label>
-        `).join('');
-        
+      else if (['featured-products', 'flash-sale', 'new-arrivals', 'featured-categories'].includes(type)) {
         dyn.innerHTML = `
           <div class="form-group"><label class="form-label">Section Heading</label><input type="text" id="cfg-hd" class="form-input" value="${config.heading||''}"></div>
-          <div class="form-group">
-            <label class="form-label">Select Categories to Feature</label>
-            <div style="padding:12px; border:1px solid var(--admin-border); border-radius:8px; max-height:200px; overflow-y:auto;">
-              ${opts}
-            </div>
-          </div>
-          <div class="form-group"><label class="form-label">Max Items to Show</label><input type="number" id="cfg-max" class="form-input" value="${config.maxItems||6}"></div>
-        `;
-      }
-      else if (['featured-products', 'flash-sale', 'new-arrivals'].includes(type)) {
-        dyn.innerHTML = `
-          <div class="form-group"><label class="form-label">Section Heading</label><input type="text" id="cfg-hd" class="form-input" value="${config.heading||''}"></div>
-          ${type === 'flash-sale' ? `<div class="form-group"><label class="form-label">Sub Text</label><input type="text" id="cfg-sub" class="form-input" value="${config.subText||''}"></div>` : ''}
+          ${(type === 'flash-sale' || type === 'hero') ? `<div class="form-group"><label class="form-label">Context Subtitle</label><input type="text" id="cfg-sub" class="form-input" value="${config.subText||''}"></div>` : ''}
           <div class="form-row">
-            <div class="form-group"><label class="form-label">Product Match Rule</label>
+            <div class="form-group"><label class="form-label">Product Feed Rule</label>
               <select id="cfg-rule" class="form-select">
-                <option value="top-rated" ${config.rule==='top-rated'?'selected':''}>Highest Rated</option>
-                <option value="on-sale" ${config.rule==='on-sale'?'selected':''}>Highest Discount</option>
-                <option value="newest" ${config.rule==='newest'?'selected':''}>Newest Arrivals</option>
-                <option value="trending" ${config.rule==='trending'?'selected':''}>Trending</option>
+                <option value="top-rated" ${config.rule==='top-rated'?'selected':''}>Highest Customer Rating</option>
+                <option value="on-sale" ${config.rule==='on-sale'?'selected':''}>Best Discounts</option>
+                <option value="newest" ${config.rule==='newest'?'selected':''}>Just Added</option>
+                <option value="trending" ${config.rule==='trending'?'selected':''}>Global Trending</option>
               </select>
             </div>
             <div class="form-group"><label class="form-label">Max Items</label><input type="number" id="cfg-max" class="form-input" value="${config.maxItems||8}"></div>
@@ -255,15 +199,39 @@
         `;
       }
       else if (type === 'promo-banner') {
+        const cards = config.cards || [
+            { id: 1, title: 'Men Summer Collection', sub: 'Up to 50% Off', link: '/category/men' },
+            { id: 2, title: 'Elite Tech Gear', sub: 'New Arrivals', link: '/category/tech' }
+        ];
+        
+        let cardInputs = '';
+        cards.forEach((c, i) => {
+            cardInputs += `
+                <div class="admin-card glass-panel" style="padding:16px; margin-bottom:12px; background:rgba(255,255,255,0.6);">
+                    <div style="font-weight:700; font-size:0.75rem; margin-bottom:12px; color:var(--admin-accent);">PROMO CARD #${i+1}</div>
+                    <div class="form-group"><label class="form-label">Main Title</label><input type="text" name="card-title" class="form-input" value="${c.title||''}"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Subtitle</label><input type="text" name="card-sub" class="form-input" value="${c.sub||''}"></div>
+                        <div class="form-group"><label class="form-label">URL Path</label><input type="text" name="card-link" class="form-input" value="${c.link||''}"></div>
+                    </div>
+                </div>
+            `;
+        });
+
         dyn.innerHTML = `
-          <div class="form-hint" style="margin-bottom:16px;">Promo cards are managed directly in code for layout preservation in MVP Phase. Use Global Settings to change colors.</div>
-          <div class="empty-state" style="padding:24px; border:1px dashed #e2e2e2; border-radius:8px;">
-            <div>Cards are configured. Toggle switch above to show/hide.</div>
+          <div class="form-group"><label class="form-label">Promo Grid Layout</label>
+            <div style="display:grid; grid-template-columns:1fr; gap:12px;">
+                ${cardInputs}
+            </div>
           </div>
         `;
       }
       else {
-        dyn.innerHTML = `<div class="form-hint">No specific configuration required for this block. Use the toggle above to enable or disable it on the storefront.</div>`;
+        dyn.innerHTML = `<div class="empty-state" style="padding:32px; border:1px dashed var(--admin-border); border-radius:12px;">
+            <div style="font-size:2rem; margin-bottom:12px;">✨</div>
+            <div style="font-weight:600;">No deep configuration needed</div>
+            <div class="text-xs text-2">This block uses automatic data feeds. Use the Visibility toggle above to show or hide it.</div>
+        </div>`;
       }
     }
 
@@ -279,27 +247,31 @@
       if(type === 'hero') {
         sec.config.headline = document.getElementById('cfg-hd').value;
         sec.config.subText = document.getElementById('cfg-sub').value;
-        sec.config.ctaLabel = document.getElementById('cfg-btn1').value;
-        sec.config.ctaUrl = document.getElementById('cfg-url1').value;
-        sec.config.ctaSecondaryLabel = document.getElementById('cfg-btn2').value;
-        sec.config.ctaSecondaryUrl = document.getElementById('cfg-url2').value;
+        sec.config.btn1Label = document.getElementById('cfg-btn1').value;
+        sec.config.btn1Url = document.getElementById('cfg-url1').value;
+        sec.config.btn2Label = document.getElementById('cfg-btn2').value;
+        sec.config.btn2Url = document.getElementById('cfg-url2').value;
       }
-      else if(type === 'featured-categories') {
-        sec.config.heading = document.getElementById('cfg-hd').value;
-        sec.config.maxItems = parseInt(document.getElementById('cfg-max').value, 10);
-        const cbs = document.querySelectorAll('input[name="cfg-cats"]:checked');
-        sec.config.categoryIds = Array.from(cbs).map(cb => cb.value);
+      else if(type === 'promo-banner') {
+        const titles = document.getElementsByName('card-title');
+        const subs = document.getElementsByName('card-sub');
+        const links = document.getElementsByName('card-link');
+        sec.config.cards = [];
+        for(let i=0; i<titles.length; i++) {
+            sec.config.cards.push({ title: titles[i].value, sub: subs[i].value, link: links[i].value });
+        }
       }
-      else if (['featured-products', 'flash-sale', 'new-arrivals'].includes(type)) {
+      else if (['featured-products', 'flash-sale', 'new-arrivals', 'featured-categories'].includes(type)) {
         sec.config.heading = document.getElementById('cfg-hd').value;
-        if(document.getElementById('cfg-sub')) sec.config.subText = document.getElementById('cfg-sub').value;
+        const sub = document.getElementById('cfg-sub');
+        if(sub) sec.config.subText = sub.value;
         sec.config.rule = document.getElementById('cfg-rule').value;
         sec.config.maxItems = parseInt(document.getElementById('cfg-max').value, 10);
       }
 
       AdminStore.setHomepage(homeConfig);
       renderList();
-      adminToast('Section configuration saved');
+      adminToast('Storefront block updated successfully');
     };
 
     renderList();

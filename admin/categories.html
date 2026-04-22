@@ -10,61 +10,12 @@
 
   <div class="admin-layout">
     
-    <!-- SIDEBAR -->
-    <aside class="admin-sidebar" id="admin-sidebar">
-      <div class="admin-sidebar-header">
-        <div class="admin-brand">
-          <div class="admin-brand-icon">A</div>
-          <div>
-            <div class="admin-brand-text">Arvaan Admin</div>
-            <div class="admin-brand-sub">Storefront Manager</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="admin-nav">
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Overview</div>
-          <a href="dashboard.html" class="admin-nav-item">
-            <span class="nav-icon">📊</span> Dashboard
-          </a>
-          <a href="#" class="admin-nav-item preview-btn" onclick="openStorefrontPreview(); return false;" style="margin-top: 10px;">
-            <span class="nav-icon">👁️</span> Live Storefront
-          </a>
-        </div>
-        
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Storefront Content</div>
-          <a href="categories.html" class="admin-nav-item active">
-            <span class="nav-icon">📁</span> Category Manager
-          </a>
-          <a href="homepage.html" class="admin-nav-item">
-            <span class="nav-icon">🏠</span> Homepage Manager
-          </a>
-          <a href="filters.html" class="admin-nav-item">
-            <span class="nav-icon">🎛️</span> Filters Manager
-          </a>
-        </div>
-        
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Configuration</div>
-          <a href="settings.html" class="admin-nav-item">
-            <span class="nav-icon">⚙️</span> Site Settings
-          </a>
-        </div>
-      </div>
-      
-      <div class="admin-sidebar-footer">
-        <a href="#" class="admin-nav-item" id="admin-logout-btn">
-          <span class="nav-icon">🚪</span> Logout
-        </a>
-      </div>
-    </aside>
+    <!-- SIDEBAR will be injected by JS in renderAdminSidebar() -->
 
     <!-- MAIN APP -->
     <main class="admin-main">
       <header class="admin-topbar">
-        <div class="admin-topbar-title" id="topbar-title">Category Manager</div>
+        <div class="admin-topbar-title" id="topbar-title">Category Architecture</div>
         <div class="admin-topbar-right">
           <div class="admin-topbar-email" id="topbar-email">admin@domain.com</div>
           <div class="admin-avatar" id="topbar-avatar">A</div>
@@ -75,10 +26,11 @@
         
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">Category Manager</h1>
-            <p class="admin-page-sub">Configure the main navigation and category tree for the storefront.</p>
+            <h1 class="admin-page-title">Category Architecture</h1>
+            <p class="admin-page-sub">Define your store's hierarchy. Drag to reorder, nest sub-categories, or toggle visibility.</p>
           </div>
-          <div>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-outline" onclick="openStorefrontPreview()">👁️ Preview Store</button>
             <button class="btn btn-primary" onclick="createNewParent()">+ Add Parent Category</button>
           </div>
         </div>
@@ -86,11 +38,12 @@
         <div class="split-layout">
           
           <!-- LEFT: CATEGORY TREE -->
-          <div class="admin-card interactive">
+          <div class="admin-card glass-panel" style="min-height: 600px;">
             <div class="admin-card-header">
-              <h2 class="admin-card-title">Navigation Tree</h2>
+              <h2 class="admin-card-title">Navigation Hierarchy</h2>
+              <span class="badge badge-purple" id="cat-count-badge">0 Categories</span>
             </div>
-            <div class="admin-card-body" style="padding: 12px; background: var(--admin-bg);">
+            <div class="admin-card-body" style="padding: 16px; background: rgba(243, 244, 248, 0.4);">
               <div id="category-tree" class="cat-tree">
                 <!-- Javascript will render the tree here -->
               </div>
@@ -98,9 +51,9 @@
           </div>
 
           <!-- RIGHT: EDIT PANEL -->
-          <div class="admin-card config-panel" id="edit-panel" style="display: none;">
+          <div class="admin-card config-panel glass-panel" id="edit-panel" style="display: none;">
             <div class="config-panel-header" id="edit-panel-title">
-              Edit Category
+              Category Settings
             </div>
             <div class="config-panel-body">
               <form id="category-form">
@@ -109,53 +62,75 @@
                 
                 <div class="form-row">
                   <div class="form-group">
-                    <label class="form-label">Category Name</label>
+                    <label class="form-label">Display Name</label>
                     <input type="text" id="cat-name" class="form-input" required placeholder="e.g. Menswear">
                   </div>
                   <div class="form-group">
                     <label class="form-label">URL Slug</label>
                     <input type="text" id="cat-slug" class="form-input" required placeholder="e.g. menswear">
-                    <div class="form-hint">Used in URLs: /category/menswear</div>
+                    <div class="form-hint">Path: /category/<strong>menswear</strong></div>
                   </div>
                 </div>
 
                 <div class="form-row">
                   <div class="form-group">
-                    <label class="form-label">Icon / Emoji (Optional)</label>
-                    <input type="text" id="cat-icon" class="form-input" placeholder="e.g. 👕 or url">
+                    <label class="form-label">Icon / Emoji</label>
+                    <div style="display: flex; gap: 8px;">
+                      <input type="text" id="cat-icon" class="form-input" placeholder="e.g. 👕" style="width: 80px; text-align: center; font-size: 1.2rem;">
+                      <div class="form-select" id="emoji-quick-select" style="display:flex; gap:8px; align-items:center; cursor:default; overflow-x:auto; flex:1; padding: 4px 8px;">
+                        <span class="emoji-opt" style="cursor:pointer;" onclick="setEmoji('✨')">✨</span>
+                        <span class="emoji-opt" style="cursor:pointer;" onclick="setEmoji('🔥')">🔥</span>
+                        <span class="emoji-opt" style="cursor:pointer;" onclick="setEmoji('📁')">📁</span>
+                        <span class="emoji-opt" style="cursor:pointer;" onclick="setEmoji('👕')">👕</span>
+                        <span class="emoji-opt" style="cursor:pointer;" onclick="setEmoji('📱')">📱</span>
+                        <span class="emoji-opt" style="cursor:pointer;" onclick="setEmoji('🏠')">🏠</span>
+                        <span class="emoji-opt" style="cursor:pointer;" onclick="setEmoji('💄')">💄</span>
+                      </div>
+                    </div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Visibility</label>
-                    <label class="toggle-wrap" style="margin-top: 10px;">
+                    <label class="form-label">Visibility Status</label>
+                    <label class="toggle-wrap" style="margin-top: 8px;">
                       <div class="toggle">
                         <input type="checkbox" id="cat-visible" checked>
                         <div class="toggle-track"></div>
                       </div>
-                      <span class="toggle-label text-sm">Show in storefront navigation</span>
+                      <span class="toggle-label text-sm" style="font-weight: 600;">Active in Nav Menu</span>
                     </label>
                   </div>
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label">Description (Optional)</label>
-                  <textarea id="cat-desc" class="form-textarea" placeholder="Brief description for SEO or internal use..."></textarea>
+                    <label class="form-label">Live Appearance Preview</label>
+                    <div class="live-preview-box">
+                        <div class="preview-nav-item" id="nav-preview-item">
+                            <span id="p-icon">📁</span>
+                            <span id="p-name">Category Name</span>
+                        </div>
+                        <p class="form-hint" style="margin-top: 8px;">This is how it will appear in the top navigation bar.</p>
+                    </div>
                 </div>
 
-                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
-                  <button type="button" class="btn btn-danger" id="btn-delete-cat" style="margin-right: auto;">Delete</button>
+                <div class="form-group">
+                  <label class="form-label">Description (Optional)</label>
+                  <textarea id="cat-desc" class="form-textarea" placeholder="Describe this category..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px;">
+                  <button type="button" class="btn btn-danger btn-ghost" id="btn-delete-cat" style="margin-right: auto;">Delete Category</button>
                   <button type="button" class="btn btn-outline" onclick="closeEditPanel()">Cancel</button>
-                  <button type="submit" class="btn btn-success">Save Category</button>
+                  <button type="submit" class="btn btn-success">Update Architecture</button>
                 </div>
               </form>
             </div>
           </div>
           
           <!-- EMPTY STATE FOR EDIT PANEL -->
-          <div class="admin-card config-panel interactive" id="empty-edit-state" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: linear-gradient(180deg, #fff 0%, var(--admin-bg) 100%);">
+          <div class="admin-card config-panel interactive glass-panel" id="empty-edit-state" style="display: flex; align-items: center; justify-content: center; min-height: 480px; background: rgba(255,255,255,0.4);">
             <div class="empty-state">
-              <div class="empty-icon pulse" style="font-size: 4rem;">✨</div>
-              <div class="empty-title">Select a category to edit</div>
-              <div class="empty-sub">Click any parent or child category from the tree on the left to configure its details.</div>
+              <div class="empty-icon pulse" style="font-size: 4rem;">📁</div>
+              <div class="empty-title">Refining the Category Tree</div>
+              <div class="empty-sub">Select a category from the architecture map on the left to edit its details, icons, or nested depth.</div>
             </div>
           </div>
 
@@ -169,24 +144,42 @@
   <script src="../js/admin.js"></script>
   <script>
     adminAuthGuard();
-    setupTopbar('Category Manager');
+    setupTopbar('Category Architecture');
 
     let categories = AdminStore.getCategories() || [];
     let selectedCatId = null;
     let isEditingChild = false;
 
+    function setEmoji(e) {
+        document.getElementById('cat-icon').value = e;
+        updatePreview();
+    }
+
+    function updatePreview() {
+        document.getElementById('p-icon').textContent = document.getElementById('cat-icon').value || '📁';
+        document.getElementById('p-name').textContent = document.getElementById('cat-name').value || 'Category Name';
+    }
+
+    document.getElementById('cat-name').addEventListener('input', updatePreview);
+    document.getElementById('cat-icon').addEventListener('input', updatePreview);
+
     // ── RENDER TREE ──
     function renderTree() {
       categories.sort((a, b) => (a.order || 0) - (b.order || 0));
+      let totalCount = categories.length;
       categories.forEach(p => {
-        if (p.children) p.children.sort((a, b) => (a.order || 0) - (b.order || 0));
+        if (p.children) {
+            p.children.sort((a, b) => (a.order || 0) - (b.order || 0));
+            totalCount += p.children.length;
+        }
       });
+      document.getElementById('cat-count-badge').textContent = `${totalCount} Total`;
 
       const tree = document.getElementById('category-tree');
       tree.innerHTML = '';
 
       if (categories.length === 0) {
-        tree.innerHTML = `<div class="empty-state" style="padding: 20px;">No categories configured.</div>`;
+        tree.innerHTML = `<div class="empty-state" style="padding: 24px;">No categories yet. Click "Add Parent" to start.</div>`;
         return;
       }
 
@@ -198,10 +191,11 @@
         let childrenHtml = '';
         if (parent.children && parent.children.length > 0) {
           childrenHtml = parent.children.map(child => `
-            <div class="cat-child-item ${selectedCatId === child.id ? 'selected' : ''}" data-id="${child.id}" data-parent="${parent.id}">
+            <div class="cat-child-item ${selectedCatId === child.id ? 'selected' : ''}" data-id="${child.id}" data-parent="${parent.id}" style="position:relative;">
+              <div class="hier-branch"></div>
               <div class="cat-drag-handle">≡</div>
-              <div class="cat-child-name">${child.icon ? child.icon+' ' : ''}${child.name}</div>
-              ${!child.isVisible ? '<span class="badge badge-gray">Hidden</span>' : ''}
+              <div class="cat-child-name" style="font-weight: 600;">${child.icon ? child.icon+' ' : ''}${child.name}</div>
+              ${!child.isVisible ? '<span class="badge badge-gray" style="zoom: 0.8;">Hidden</span>' : ''}
               <div class="cat-tree-actions" style="margin-left: auto;">
                 <button class="btn btn-icon btn-ghost" onclick="editCategory('${child.id}', true, '${parent.id}', event)">✏️</button>
               </div>
@@ -213,16 +207,17 @@
           <div class="cat-tree-header" onclick="editCategory('${parent.id}', false, null, event)">
             <div class="cat-drag-handle">≡</div>
             <div class="cat-tree-icon">${parent.icon || '📁'}</div>
-            <div class="cat-tree-name">${parent.name}</div>
-            ${!parent.isVisible ? '<span class="badge badge-gray">Hidden</span>' : ''}
+            <div class="cat-tree-name" style="font-size: 0.95rem;">${parent.name}</div>
+            ${!parent.isVisible ? '<span class="badge badge-gray" style="zoom: 0.8;">Hidden</span>' : ''}
             <div class="cat-tree-actions">
               <button class="btn btn-icon btn-ghost" onclick="event.stopPropagation(); editCategory('${parent.id}', false, null, event)">✏️</button>
             </div>
           </div>
-          <div class="cat-children" id="children-${parent.id}">
+          <div class="cat-children" id="children-${parent.id}" style="position:relative;">
+            ${parent.children?.length > 0 ? '<div class="hier-guide"></div>' : ''}
             ${childrenHtml}
-            <button class="add-child-btn" onclick="createNewChild('${parent.id}')">
-              <span>+</span> Add Sub-Category
+            <button class="add-child-btn" style="margin-left: ${parent.children?.length > 0 ? '0' : '0'}" onclick="createNewChild('${parent.id}')">
+              <span style="font-weight: bold;">+</span> Add Sub-Category
             </button>
           </div>
         `;
@@ -235,10 +230,10 @@
         categories.forEach(c => { c.order = newOrder.indexOf(c.id); });
         AdminStore.setCategories(categories);
         renderTree();
-        adminToast('Navigation order updated');
+        adminToast('Navigation hierarchy updated');
       });
 
-      // Enable drag reorder for children within each parent
+      // Enable drag reorder for children
       categories.forEach(parent => {
         const childContainer = document.getElementById(`children-${parent.id}`);
         if(childContainer) {
@@ -249,7 +244,7 @@
               parentCat.children.forEach(c => { c.order = newOrder.indexOf(c.id); });
               AdminStore.setCategories(categories);
               renderTree();
-              adminToast('Sub-category order updated');
+              adminToast('Architecture depth updated');
             }
           });
         }
@@ -260,15 +255,15 @@
     function closeEditPanel() {
       selectedCatId = null;
       document.getElementById('edit-panel').style.display = 'none';
-      document.getElementById('empty-edit-state').style.display = 'block';
-      renderTree(); // remove selection highlight
+      document.getElementById('empty-edit-state').style.display = 'flex';
+      renderTree();
     }
 
     function editCategory(id, isChild, parentId = null, event) {
       if (event) event.stopPropagation();
       selectedCatId = id;
       isEditingChild = isChild;
-      renderTree(); // trigger highlight
+      renderTree();
 
       let catData = null;
       if (isChild) {
@@ -282,7 +277,7 @@
 
       document.getElementById('empty-edit-state').style.display = 'none';
       document.getElementById('edit-panel').style.display = 'block';
-      document.getElementById('edit-panel-title').textContent = isChild ? `Edit Sub-Category: ${catData.name}` : `Edit Parent: ${catData.name}`;
+      document.getElementById('edit-panel-title').textContent = isChild ? `Sub-Category: ${catData.name}` : `Parent: ${catData.name}`;
       
       document.getElementById('cat-id').value = catData.id;
       document.getElementById('cat-parent-id').value = parentId || '';
@@ -292,10 +287,11 @@
       document.getElementById('cat-visible').checked = catData.isVisible !== false;
       document.getElementById('cat-desc').value = catData.description || '';
 
-      // Delete handler
+      updatePreview();
+
       const delBtn = document.getElementById('btn-delete-cat');
       delBtn.onclick = () => {
-        if (confirm(`Are you sure you want to delete "${catData.name}"?`)) {
+        if (confirm(`Permanent removal of "${catData.name}"? This cannot be undone.`)) {
           if (isChild) {
             const parent = categories.find(c => c.id === parentId);
             parent.children = parent.children.filter(c => c.id !== id);
@@ -304,7 +300,7 @@
           }
           AdminStore.setCategories(categories);
           closeEditPanel();
-          adminToast('Category deleted');
+          adminToast('Node removed from architecture');
         }
       };
     }
@@ -329,7 +325,6 @@
       editCategory(id, true, parentId);
     }
 
-    // Auto-slug
     document.getElementById('cat-name').addEventListener('input', e => {
       document.getElementById('cat-slug').value = generateSlug(e.target.value);
     });
@@ -359,7 +354,7 @@
 
       AdminStore.setCategories(categories);
       renderTree();
-      adminToast('Category saved successfully');
+      adminToast('Architecture updated successfully');
     };
 
     renderTree();

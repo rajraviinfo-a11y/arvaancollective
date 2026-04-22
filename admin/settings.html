@@ -3,199 +3,561 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Site Settings | Admin Panel</title>
+  <title>Website Configuration | Admin Panel</title>
   <link rel="stylesheet" href="../css/admin.css">
+  <style>
+    /* Tab System - Premium Update */
+    .config-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      padding: 6px;
+      background: rgba(0,0,0,0.03);
+      border-radius: 12px;
+      width: fit-content;
+    }
+    .config-tab-btn {
+      padding: 10px 24px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--admin-text-2);
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .config-tab-btn:hover { background: rgba(0,0,0,0.05); color: var(--admin-text); }
+    .config-tab-btn.active {
+      background: #fff;
+      color: var(--admin-accent);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: slideInUp 0.4s ease; }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Modern Color Pickers */
+    .config-grid { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 32px; align-items: start; }
+    .settings-main { display: flex; flex-direction: column; gap: 24px; }
+    
+    .live-preview-box {
+      position: sticky; top: 96px;
+      background: #fff; border-radius: 20px;
+      padding: 24px; border: 1.5px solid var(--admin-border);
+      box-shadow: var(--admin-shadow-md);
+      transition: all 0.3s ease;
+    }
+    
+    .font-sample-card {
+       border: 1.5px solid var(--admin-border);
+       padding: 20px; border-radius: 14px;
+       cursor: pointer; transition: all 0.3s;
+       margin-bottom: 12px;
+       position: relative;
+       background: #fff;
+    }
+    .font-sample-card:hover { border-color: var(--admin-accent); transform: scale(1.02); }
+    .font-sample-card.active { 
+      border-color: var(--admin-accent); 
+      background: var(--admin-accent-light);
+      box-shadow: 0 0 0 4px var(--admin-accent-light);
+    }
+    .font-sample-card .check-badge {
+      position: absolute; top: 12px; right: 12px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--admin-accent); color: #fff;
+      display: none; align-items: center; justify-content: center; font-size: 0.7rem;
+    }
+    .font-sample-card.active .check-badge { display: flex; }
+
+    .gateway-logo { height: 20px; filter: grayscale(1); opacity: 0.6; transition: all 0.3s; }
+    .form-group:focus-within .gateway-logo { filter: grayscale(0); opacity: 1; }
+    
+    .premium-badge {
+       background: linear-gradient(135deg, #6C63FF 0%, #FF6B35 100%);
+       color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem;
+       font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+     /* Logo Upload Styling */
+     .logo-upload-box {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        background: rgba(0,0,0,0.02);
+        border: 2px dashed var(--admin-border);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+     }
+     .logo-upload-box:hover { border-color: var(--admin-accent); background: rgba(0,0,0,0.04); }
+     .logo-preview-thumb {
+        width: 60px; height: 60px;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid var(--admin-border);
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+     }
+     .logo-preview-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+     .logo-preview-thumb.empty::after { content: '🖼️'; font-size: 1.5rem; opacity: 0.3; }
+     
+     .upload-controls { display: flex; flex-direction: column; gap: 4px; }
+     .upload-btn-wrap { display: flex; gap: 8px; align-items: center; }
+
+  </style>
 </head>
 <body>
 
   <div class="admin-layout">
     
     <!-- SIDEBAR -->
-    <aside class="admin-sidebar" id="admin-sidebar">
-      <div class="admin-sidebar-header">
-        <div class="admin-brand">
-          <div class="admin-brand-icon">A</div>
-          <div>
-            <div class="admin-brand-text">Arvaan Admin</div>
-            <div class="admin-brand-sub">Storefront Manager</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="admin-nav">
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Overview</div>
-          <a href="dashboard.html" class="admin-nav-item">
-            <span class="nav-icon">📊</span> Dashboard
-          </a>
-          <a href="#" class="admin-nav-item preview-btn" onclick="openStorefrontPreview(); return false;" style="margin-top: 10px;">
-            <span class="nav-icon">👁️</span> Live Storefront
-          </a>
-        </div>
-        
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Storefront Content</div>
-          <a href="categories.html" class="admin-nav-item">
-            <span class="nav-icon">📁</span> Category Manager
-          </a>
-          <a href="homepage.html" class="admin-nav-item">
-            <span class="nav-icon">🏠</span> Homepage Manager
-          </a>
-          <a href="filters.html" class="admin-nav-item">
-            <span class="nav-icon">🎛️</span> Filters Manager
-          </a>
-        </div>
-        
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Configuration</div>
-          <a href="settings.html" class="admin-nav-item active">
-            <span class="nav-icon">⚙️</span> Site Settings
-          </a>
-        </div>
-      </div>
-      
-      <div class="admin-sidebar-footer">
-        <a href="#" class="admin-nav-item" id="admin-logout-btn">
-          <span class="nav-icon">🚪</span> Logout
-        </a>
-      </div>
-    </aside>
+    <!-- SIDEBAR will be injected by JS in renderAdminSidebar() -->
 
-    <!-- MAIN APP -->
     <main class="admin-main">
       <header class="admin-topbar">
-        <div class="admin-topbar-title" id="topbar-title">Site Settings</div>
+        <div class="admin-topbar-title">Website Configuration</div>
         <div class="admin-topbar-right">
-          <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Changes</button>
-          <div class="admin-topbar-email" id="topbar-email" style="margin-left: 10px;">admin@domain.com</div>
-          <div class="admin-avatar" id="topbar-avatar">A</div>
+           <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Configuration</button>
+           <div class="admin-topbar-email" id="topbar-email">admin@domain.com</div>
+           <div class="admin-avatar">A</div>
         </div>
       </header>
 
       <div class="admin-content">
         
         <div class="admin-page-header">
-          <div>
-            <h1 class="admin-page-title">Global Settings</h1>
-            <p class="admin-page-sub">Configure the foundational identity, colors, and footers of your storefront.</p>
-          </div>
+           <div>
+             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+               <h1 class="admin-page-title" style="margin: 0;">Site Configuration</h1>
+               <span class="premium-badge">Elite Admin</span>
+             </div>
+             <p class="admin-page-sub">Centralized control for your branding, design system, and global store behavior.</p>
+           </div>
         </div>
 
-        <form id="settings-form" onsubmit="event.preventDefault(); saveSettings();">
+        <div id="maintenance-alert" class="maintenance-banner" style="display: none;">
+           <span>⚠️</span> <strong>Maintenance Mode is Active.</strong> Guests cannot access the store.
+        </div>
+
+        <!-- TABS NAV (Modernized) -->
+        <div class="config-tabs">
+          <button class="config-tab-btn active" onclick="switchTab('branding')">
+            <span style="font-size: 1.1rem;">💎</span> Branding
+          </button>
+          <button class="config-tab-btn" onclick="switchTab('appearance')">
+            <span style="font-size: 1.1rem;">🎨</span> Appearance
+          </button>
+          <button class="config-tab-btn" onclick="switchTab('payment')">
+            <span style="font-size: 1.1rem;">💳</span> Payments
+          </button>
+          <button class="config-tab-btn" onclick="switchTab('seo')">
+            <span style="font-size: 1.1rem;">📊</span> SEO
+          </button>
+          <button class="config-tab-btn" onclick="switchTab('advanced')">
+            <span style="font-size: 1.1rem;">🛠️</span> Advanced
+          </button>
+        </div>
+
+        <form id="config-form">
           
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
-            
-            <!-- LEFT COLUMN -->
-            <div style="display: flex; flex-direction: column; gap: 24px;">
-              
-              <!-- Brand Identity -->
-              <div class="admin-card">
-                <div class="admin-card-header"><h2 class="admin-card-title">Brand Identity</h2></div>
-                <div class="admin-card-body">
-                  <div class="form-group">
-                    <label class="form-label">Store Name</label>
-                    <input type="text" id="s-name" class="form-input" required>
+          <!-- SECTION: Branding -->
+          <div id="tab-branding" class="tab-content active">
+             <div class="config-grid">
+                <div class="settings-main">
+                  <div class="admin-card">
+                     <div class="admin-card-header"><h2 class="admin-card-title">Store Identity</h2></div>
+                     <div class="admin-card-body">
+                        <div class="form-group">
+                           <label class="form-label">Store Name</label>
+                           <input type="text" id="s-site-name" class="form-input" oninput="updateLivePreview()">
+                        </div>
+                        <div class="form-group">
+                           <label class="form-label">Tagline</label>
+                           <input type="text" id="s-tagline" class="form-input" oninput="updateLivePreview()">
+                        </div>
+                     </div>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Tagline</label>
-                    <input type="text" id="s-tagline" class="form-input">
+
+                  <div class="admin-card">
+                     <div class="admin-card-header"><h2 class="admin-card-title">Logos & Iconography</h2></div>
+                     <div class="admin-card-body">
+                        
+                        <label class="form-label">Store Logo</label>
+                        <div class="logo-upload-box">
+                           <div class="logo-preview-thumb" id="logo-preview-wrap"></div>
+                           <div class="upload-controls">
+                              <div class="upload-btn-wrap">
+                                 <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('file-logo').click()">Upload New</button>
+                                 <button type="button" class="btn btn-outline btn-sm" onclick="clearImage('logo')">Remove</button>
+                              </div>
+                              <input type="file" id="file-logo" style="display:none" accept="image/*" onchange="handleImageUpload(this, 's-logo', 'logo-preview-wrap')">
+                              <p class="form-hint">Recommended: SVG or Transparent PNG</p>
+                           </div>
+                        </div>
+
+                        <div class="form-group">
+                           <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+                              <label class="form-label">Logo Display Height</label>
+                              <span id="s-logo-size-label" style="font-weight:700; color:var(--admin-accent)">28px</span>
+                           </div>
+                           <input type="range" id="s-logo-size" min="16" max="80" step="1" value="28" class="form-input" oninput="updateLogoSizeLabel(this.value); updateLivePreview()">
+                           <div class="form-hint">Adjust how large your logo appears in the navbar.</div>
+                        </div>
+
+                        <div class="form-group">
+                           <div style="display:flex; justify-content:space-between; align-items:center;">
+                              <div>
+                                 <label class="form-label" style="margin-bottom:0">Match Logo with Theme</label>
+                                 <p class="form-hint" style="margin-top:2px">Inherits Primary Theme color (Best for SVGs/Transparent PNGs).</p>
+                              </div>
+                              <label class="toggle">
+                                 <input type="checkbox" id="s-logo-tint" onchange="updateLivePreview()">
+                                 <span class="toggle-track"></span>
+                               </label>
+                           </div>
+                        </div>
+
+                        <div class="form-group" style="display:none;">
+                           <input type="text" id="s-logo" class="form-input" oninput="updateLivePreview()">
+                        </div>
+
+                        <label class="form-label">Site Favicon</label>
+                        <div class="logo-upload-box">
+                           <div class="logo-preview-thumb" id="favicon-preview-wrap"></div>
+                           <div class="upload-controls">
+                              <div class="upload-btn-wrap">
+                                 <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('file-favicon').click()">Change Favicon</button>
+                              </div>
+                              <input type="file" id="file-favicon" style="display:none" accept="image/*" onchange="handleImageUpload(this, 's-favicon', 'favicon-preview-wrap')">
+                              <p class="form-hint">Standard: 32x32 or 16x16 .png/.ico</p>
+                           </div>
+                        </div>
+                        <div class="form-group" style="display:none;">
+                           <input type="text" id="s-favicon" class="form-input">
+                        </div>
+
+                     </div>
                   </div>
-                  
-                  <div class="form-row" style="margin-top: 20px;">
-                    <div class="form-group">
-                      <label class="form-label">Primary Color</label>
-                      <div class="color-input-wrap">
-                        <div class="color-swatch" id="swatch-1"><input type="color"></div>
-                        <input type="text" class="color-hex-input" id="hex-1" value="#6C3BFF">
+
+                  <div class="admin-card">
+                     <div class="admin-card-header"><h2 class="admin-card-title">Contact & Social</h2></div>
+                     <div class="admin-card-body">
+                        <div class="form-row">
+                           <div class="form-group"><label class="form-label">Support Email</label><input type="email" id="s-em" class="form-input"></div>
+                           <div class="form-group"><label class="form-label">Support Phone</label><input type="text" id="s-ph" class="form-input"></div>
+                        </div>
+                        <div style="display:none">
+                           <input type="url" id="s-ig">
+                           <input type="url" id="s-tw">
+                        </div>
+                     </div>
+                  </div>
+                </div>
+
+                <!-- Shared Live Preview Sidebar -->
+                <div class="live-preview-box">
+                   <div class="admin-card-header" style="background: transparent; padding: 0 0 16px 0;"><h2 class="admin-card-title">Theme Live Preview</h2></div>
+                   <div class="admin-card-body" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                      <div id="preview-store-header" style="width: 100%; height: 40px; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; padding: 0 15px; justify-content: space-between;">
+                         <div id="p-logo" style="font-weight: 800; color: var(--clr-primary, #6C3BFF); font-size: 0.8rem;">STORE</div>
+                         <div style="width: 20px; height: 20px; background: var(--clr-primary, #6C3BFF); border-radius: 50%; opacity: 0.2;"></div>
                       </div>
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Accent Color</label>
-                      <div class="color-input-wrap">
-                        <div class="color-swatch" id="swatch-2"><input type="color"></div>
-                        <input type="text" class="color-hex-input" id="hex-2" value="#FF6B35">
+                      <div id="preview-card" style="width: 140px; height: 180px; background: #fff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                         <div style="width: 100%; height: 80px; background: #f0f0f0; border-radius: 8px;"></div>
+                         <div id="p-title" style="font-size: 0.9rem; font-weight: 700;">Headline</div>
+                         <div id="p-tag" style="font-size: 0.6rem; color: #888;">Tagline Sample</div>
+                         <div id="p-button" style="width: 100%; height: 24px; background: var(--clr-accent, #FF6B35); border-radius: 6px; margin-top: auto;"></div>
                       </div>
-                    </div>
-                  </div>
+                      <p style="font-size: 0.7rem; color: var(--admin-text-2);">Real-time simulation of your branding</p>
+                   </div>
                 </div>
-              </div>
-
-              <!-- SEO Defaults -->
-              <div class="admin-card">
-                <div class="admin-card-header"><h2 class="admin-card-title">SEO Defaults</h2></div>
-                <div class="admin-card-body">
-                  <div class="form-group">
-                    <label class="form-label">Title Template</label>
-                    <input type="text" id="s-seo-title" class="form-input">
-                    <div class="form-hint">Use %s where the dynamic page title should go. Example: %s | My Store</div>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Meta Description</label>
-                    <textarea id="s-seo-desc" class="form-textarea" style="min-height: 100px;"></textarea>
-                    <div class="form-hint">Optimal length: 150-160 characters.</div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- RIGHT COLUMN -->
-            <div style="display: flex; flex-direction: column; gap: 24px;">
-              
-              <!-- Contact Info -->
-              <div class="admin-card">
-                <div class="admin-card-header"><h2 class="admin-card-title">Contact Information</h2></div>
-                <div class="admin-card-body">
-                  <div class="form-group">
-                    <label class="form-label">Support Email</label>
-                    <input type="email" id="s-em" class="form-input">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Support Phone</label>
-                    <input type="text" id="s-ph" class="form-input">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Physical Address</label>
-                    <textarea id="s-add" class="form-textarea" style="min-height: 80px;"></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Social Links -->
-              <div class="admin-card">
-                <div class="admin-card-header"><h2 class="admin-card-title">Social Media Links</h2></div>
-                <div class="admin-card-body">
-                  <div class="form-row">
-                    <div class="form-group"><label class="form-label">Instagram URL</label><input type="url" id="s-ig" class="form-input"></div>
-                    <div class="form-group"><label class="form-label">Facebook URL</label><input type="url" id="s-fb" class="form-input"></div>
-                  </div>
-                  <div class="form-row">
-                    <div class="form-group"><label class="form-label">Twitter / X URL</label><input type="url" id="s-tw" class="form-input"></div>
-                    <div class="form-group"><label class="form-label">YouTube URL</label><input type="url" id="s-yt" class="form-input"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Footer -->
-              <div class="admin-card">
-                <div class="admin-card-header"><h2 class="admin-card-title">Footer Detail</h2></div>
-                <div class="admin-card-body">
-                  <div class="form-group">
-                    <label class="form-label">Copyright Text</label>
-                    <input type="text" id="s-copy" class="form-input">
-                  </div>
-                  <div style="margin-top: 16px; padding: 12px; background: var(--admin-bg); border-radius: 8px; font-size: 0.8rem; color: var(--admin-text-2);">
-                    Footer navigational links (About, Terms, etc.) are managed dynamically from the storefront pages in this version.
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
+             </div>
           </div>
-          
-          <!-- Sticky Save Bar on Mobile if needed -->
-          <button type="submit" style="display: none;"></button>
+
+          <!-- SECTION: Appearance -->
+          <div id="tab-appearance" class="tab-content">
+             <div class="config-grid">
+               <div class="settings-main">
+                  <div class="admin-card">
+                     <div class="admin-card-header"><h2 class="admin-card-title">Color System</h2></div>
+                     <div class="admin-card-body">
+                        <div class="form-row">
+                           <div class="form-group">
+                              <label class="form-label">Primary Color</label>
+                              <div class="color-input-wrap">
+                                 <div class="color-swatch-elite" style="position: relative; width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--admin-border); overflow: hidden;">
+                                    <input type="color" id="s-p-color" oninput="syncColorPreview('p')" style="position: absolute; top: -5px; left: -5px; width: 50px; height: 50px; cursor: pointer;">
+                                 </div>
+                                 <input type="text" id="s-p-color-hex" class="form-input" placeholder="#6C3BFF" oninput="syncColorText('p')" style="max-width: 120px;">
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="form-label">Accent Color</label>
+                              <div class="color-input-wrap">
+                                 <div class="color-swatch-elite" style="position: relative; width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--admin-border); overflow: hidden;">
+                                    <input type="color" id="s-a-color" oninput="syncColorPreview('a')" style="position: absolute; top: -5px; left: -5px; width: 50px; height: 50px; cursor: pointer;">
+                                 </div>
+                                 <input type="text" id="s-a-color-hex" class="form-input" placeholder="#FF6B35" oninput="syncColorText('a')" style="max-width: 120px;">
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="admin-card">
+                     <div class="admin-card-header"><h2 class="admin-card-title">Typography & Layout</h2></div>
+                     <div class="admin-card-body">
+                        <label class="form-label">Heading Font Family</label>
+                        <div id="heading-font-picker" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                           <div class="font-sample-card" data-font="Playfair Display" onclick="selectFont('heading', 'Playfair Display')">
+                              <div class="check-badge">✓</div>
+                              <div style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700;">Playfair Display</div>
+                              <div style="font-size: 0.7rem; color: #888; margin-top: 4px;">Elegant & Sophisticated</div>
+                           </div>
+                           <div class="font-sample-card" data-font="Inter" onclick="selectFont('heading', 'Inter')">
+                              <div class="check-badge">✓</div>
+                              <div style="font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 700;">Inter</div>
+                              <div style="font-size: 0.7rem; color: #888; margin-top: 4px;">Modern & Functional</div>
+                           </div>
+                           <div class="font-sample-card" data-font="Montserrat" onclick="selectFont('heading', 'Montserrat')">
+                              <div class="check-badge">✓</div>
+                              <div style="font-family: 'Montserrat', sans-serif; font-size: 1.1rem; font-weight: 700;">Montserrat</div>
+                              <div style="font-size: 0.7rem; color: #888; margin-top: 4px;">Bold & Geometric</div>
+                           </div>
+                           <div class="font-sample-card" data-font="Outfit" onclick="selectFont('heading', 'Outfit')">
+                              <div class="check-badge">✓</div>
+                              <div style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 700;">Outfit</div>
+                              <div style="font-size: 0.7rem; color: #888; margin-top: 4px;">Geometric & Clean</div>
+                           </div>
+                        </div>
+
+                        <div class="form-row">
+                           <div class="form-group">
+                              <label class="form-label">Product Card Style</label>
+                              <select id="s-product-style" class="form-input" onchange="updateLivePreview()">
+                                 <option value="glass">Premium Glassmorphism</option>
+                                 <option value="flat">Minimalist Flat</option>
+                                 <option value="outline">Modern Outline</option>
+                              </select>
+                           </div>
+                           <div class="form-group">
+                              <label class="form-label">Default Grid Columns</label>
+                              <select id="s-grid-cols" class="form-input" onchange="updateLivePreview()">
+                                 <option value="3">3 Columns</option>
+                                 <option value="4">4 Columns</option>
+                              </select>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+             </div>
+          </div>
+
+          <!-- SECTION: Payment -->
+          <div id="tab-payment" class="tab-content">
+             <div class="settings-main">
+                <div class="admin-card">
+                   <div class="admin-card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                      <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo.png/800px-UPI-Logo.png" style="height: 18px;">
+                        <h2 class="admin-card-title">UPI Configuration</h2>
+                      </div>
+                      <label class="toggle-switch">
+                         <input type="checkbox" id="s-upi-active">
+                         <span class="toggle-slider"></span>
+                      </label>
+                   </div>
+                   <div class="admin-card-body">
+                      <div class="form-row">
+                         <div class="form-group">
+                            <label class="form-label">Merchant UPI ID</label>
+                            <input type="text" id="s-upi-id" class="form-input" placeholder="name@upi">
+                         </div>
+                         <div class="form-group">
+                            <label class="form-label">Payee Name</label>
+                            <input type="text" id="s-upi-name" class="form-input">
+                         </div>
+                      </div>
+                   </div>
+                </div>
+
+                <div class="admin-card">
+                   <div class="admin-card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                      <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Razorpay_logo.svg/1200px-Razorpay_logo.svg.png" style="height: 14px;">
+                        <h2 class="admin-card-title">Secured Gateway</h2>
+                      </div>
+                      <label class="toggle-switch">
+                         <input type="checkbox" id="s-gate-active">
+                         <span class="toggle-slider"></span>
+                      </label>
+                   </div>
+                   <div class="admin-card-body">
+                      <div class="form-group">
+                         <label class="form-label">API Key ID</label>
+                         <input type="text" id="s-gate-key" class="form-input" placeholder="rzp_test_...">
+                      </div>
+                      <div class="form-row">
+                         <div class="form-group">
+                            <label class="form-label">Provider</label>
+                            <select id="s-gate-type" class="form-input">
+                               <option value="razorpay">Razorpay</option>
+                               <option value="stripe">Stripe</option>
+                            </select>
+                         </div>
+                         <div class="form-group">
+                            <label class="form-label">Environment</label>
+                            <select id="s-gate-mode" class="form-input">
+                               <option value="test">Test Mode</option>
+                               <option value="live">Live Production</option>
+                            </select>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          <!-- SECTION: SEO -->
+          <div id="tab-seo" class="tab-content">
+             <div class="settings-main">
+                <div class="admin-card">
+                   <div class="admin-card-header"><h2 class="admin-card-title">Search Engine Optimization</h2></div>
+                   <div class="admin-card-body">
+                      <div class="form-group">
+                         <label class="form-label">Meta Title Template</label>
+                         <input type="text" id="s-meta-title" class="form-input" placeholder="{{page_title}} | Arvaan Elite">
+                      </div>
+                      <div class="form-group">
+                         <label class="form-label">Global Meta Description</label>
+                         <textarea id="s-meta-desc" class="form-input" style="min-height: 80px;"></textarea>
+                      </div>
+                      <div class="form-group">
+                         <label class="form-label">Keywords (Comma separated)</label>
+                         <input type="text" id="s-keywords" class="form-input">
+                      </div>
+                   </div>
+                </div>
+
+                <div class="admin-card">
+                   <div class="admin-card-header"><h2 class="admin-card-title">Announcement Bar</h2></div>
+                   <div class="admin-card-body">
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <div>
+                          <strong>Display Announcement Bar</strong>
+                          <p class="form-hint">Shown at the very top of all store pages.</p>
+                        </div>
+                        <label class="toggle">
+                           <input type="checkbox" id="s-announce-active">
+                           <span class="toggle-track"></span>
+                        </label>
+                      </div>
+                      <div class="form-group">
+                         <label class="form-label">Announcement Message</label>
+                         <input type="text" id="s-announce-text" class="form-input">
+                      </div>
+                   </div>
+                </div>
+
+                <div class="admin-card">
+                   <div class="admin-card-header"><h2 class="admin-card-title">Social Presence</h2></div>
+                   <div class="admin-card-body">
+                      <div class="form-group">
+                         <label class="form-label">Instagram Profile URL</label>
+                         <input type="text" id="s-social-ig" class="form-input" placeholder="https://instagram.com/yourbrand">
+                      </div>
+                      <div class="form-group">
+                         <label class="form-label">Twitter / X Profile URL</label>
+                         <input type="text" id="s-social-tw" class="form-input" placeholder="https://twitter.com/yourbrand">
+                      </div>
+                      <div class="form-group">
+                         <label class="form-label">Facebook Page URL</label>
+                         <input type="text" id="s-social-fb" class="form-input" placeholder="https://facebook.com/yourbrand">
+                      </div>
+                      <div class="form-group">
+                         <label class="form-label">YouTube Channel URL</label>
+                         <input type="text" id="s-social-yt" class="form-input" placeholder="https://youtube.com/c/yourbrand">
+                      </div>
+                      <div class="form-group">
+                         <label class="form-label">LinkedIn Page URL</label>
+                         <input type="text" id="s-social-li" class="form-input" placeholder="https://linkedin.com/company/yourbrand">
+                      </div>
+                      <div class="form-group">
+                         <label class="form-label">WhatsApp Number / Link</label>
+                         <input type="text" id="s-social-wa" class="form-input" placeholder="https://wa.me/911234567890">
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          <!-- SECTION: Advanced -->
+          <div id="tab-advanced" class="tab-content">
+             <div class="settings-main">
+                <div class="admin-card">
+                   <div class="admin-card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                      <h2 class="admin-card-title">Store Status & Safety</h2>
+                      <div class="toggle-wrap">
+                        <label class="toggle">
+                           <input type="checkbox" id="s-maintenance" onchange="toggleMaintenanceAlert(this.checked)">
+                           <span class="toggle-track"></span>
+                        </label>
+                        <span class="toggle-label" style="font-size:0.75rem">Maintenance Mode</span>
+                      </div>
+                   </div>
+                   <div class="admin-card-body">
+                      <p style="font-size: 0.8rem; color: var(--admin-text-2);">When active, users will see a maintenance page instead of the storefront.</p>
+                      <div class="form-group">
+                         <label class="form-label">Google Analytics Measurement ID</label>
+                         <input type="text" id="s-ga-id" class="form-input" placeholder="G-XXXXXXXXXX">
+                      </div>
+                </div>
+
+                <div class="admin-card">
+                   <div class="admin-card-header"><h2 class="admin-card-title">Footer Identity</h2></div>
+                   <div class="admin-card-body">
+                      <div class="form-group">
+                         <label class="form-label">Copyright Text</label>
+                         <input type="text" id="s-footer-copy" class="form-input" placeholder="© 2026 Arvaan Collective. All rights reserved.">
+                         <div class="form-hint">Displayed at the very bottom of every page.</div>
+                      </div>
+                      <div class="form-group">
+                         <label class="form-label">Powered By Branding</label>
+                         <input type="text" id="s-footer-powered" class="form-input" placeholder="Powered by Arvaan Elite">
+                         <div class="form-hint">Leave blank to hide this line.</div>
+                      </div>
+                   </div>
+                </div>
+
+                <div class="admin-card" style="border-top: 4px solid var(--admin-accent);">
+                   <div class="admin-card-header"><h2 class="admin-card-title">Custom Styles (Developer)</h2></div>
+                   <div class="admin-card-body">
+                      <label class="form-label">Universal Custom CSS</label>
+                      <textarea id="s-custom-css" class="form-input" style="font-family: monospace; min-height: 200px; background: #fafafa; border-radius: 8px;" placeholder="body { background: ... }"></textarea>
+                      <div class="form-hint">Injected globally across the storefront. Supports !important.</div>
+                   </div>
+                </div>
+
+                <div class="admin-card" style="border-color: var(--admin-danger); background: rgba(239, 68, 68, 0.02);">
+                   <div class="admin-card-header"><h2 class="admin-card-title" style="color: var(--admin-danger);">Danger Zone</h2></div>
+                   <div class="admin-card-body">
+                      <p style="font-size: 0.8rem; color: var(--admin-text-2); margin-bottom: 16px;">Irreversible actions. Tread carefully.</p>
+                      <button class="btn btn-outline" style="border-color: var(--admin-danger); color: var(--admin-danger);" onclick="resetToDefaults()">Wipe & Reset Everything</button>
+                   </div>
+                </div>
+             </div>
+          </div>
 
         </form>
 
@@ -203,82 +565,343 @@
     </main>
   </div>
 
-  <script src="../js/data.js"></script>
-  <script src="../js/admin.js"></script>
+  <script src="../js/data.js?v=9"></script>
+  <script src="../js/admin.js?v=9"></script>
   <script>
-    adminAuthGuard();
-    setupTopbar('Global Settings');
+    document.addEventListener('DOMContentLoaded', () => {
+      adminAuthGuard();
+      setupTopbar('Website Configuration');
+      loadSettings();
+    });
 
-    let siteConfig = AdminStore.getSiteConfig();
+    function switchTab(tabId) {
+      document.querySelectorAll('.config-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
 
-    // Populate Fields
-    document.getElementById('s-name').value = siteConfig.siteName || '';
-    document.getElementById('s-tagline').value = siteConfig.tagline || '';
-    
-    // Setup Colors
-    const primaryCtrl = initColorInput('swatch-1', 'hex-1');
-    if(siteConfig.primaryColor) primaryCtrl.setValue(siteConfig.primaryColor);
-    
-    const accentCtrl = initColorInput('swatch-2', 'hex-2');
-    if(siteConfig.accentColor) accentCtrl.setValue(siteConfig.accentColor);
-
-    // SEO
-    if(siteConfig.seo) {
-      document.getElementById('s-seo-title').value = siteConfig.seo.titleTemplate || '';
-      document.getElementById('s-seo-desc').value = siteConfig.seo.metaDescription || '';
+      const targetGrid = document.querySelector('#tab-' + tabId + ' .config-grid');
+      const existingPreview = document.querySelector('.live-preview-box');
+      
+      if (targetGrid && existingPreview) {
+         existingPreview.style.display = 'block';
+         existingPreview.style.opacity = '0';
+         targetGrid.appendChild(existingPreview);
+         setTimeout(() => {
+            existingPreview.style.transition = 'opacity 0.5s ease';
+            existingPreview.style.opacity = '1';
+         }, 50);
+      } else if (existingPreview) {
+         existingPreview.style.display = 'none';
+      }
     }
 
-    // Contact
-    if(siteConfig.contact) {
-      document.getElementById('s-em').value = siteConfig.contact.email || '';
-      document.getElementById('s-ph').value = siteConfig.contact.phone || '';
-      document.getElementById('s-add').value = siteConfig.contact.address || '';
+    function syncColorPreview(type) {
+       const val = document.getElementById(`s-${type}-color`).value.toUpperCase();
+       document.getElementById(`s-${type}-color-hex`).value = val;
+       updateLivePreview();
     }
 
-    // Social
-    if(siteConfig.social) {
-      document.getElementById('s-ig').value = siteConfig.social.instagram || '';
-      document.getElementById('s-fb').value = siteConfig.social.facebook || '';
-      document.getElementById('s-tw').value = siteConfig.social.twitter || '';
-      document.getElementById('s-yt').value = siteConfig.social.youtube || '';
+    function syncColorText(type) {
+       const val = document.getElementById(`s-${type}-color-hex`).value;
+       if (/^#[0-9A-F]{6}$/i.test(val)) {
+          document.getElementById(`s-${type}-color`).value = val;
+          updateLivePreview();
+       }
     }
 
-    // Footer
-    if(siteConfig.footer) {
-      document.getElementById('s-copy').value = siteConfig.footer.copyright || '';
+    let selectedHeadingFont = 'Playfair Display';
+    function selectFont(type, fontName) {
+       selectedHeadingFont = fontName;
+       document.querySelectorAll('#heading-font-picker .font-sample-card').forEach(c => {
+          c.classList.toggle('active', c.dataset.font === fontName);
+       });
+       updateLivePreview();
+    }
+
+    function handleImageUpload(input, targetId, previewId) {
+       const file = input.files[0];
+       if (!file) return;
+
+       if (file.size > 2 * 1024 * 1024) {
+          adminToast('Image exceeds 2MB limit.', 'error');
+          return;
+       }
+
+       const reader = new FileReader();
+       reader.onload = function(e) {
+          const base64 = e.target.result;
+          document.getElementById(targetId).value = base64;
+          renderImagePreview(previewId, base64);
+          updateLivePreview();
+       };
+       reader.readAsDataURL(file);
+    }
+
+    function renderImagePreview(previewId, dataUrl) {
+       const wrap = document.getElementById(previewId);
+       if (!dataUrl) {
+          wrap.classList.add('empty');
+          wrap.innerHTML = '';
+       } else {
+          wrap.classList.remove('empty');
+          wrap.innerHTML = `<img src="${dataUrl}" alt="Preview">`;
+       }
+    }
+
+    function clearImage(type) {
+       const targetId = type === 'logo' ? 's-logo' : 's-favicon';
+       const previewId = type === 'logo' ? 'logo-preview-wrap' : 'favicon-preview-wrap';
+       document.getElementById(targetId).value = '';
+       renderImagePreview(previewId, null);
+       updateLivePreview();
+    }
+
+    function updateLogoSizeLabel(val) {
+       document.getElementById('s-logo-size-label').textContent = val + 'px';
+    }
+
+    function updateLivePreview() {
+       const logo     = document.getElementById('s-logo').value;
+       const name     = document.getElementById('s-site-name').value || 'ARVAAN';
+       const pColor   = document.getElementById('s-p-color').value;
+       const logoH    = parseInt(document.getElementById('s-logo-size').value) || 28;
+       const isTinted = document.getElementById('s-logo-tint').checked;
+
+       const pLogo    = document.getElementById('p-logo');
+       const previewH = Math.max(16, Math.min(logoH, 32));
+
+       const _setPreview = (imgSrc) => {
+         pLogo.innerHTML = '';
+         if (imgSrc) {
+           const img = document.createElement('img');
+           img.src = imgSrc;
+           img.style.height = previewH + 'px';
+           img.style.width = 'auto';
+           img.style.marginRight = '8px';
+           img.style.verticalAlign = 'middle';
+           pLogo.appendChild(img);
+         }
+         const ns = document.createElement('span');
+         ns.style.verticalAlign = 'middle';
+         ns.textContent = name.toUpperCase();
+         pLogo.appendChild(ns);
+       };
+
+       if (logo && isTinted) {
+         const tmpImg = new Image();
+         tmpImg.onload = function() {
+           try {
+             const ratio = Math.max(0.1, (tmpImg.naturalWidth || 1) / (tmpImg.naturalHeight || 1));
+             const h = Math.max(2, previewH * 2);
+             const w = Math.max(2, Math.round(h * ratio));
+
+             // Transparency check — avoid solid color block on opaque logos
+             const chk = document.createElement('canvas');
+             chk.width = w; chk.height = h;
+             const chkCtx = chk.getContext('2d');
+             chkCtx.drawImage(tmpImg, 0, 0, w, h);
+             const px = chkCtx.getImageData(0, 0, w, h).data;
+             let transparent = false;
+             for (let i = 3; i < px.length; i += 4) {
+               if (px[i] < 250) { transparent = true; break; }
+             }
+             if (!transparent) { _setPreview(logo); return; }
+
+             // Apply tinting
+             const cvs = document.createElement('canvas');
+             cvs.width = w; cvs.height = h;
+             const ctx = cvs.getContext('2d');
+             ctx.fillStyle = pColor;
+             ctx.fillRect(0, 0, w, h);
+             ctx.globalCompositeOperation = 'destination-in';
+             ctx.drawImage(tmpImg, 0, 0, w, h);
+             _setPreview(cvs.toDataURL('image/png'));
+           } catch(e) { _setPreview(logo); }
+         };
+         tmpImg.onerror = () => _setPreview(logo);
+         tmpImg.src = logo;
+       } else {
+         _setPreview(logo);
+       }
+
+       document.getElementById('p-title').style.fontFamily = selectedHeadingFont;
+       document.getElementById('p-title').style.color = pColor;
+       document.getElementById('p-button').style.background = pColor;
+
+       const tagline = document.getElementById('s-tagline').value || 'Store Tagline';
+       document.getElementById('p-tag').textContent = tagline;
+    }
+
+    function toggleMaintenanceAlert(isActive) {
+      document.getElementById('maintenance-alert').style.display = isActive ? 'flex' : 'none';
+    }
+
+    function loadSettings() {
+      const cfg = AdminStore.getSiteConfig();
+      if (!cfg) return;
+
+      // Identity
+      document.getElementById('s-site-name').value = cfg.siteName || '';
+      document.getElementById('s-tagline').value = cfg.tagline || '';
+      
+      if (cfg.appearance) {
+         document.getElementById('s-p-color').value = cfg.primaryColor || '#6C3BFF';
+         document.getElementById('s-p-color-hex').value = (cfg.primaryColor || '#6C3BFF').toUpperCase();
+         document.getElementById('s-a-color').value = cfg.accentColor || '#FF6B35';
+         document.getElementById('s-a-color-hex').value = (cfg.accentColor || '#FF6B35').toUpperCase();
+         
+         const hFont = cfg.appearance.headingFont || 'Playfair Display';
+         selectFont('heading', hFont);
+
+         document.getElementById('s-logo').value = cfg.appearance.logoUrl || '';
+         renderImagePreview('logo-preview-wrap', cfg.appearance.logoUrl);
+
+         document.getElementById('s-favicon').value = cfg.appearance.faviconUrl || '';
+         renderImagePreview('favicon-preview-wrap', cfg.appearance.faviconUrl);
+         
+         const lSize = cfg.appearance.logoHeight || 28;
+         document.getElementById('s-logo-size').value = lSize;
+         updateLogoSizeLabel(lSize);
+         document.getElementById('s-logo-tint').checked = cfg.appearance.tintLogo || false;
+      }
+
+      if (cfg.layout) {
+         document.getElementById('s-product-style').value = cfg.layout.productCardStyle || 'glass';
+         document.getElementById('s-grid-cols').value = cfg.layout.gridColumns || 4;
+      }
+
+      // SEO
+      if (cfg.seo) {
+        document.getElementById('s-meta-title').value = cfg.seo.metaTitleTemplate || '';
+        document.getElementById('s-meta-desc').value = cfg.seo.metaDescription || '';
+        document.getElementById('s-keywords').value = cfg.seo.keywords || '';
+        document.getElementById('s-announce-active').checked = cfg.seo.announcement?.active || false;
+        document.getElementById('s-announce-text').value = cfg.seo.announcement?.text || '';
+      }
+
+      // Contact & Social
+      if (cfg.contact) {
+        document.getElementById('s-em').value = cfg.contact.email || '';
+        document.getElementById('s-ph').value = cfg.contact.phone || '';
+      }
+      if (cfg.social) {
+        document.getElementById('s-ig').value = cfg.social.instagram || '';
+        document.getElementById('s-tw').value = cfg.social.twitter || '';
+      }
+
+      // Advanced
+      document.getElementById('s-maintenance').checked = cfg.maintenanceMode || false;
+      toggleMaintenanceAlert(cfg.maintenanceMode);
+      document.getElementById('s-ga-id').value = cfg.scripts?.googleAnalyticsId || '';
+      document.getElementById('s-custom-css').value = cfg.scripts?.customCss || '';
+
+      if (cfg.footer) {
+        document.getElementById('s-footer-copy').value = cfg.footer.copyright || '';
+        document.getElementById('s-footer-powered').value = cfg.footer.poweredBy || '';
+      }
+
+      if (cfg.payment) {
+        document.getElementById('s-upi-active').checked = cfg.payment.upiEnabled !== false;
+        document.getElementById('s-upi-id').value = cfg.payment.upiId || '';
+        document.getElementById('s-upi-name').value = cfg.payment.payeeName || '';
+
+        if (cfg.payment.gateway) {
+          document.getElementById('s-gate-active').checked = cfg.payment.gateway.enabled || false;
+          document.getElementById('s-gate-type').value = cfg.payment.gateway.type || 'razorpay';
+          document.getElementById('s-gate-key').value = cfg.payment.gateway.apiKey || '';
+          document.getElementById('s-gate-mode').value = cfg.payment.gateway.mode || 'test';
+        }
+      }
+
+      if (cfg.social) {
+        document.getElementById('s-social-ig').value = cfg.social.instagram || '';
+        document.getElementById('s-social-tw').value = cfg.social.twitter || '';
+        document.getElementById('s-social-fb').value = cfg.social.facebook || '';
+        document.getElementById('s-social-yt').value = cfg.social.youtube || '';
+        document.getElementById('s-social-li').value = cfg.social.linkedin || '';
+        document.getElementById('s-social-wa').value = cfg.social.whatsapp || '';
+      }
+      
+      setTimeout(updateLivePreview, 100);
     }
 
     function saveSettings() {
-      if(!document.getElementById('settings-form').reportValidity()) return;
-
-      siteConfig.siteName = document.getElementById('s-name').value.trim();
-      siteConfig.tagline = document.getElementById('s-tagline').value.trim();
-      siteConfig.primaryColor = primaryCtrl.getValue();
-      siteConfig.accentColor = accentCtrl.getValue();
-
-      siteConfig.seo = siteConfig.seo || {};
-      siteConfig.seo.titleTemplate = document.getElementById('s-seo-title').value.trim();
-      siteConfig.seo.metaDescription = document.getElementById('s-seo-desc').value.trim();
-
-      siteConfig.contact = siteConfig.contact || {};
-      siteConfig.contact.email = document.getElementById('s-em').value.trim();
-      siteConfig.contact.phone = document.getElementById('s-ph').value.trim();
-      siteConfig.contact.address = document.getElementById('s-add').value.trim();
-
-      siteConfig.social = siteConfig.social || {};
-      siteConfig.social.instagram = document.getElementById('s-ig').value.trim();
-      siteConfig.social.facebook = document.getElementById('s-fb').value.trim();
-      siteConfig.social.twitter = document.getElementById('s-tw').value.trim();
-      siteConfig.social.youtube = document.getElementById('s-yt').value.trim();
-
-      siteConfig.footer = siteConfig.footer || { links: [] };
-      siteConfig.footer.copyright = document.getElementById('s-copy').value.trim();
-
-      AdminStore.setSiteConfig(siteConfig);
-      adminToast('Global settings saved successfully');
+      const cfg = AdminStore.getSiteConfig() || {};
       
-      // Instantly inject latest CSS vars to admin right now to preview color update
-      document.documentElement.style.setProperty('--admin-accent', siteConfig.primaryColor);
+      cfg.siteName = document.getElementById('s-site-name').value;
+      cfg.tagline = document.getElementById('s-tagline').value;
+      cfg.primaryColor = document.getElementById('s-p-color').value;
+      cfg.accentColor = document.getElementById('s-a-color').value;
+
+      cfg.appearance = {
+        headingFont: selectedHeadingFont,
+        bodyFont: 'Inter',
+        logoUrl: document.getElementById('s-logo').value,
+        faviconUrl: document.getElementById('s-favicon').value,
+        logoHeight: parseInt(document.getElementById('s-logo-size').value),
+        tintLogo: document.getElementById('s-logo-tint').checked
+      };
+
+      cfg.layout = {
+        productCardStyle: document.getElementById('s-product-style').value,
+        gridColumns: parseInt(document.getElementById('s-grid-cols').value),
+        stickyHeader: true
+      };
+
+      cfg.seo = {
+        metaTitleTemplate: document.getElementById('s-meta-title').value,
+        metaDescription: document.getElementById('s-meta-desc').value,
+        keywords: document.getElementById('s-keywords').value,
+        announcement: {
+          active: document.getElementById('s-announce-active').checked,
+          text: document.getElementById('s-announce-text').value
+        }
+      };
+
+      cfg.scripts = {
+        googleAnalyticsId: document.getElementById('s-ga-id').value,
+        customCss: document.getElementById('s-custom-css').value
+      };
+
+      cfg.maintenanceMode = document.getElementById('s-maintenance').checked;
+      
+      cfg.footer = cfg.footer || {};
+      cfg.footer.copyright = document.getElementById('s-footer-copy').value;
+      cfg.footer.poweredBy = document.getElementById('s-footer-powered').value;
+
+      cfg.contact = cfg.contact || {};
+      cfg.contact.email = document.getElementById('s-em').value;
+      cfg.contact.phone = document.getElementById('s-ph').value;
+
+      cfg.social = {
+        instagram: document.getElementById('s-social-ig').value,
+        twitter: document.getElementById('s-social-tw').value,
+        facebook: document.getElementById('s-social-fb').value,
+        youtube: document.getElementById('s-social-yt').value,
+        linkedin: document.getElementById('s-social-li').value,
+        whatsapp: document.getElementById('s-social-wa').value
+      };
+      
+      cfg.payment = {
+        upiEnabled: document.getElementById('s-upi-active').checked,
+        upiId: document.getElementById('s-upi-id').value,
+        payeeName: document.getElementById('s-upi-name').value,
+        gateway: {
+          enabled: document.getElementById('s-gate-active').checked,
+          type: document.getElementById('s-gate-type').value,
+          apiKey: document.getElementById('s-gate-key').value,
+          mode: document.getElementById('s-gate-mode').value
+        }
+      };
+
+      AdminStore.setSiteConfig(cfg);
+      adminToast('Configuration saved successfully!');
+      
+      // Apply immediate UI feedback
+      document.documentElement.style.setProperty('--admin-accent', cfg.primaryColor);
+      setTimeout(() => location.reload(), 1000);
     }
   </script>
 </body>

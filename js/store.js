@@ -1528,9 +1528,205 @@ function renderOrderTimeline(status) {
   return `<div style="display:flex;gap:4px;margin-top:8px">${stages.map((s, i) => `<div style="flex:1;height:4px;background:${i <= idx ? 'var(--clr-primary)' : 'var(--clr-border)'};border-radius:2px" title="${s.replace(/_/g,' ')}"></div>`).join('')}</div>`;
 }
 
+/**
+ * --- Global Configuration Bridge ---
+ * Applies settings from Admin Panel to the storefront
+ */
+function applyGlobalConfig() {
+  if (typeof AdminStore === 'undefined') return;
+  const cfg = AdminStore.getSiteConfig();
+  if (!cfg) return;
+
+  console.log('[Store] Applying Global Admin Configuration:', cfg.siteName);
+
+  // 1. Core Identity & SEO
+  if (cfg.siteName) {
+    const brands = document.querySelectorAll('.navbar-brand span, .footer-brand span');
+    brands.forEach(b => b.textContent = cfg.siteName);
+  }
+  
+  if (cfg.seo && cfg.seo.metaDescription) {
+    let meta = document.querySelector('meta[name="description"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'description';
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', cfg.seo.metaDescription);
+  }
+
+  // 2. Theme Engine (Colors & Typography)
+  const root = document.documentElement;
+  if (cfg.primaryColor) root.style.setProperty('--clr-primary', cfg.primaryColor);
+  if (cfg.accentColor)  root.style.setProperty('--clr-accent',  cfg.accentColor);
+  
+  if (cfg.appearance) {
+    const hFont = cfg.appearance.headingFont || "'Playfair Display', serif";
+    const bFont = cfg.appearance.bodyFont || "'Inter', sans-serif";
+    
+    root.style.setProperty('--font-heading', hFont);
+    root.style.setProperty('--font-body',    bFont);
+    
+    // Load Fonts from Google
+    const fontNames = [hFont, bFont].map(f => f.split(',')[0].replace(/'/g, '').replace(/ /g, '+'));
+    const fontSet = [...new Set(fontNames)];
+    const fontLink = `https://fonts.googleapis.com/css2?family=${fontSet.join('&family=')}:wght@300;400;500;600;700&display=swap`;
+    
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = fontLink;
+    document.head.appendChild(link);
+  }
+
+  // 3. Maintenance Mode
+  if (cfg.maintenanceMode) {
+     const session = AdminStore.getSession();
+     if (!session || !session.isLoggedIn) {
+       document.body.innerHTML = `
+         <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-family:var(--font-body); background:var(--clr-bg-alt);">
+           <div style="font-size:4rem; margin-bottom:20px;">🏗️</div>
+           <h1 style="font-family:var(--font-heading); font-size:2.5rem; margin-bottom:10px;">${cfg.siteName || 'Arvaan Collective'}</h1>
+           <p style="color:var(--clr-text-2); max-width:500px; line-height:1.6;">We are currently performing scheduled maintenance to improve your shopping experience. Please check back shortly.</p>
+           <div style="margin-top:30px; font-size:0.85rem; color:var(--clr-text-3);">${cfg.contact ? cfg.contact.email : ''}</div>
+         </div>
+       `;
+       return;
+     }
+  }
+
+  // 4. Announcement Bar
+  const announce = document.getElementById('announce-bar');
+  if (announce) {
+    if (cfg.announcement && cfg.announcement.active) {
+      announce.style.display = 'flex';
+      const text = announce.querySelector('.announce-item');
+      if (text) text.textContent = cfg.announcement.text;
+    } else {
+      announce.style.display = 'none';
+      root.style.setProperty('--space-10', '0px'); 
+      const main = document.querySelector('.store-main');
+      if (main) main.style.paddingTop = '100px';
+    }
+  }
+
+  // 5. Identity & Logo (Co-Branding)
+  const brandingElements = document.querySelectorAll('.navbar-brand, .footer-brand');
+  if (brandingElements.length > 0) {
+    const siteName  = cfg.siteName || 'Arvaan Collective';
+    const logoHeight = cfg.appearance?.logoHeight || 28;
+    const logoUrl   = cfg.appearance?.logoUrl || '';
+    const isTinted  = cfg.appearance?.tintLogo === true;
+    const primaryColor = cfg.primaryColor || '#0A0A0A';
+
+    const _applyBranding = (finalLogoUrl) => {
+      brandingElements.forEach(el => {
+        el.innerHTML = '';
+        if (finalLogoUrl) {
+          const img = document.createElement('img');
+          img.src = finalLogoUrl;
+          img.alt = siteName;
+          img.className = 'nav-logo';
+          img.style.height = logoHeight + 'px';
+          img.style.width = 'auto';
+          img.style.verticalAlign = 'middle';
+          img.style.marginRight = '10px';
+          el.appendChild(img);
+        }
+        const nameSpan = document.createElement('span');
+        nameSpan.style.verticalAlign = 'middle';
+        nameSpan.textContent = siteName;
+        el.appendChild(nameSpan);
+      });
+    };
+
+    if (logoUrl && isTinted) {
+      // Canvas-based tinting: works only on logos with transparent backgrounds (PNG/SVG)
+      const tempImg = new Image();
+      tempImg.onload = function() {
+        try {
+          const ratio = Math.max(0.1, (tempImg.naturalWidth || 1) / (tempImg.naturalHeight || 1));
+          const h = Math.max(2, logoHeight * 2); // 2× for retina
+          const w = Math.max(2, Math.round(h * ratio));
+
+          // --- Transparency check ---
+          // Draw original image to a temp canvas to inspect its alpha channel
+          const checkCanvas = document.createElement('canvas');
+          checkCanvas.width  = w;
+          checkCanvas.height = h;
+          const checkCtx = checkCanvas.getContext('2d');
+          checkCtx.drawImage(tempImg, 0, 0, w, h);
+          const pixels = checkCtx.getImageData(0, 0, w, h).data;
+          let hasTransparency = false;
+          for (let i = 3; i < pixels.length; i += 4) {
+            if (pixels[i] < 250) { hasTransparency = true; break; }
+          }
+
+          if (!hasTransparency) {
+            // Solid logo (JPEG / opaque PNG) — tinting would produce a color block; show original
+            console.info('[Logo Tinting] Logo has no transparency — showing original.');
+            _applyBranding(logoUrl);
+            return;
+          }
+
+          // --- Apply tinting ---
+          const canvas = document.createElement('canvas');
+          canvas.width  = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+
+          // 1. Fill with the primary theme color
+          ctx.fillStyle = primaryColor;
+          ctx.fillRect(0, 0, w, h);
+
+          // 2. destination-in: keeps color only where logo pixels are opaque
+          ctx.globalCompositeOperation = 'destination-in';
+          ctx.drawImage(tempImg, 0, 0, w, h);
+
+          _applyBranding(canvas.toDataURL('image/png'));
+        } catch (e) {
+          console.warn('[Logo Tinting] Canvas error, using original:', e);
+          _applyBranding(logoUrl);
+        }
+      };
+      tempImg.onerror = () => _applyBranding(logoUrl);
+      tempImg.src = logoUrl;
+    } else {
+      _applyBranding(logoUrl);
+    }
+  }
+
+  // 6. Favicon Handling
+  if (cfg.appearance && cfg.appearance.faviconUrl) {
+    let link = document.querySelector("link[rel*='icon']");
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'shortcut icon';
+      document.head.appendChild(link);
+    }
+    link.href = cfg.appearance.faviconUrl;
+  }
+
+  // 7. Custom Scripts & CSS
+  if (cfg.scripts) {
+    if (cfg.scripts.customCss) {
+      let style = document.getElementById('admin-custom-css');
+      if (!style) {
+        style = document.createElement('style');
+        style.id = 'admin-custom-css';
+        document.head.appendChild(style);
+      }
+      style.textContent = cfg.scripts.customCss;
+    }
+  }
+}
+
 // ── Initialization ────────────────────────────────────────────────────────────
 function initStoreContent() {
   const path = window.location.pathname.toLowerCase();
+  
+  // Apply Global Admin Configuration first
+  applyGlobalConfig();
+  
   initAOS();
   updateGlobalLocalizations();
   initLiveSearch();
@@ -1541,8 +1737,78 @@ function initStoreContent() {
     initShopPage();
   } else if (path.includes('categories.html')) {
     initCategoriesPage();
+  } else if (document.getElementById('dynamic-page-content')) {
+    initDynamicPage();
   } else {
     initHomePage();
+  }
+}
+
+function initDynamicPage() {
+  const path = window.location.pathname.toLowerCase();
+  const filename = path.split('/').pop() || '';
+  let slug = filename.replace('.html', '');
+  
+  // Check for virtual routing via query parameters
+  const params = new URLSearchParams(window.location.search);
+  const vSlug = params.get('p') || params.get('v') || params.get('page');
+  if (vSlug) slug = vSlug;
+  
+  const pageContainer = document.getElementById('dynamic-page-content');
+  if (!pageContainer) return;
+
+  const pages = typeof AdminStore !== 'undefined' ? AdminStore.getPages() : [];
+  const page = pages.find(p => p.slug === slug);
+
+  if (page && page.isActive !== false) {
+    pageContainer.innerHTML = page.content;
+    
+    const finalTitle = page.seoTitle ? page.seoTitle : `${page.title} | Arvaan Collective`;
+    document.title = finalTitle;
+
+    const bcTitle = document.getElementById('breadcrumb-page-title');
+    if (bcTitle) bcTitle.textContent = page.title;
+
+    if (page.seoDesc) {
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = "description";
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.content = page.seoDesc;
+    }
+
+    const titleEl = document.querySelector('.section-heading');
+    if (titleEl) titleEl.textContent = page.title;
+    
+    const heroWrap = document.querySelector('.page-header');
+    if (page.heroImage && heroWrap) {
+      heroWrap.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('${page.heroImage}')`;
+      heroWrap.style.backgroundSize = "cover";
+      heroWrap.style.backgroundPosition = "center";
+      heroWrap.style.padding = "100px 0";
+      heroWrap.style.color = "white";
+      
+      const breadcrumb = heroWrap.querySelector('.breadcrumb');
+      if (breadcrumb) {
+        breadcrumb.querySelectorAll('a, span').forEach(el => el.style.color = 'rgba(255,255,255,0.8)');
+      }
+      
+      if (titleEl) titleEl.style.color = "white";
+    }
+    
+    // Auto-update any "Last Updated" text
+    const updatedEl = document.querySelector('.page-last-updated');
+    if (updatedEl && page.lastUpdated) {
+      updatedEl.textContent = `Last Updated: ${page.lastUpdated}`;
+      if (page.heroImage) updatedEl.style.color = "rgba(255,255,255,0.6)";
+    }
+  } else {
+    pageContainer.innerHTML = '<div style="padding: 150px 0; text-align: center;"><div style="font-size:3rem; margin-bottom:20px;">🚧</div><h2 class="section-heading">Page Unavailable</h2><p class="text-muted" style="max-width:400px; margin: 0 auto 30px;">The requested page could not be located or is currently offline for maintenance.</p><a href="index.html" class="btn btn-primary">Return to Homepage</a></div>';
+    
+    const titleEl = document.querySelector('.section-heading');
+    if (titleEl) titleEl.textContent = "Page Unavailable";
   }
 }
 
@@ -1839,25 +2105,86 @@ function renderGlobalFooter() {
     return;
   }
   
+  let tw = '#', ig = '#', fb = '#', yt = '#', ln = '#', wa = '#';
+  try {
+     const conf = AdminStore.getSiteConfig();
+     if(conf && conf.social) {
+       if(conf.social.twitter) tw = conf.social.twitter;
+       if(conf.social.instagram) ig = conf.social.instagram;
+       if(conf.social.facebook) fb = conf.social.facebook;
+       if(conf.social.youtube) yt = conf.social.youtube;
+       if(conf.social.linkedin) ln = conf.social.linkedin;
+       if(conf.social.whatsapp) wa = conf.social.whatsapp;
+     }
+  } catch(e){}
+  
+  let companyLinks = [
+    { label: 'About Us', slug: 'about' },
+    { label: 'Contact Us', slug: 'contact' }
+  ];
+
+  let policyLinks = [
+    { label: 'Shipping & Delivery', slug: 'shipping-policy' },
+    { label: 'Return & Refund Policy', slug: 'return-policy' },
+    { label: 'FAQs', slug: 'faq' },
+    { label: 'Privacy Policy', slug: 'privacy-policy' },
+    { label: 'Terms of Service', slug: 'terms-of-service' }
+  ];
+
+  try {
+    if (typeof AdminStore !== 'undefined') {
+      const allPages = AdminStore.getPages().filter(p => p.isActive !== false);
+      
+      // Update Company Links from AdminStore if they exist
+      companyLinks = companyLinks.map(link => {
+        const found = allPages.find(p => p.slug === link.slug);
+        return found ? { label: found.title, slug: found.slug } : link;
+      });
+
+      // Update Policy Links from AdminStore
+      policyLinks = policyLinks.map(link => {
+        const found = allPages.find(p => p.slug === link.slug);
+        return found ? { label: found.title, slug: found.slug } : link;
+      });
+
+      // Add any custom pages that aren't in the default sets
+      const knownSlugs = [...companyLinks, ...policyLinks].map(l => l.slug);
+      const customPages = allPages.filter(p => !knownSlugs.includes(p.slug));
+      policyLinks = [...policyLinks, ...customPages.map(p => ({ label: p.title, slug: p.slug }))];
+    }
+  } catch (e) { console.error("Footer dynamic links failed", e); }
+
+  let copyright = '© 2026 Arvaan Collective. All rights reserved.';
+  let poweredBy = '';
+  try {
+     const conf = AdminStore.getSiteConfig();
+     if (conf && conf.footer) {
+       if (conf.footer.copyright) copyright = conf.footer.copyright;
+       if (conf.footer.poweredBy) poweredBy = conf.footer.poweredBy;
+     }
+  } catch(e){}
+
   footerContainer.innerHTML = `
   <footer class="site-footer">
     <div class="page-container">
       <div class="footer-grid">
         <div class="footer-brand-col">
           <div class="footer-brand">✦ Arvaan <em>Collective</em></div>
-          <p class="footer-tagline">India is trusted destination for premium curated products. Genuine brands. Best prices. Fastest delivery.</p>
+          <p class="footer-tagline">India's trusted destination for premium curated products. Genuine brands. Best prices. Fastest delivery.</p>
           <div class="footer-social">
-            <a href="#" class="social-btn" title="Twitter">𝕏</a>
-            <a href="#" class="social-btn" title="Instagram">📸</a>
-            <a href="#" class="social-btn" title="Facebook">📘</a>
-            <a href="#" class="social-btn" title="YouTube">▶️</a>
+            ${ig !== '#' ? `<a href="${ig}" class="social-btn" target="_blank" title="Instagram">📸</a>` : ''}
+            ${tw !== '#' ? `<a href="${tw}" class="social-btn" target="_blank" title="Twitter">𝕏</a>` : ''}
+            ${fb !== '#' ? `<a href="${fb}" class="social-btn" target="_blank" title="Facebook">📘</a>` : ''}
+            ${yt !== '#' ? `<a href="${yt}" class="social-btn" target="_blank" title="YouTube">▶️</a>` : ''}
+            ${typeof ln !== 'undefined' && ln !== '#' ? `<a href="${ln}" class="social-btn" target="_blank" title="LinkedIn">💼</a>` : ''}
+            ${typeof wa !== 'undefined' && wa !== '#' ? `<a href="${wa}" class="social-btn" target="_blank" title="WhatsApp">💬</a>` : ''}
           </div>
         </div>
         <div class="footer-links-col">
           <div class="footer-col-heading">Shop</div>
           <ul class="footer-links">
             <li><a href="shop.html">All Products</a></li>
-            <li><a href="shop.html?filter=deals">Today is Deals</a></li>
+            <li><a href="shop.html?filter=deals">Today's Deals</a></li>
             <li><a href="shop.html?filter=new">New Arrivals</a></li>
             <li><a href="shop.html?cat=Electronics">Electronics</a></li>
             <li><a href="shop.html?cat=Fashion">Fashion</a></li>
@@ -1867,8 +2194,7 @@ function renderGlobalFooter() {
         <div class="footer-links-col">
           <div class="footer-col-heading">Company</div>
           <ul class="footer-links">
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="contact.html">Contact Us</a></li>
+            ${companyLinks.map(l => `<li><a href="pages.html?p=${l.slug}">${l.label}</a></li>`).join('')}
             <li><a href="../seller/seller.html">Seller Dashboard</a></li>
             <li><a href="../seller/register.html">Become a Seller</a></li>
           </ul>
@@ -1876,16 +2202,15 @@ function renderGlobalFooter() {
         <div class="footer-links-col">
           <div class="footer-col-heading">Help & Policies</div>
           <ul class="footer-links">
-            <li><a href="shipping-policy.html">Shipping & Delivery</a></li>
-            <li><a href="return-policy.html">Return & Refund Policy</a></li>
-            <li><a href="faq.html">FAQs</a></li>
-            <li><a href="privacy-policy.html">Privacy Policy</a></li>
-            <li><a href="terms-of-service.html">Terms of Service</a></li>
+            ${policyLinks.map(l => `<li><a href="pages.html?p=${l.slug}">${l.label}</a></li>`).join('')}
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 Arvaan Collective. All Rights Reserved.</span>
+        <div class="footer-legal">
+          <span>${copyright}</span>
+          ${poweredBy ? `<span class="powered-by" style="margin-left: 15px; opacity: 0.7; font-size: 0.8rem;">${poweredBy}</span>` : ''}
+        </div>
         <div class="payment-icons">
           <span class="pay-icon" style="opacity:0.8">💳 Secure Payment</span>
           <span class="pay-icon" style="opacity:0.8">🔒 256-bit Encryption</span>
@@ -2241,9 +2566,6 @@ function initStore() {
        StoreState.products = Store.getProducts();
     }
     
-    // Inject Dynamic Site Configuration from AdminStore First
-    applyAdminSiteConfig();
-
     // 2. Critical Shell Components
     renderGlobalNavigation();
     renderGlobalModals();
@@ -2269,33 +2591,4 @@ if (document.readyState === 'loading') {
   initStore();
 }
 
-function applyAdminSiteConfig() {
-  try {
-    if (typeof AdminStore !== 'undefined') {
-      const siteConfig = AdminStore.getSiteConfig();
-      if (!siteConfig) return;
 
-      const root = document.documentElement;
-      if (siteConfig.primaryColor) root.style.setProperty('--clr-primary', siteConfig.primaryColor);
-      if (siteConfig.accentColor)  root.style.setProperty('--clr-accent', siteConfig.accentColor);
-
-      if (siteConfig.seo) {
-        if (siteConfig.seo.titleTemplate) {
-          const baseName = document.title.split('|')[0].trim();
-          document.title = siteConfig.seo.titleTemplate.replace('%s', baseName);
-        }
-        if (siteConfig.seo.metaDescription) {
-          let metaDesc = document.querySelector('meta[name="description"]');
-          if (!metaDesc) {
-            metaDesc = document.createElement('meta');
-            metaDesc.name = "description";
-            document.head.appendChild(metaDesc);
-          }
-          metaDesc.content = siteConfig.seo.metaDescription;
-        }
-      }
-    }
-  } catch (e) {
-    console.error("Failed to apply admin site config", e);
-  }
-}

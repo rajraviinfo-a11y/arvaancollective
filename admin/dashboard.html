@@ -10,56 +10,7 @@
 
   <div class="admin-layout">
     
-    <!-- SIDEBAR -->
-    <aside class="admin-sidebar" id="admin-sidebar">
-      <div class="admin-sidebar-header">
-        <div class="admin-brand">
-          <div class="admin-brand-icon">A</div>
-          <div>
-            <div class="admin-brand-text">Arvaan Admin</div>
-            <div class="admin-brand-sub">Storefront Manager</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="admin-nav">
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Overview</div>
-          <a href="dashboard.html" class="admin-nav-item active">
-            <span class="nav-icon">📊</span> Dashboard
-          </a>
-          <a href="#" class="admin-nav-item preview-btn" onclick="openStorefrontPreview(); return false;" style="margin-top: 10px;">
-            <span class="nav-icon">👁️</span> Live Storefront
-          </a>
-        </div>
-        
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Storefront Content</div>
-          <a href="categories.html" class="admin-nav-item">
-            <span class="nav-icon">📁</span> Category Manager
-          </a>
-          <a href="homepage.html" class="admin-nav-item">
-            <span class="nav-icon">🏠</span> Homepage Manager
-          </a>
-          <a href="filters.html" class="admin-nav-item">
-            <span class="nav-icon">🎛️</span> Filters Manager
-          </a>
-        </div>
-        
-        <div class="admin-nav-section">
-          <div class="admin-nav-label">Configuration</div>
-          <a href="settings.html" class="admin-nav-item">
-            <span class="nav-icon">⚙️</span> Site Settings
-          </a>
-        </div>
-      </div>
-      
-      <div class="admin-sidebar-footer">
-        <a href="#" class="admin-nav-item" id="admin-logout-btn">
-          <span class="nav-icon">🚪</span> Logout
-        </a>
-      </div>
-    </aside>
+    <!-- SIDEBAR will be injected by JS in renderAdminSidebar() -->
 
     <!-- MAIN APP -->
     <main class="admin-main">
@@ -123,7 +74,7 @@
           <div class="admin-card interactive stat-card" style="position: relative; overflow: hidden; border-top: 4px solid #F59E0B;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
               <div class="stat-icon" style="background: #FEF3C7; color: #F59E0B; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 16px;">🎛️</div>
-              <div class="badge badge-warning" style="padding: 4px 8px;">Needs Setup</div>
+              <div class="badge badge-purple" style="padding: 4px 8px;">Active</div>
             </div>
             <div class="stat-label">Global Filters</div>
             <div class="stat-value" id="stat-filters">0</div>
@@ -131,6 +82,57 @@
             <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: radial-gradient(circle, #FEF3C7 0%, transparent 70%); border-radius: 50%; opacity: 0.5;"></div>
           </div>
 
+        </div>
+
+        <div class="form-row" style="margin-top: 24px; display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+          <!-- CHART -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title">Curation Traffic Overview</h2>
+              <div class="badge badge-success">Live Trend</div>
+            </div>
+            <div class="admin-card-body">
+              <div style="height: 250px; position: relative;">
+                <canvas id="traffic-chart" style="width: 100%; height: 100%;"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- MINI STATS/FEED -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="admin-card interactive">
+              <div class="admin-card-body" style="display: flex; align-items: center; gap: 20px;">
+                <div class="pulse-icon" style="background: #DCFCE7; color: #10B981; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; position: relative;">
+                  ⚡
+                  <div style="position: absolute; width:100%; height:100%; border-radius:50%; border:2px solid #10B981; animation: pulseRing 2s infinite;"></div>
+                </div>
+                <div>
+                  <div class="stat-label" style="margin-bottom:0;">Live Visitors</div>
+                  <div class="stat-value" id="pulse-visitors" style="font-size: 1.5rem;">42</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-card">
+              <div class="admin-card-header"><h2 class="admin-card-title">Recent Activity</h2></div>
+              <div class="admin-card-body" style="padding-top: 10px;">
+                <div id="activity-list" style="display: flex; flex-direction: column;">
+                  <div style="padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; gap: 10px; align-items: center;">
+                    <span style="font-size: 1.2rem;">📄</span>
+                    <div><div style="font-size:0.82rem; font-weight:600;">FAQ Page Edited</div><div style="font-size:0.75rem; color:var(--admin-text-2);">12 mins ago</div></div>
+                  </div>
+                   <div style="padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; gap: 10px; align-items: center;">
+                    <span style="font-size: 1.2rem;">📁</span>
+                    <div><div style="font-size:0.82rem; font-weight:600;">Category Move: Electronics</div><div style="font-size:0.75rem; color:var(--admin-text-2);">4 hours ago</div></div>
+                  </div>
+                  <div style="padding: 10px 0; display: flex; gap: 10px; align-items: center;">
+                    <span style="font-size: 1.2rem;">👤</span>
+                    <div><div style="font-size:0.82rem; font-weight:600;">Admin Login</div><div style="font-size:0.75rem; color:var(--admin-text-2);">Yesterday</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- QUICK LINKS -->
@@ -173,6 +175,49 @@
       document.getElementById('stat-subs').textContent = subCount;
       document.getElementById('stat-home').textContent = activeHome;
       document.getElementById('stat-filters').textContent = filterCount;
+
+      renderTrafficChart();
+      updatePulseMetrics();
+    }
+
+    function renderTrafficChart() {
+      const ctx = document.getElementById('traffic-chart').getContext('2d');
+      const trends = getSimulatedTrends(7);
+      
+      const w = ctx.canvas.width = ctx.canvas.offsetWidth * window.devicePixelRatio;
+      const h = ctx.canvas.height = ctx.canvas.offsetHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      
+      const cw = ctx.canvas.offsetWidth;
+      const ch = ctx.canvas.offsetHeight;
+      
+      // Draw Line
+      ctx.beginPath();
+      ctx.strokeStyle = '#6C3BFF';
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      const max = Math.max(...trends);
+      const min = Math.min(...trends);
+      const range = max - min;
+      
+      trends.forEach((val, i) => {
+        const x = (cw / 6) * i;
+        const y = ch - ((val - min) / range) * (ch - 40) - 20;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      
+      // Draw Area
+      ctx.lineTo((cw / 6) * 6, ch);
+      ctx.lineTo(0, ch);
+      const grad = ctx.createLinearGradient(0, 0, 0, ch);
+      grad.addColorStop(0, 'rgba(108, 99, 255, 0.2)');
+      grad.addColorStop(1, 'rgba(108, 99, 255, 0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
     }
 
     loadStats();

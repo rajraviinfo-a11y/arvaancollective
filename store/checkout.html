@@ -143,6 +143,13 @@
                   <div style="font-size:0.75rem; color:var(--clr-text-3)">Scan & Pay or direct VPA</div>
                 </div>
               </label>
+              <label id="payment-gateway-option" style="display:none; align-items:center; gap:16px; padding:var(--space-5); border:1px solid var(--clr-border); border-radius:var(--radius-lg); cursor:pointer; transition:all 0.2s" class="payment-method-label">
+                <input type="radio" name="payment" value="Gateway" style="width:20px; height:20px; accent-color:var(--clr-primary)">
+                <div>
+                  <div style="font-weight:700">Secured Online Payment</div>
+                  <div style="font-size:0.75rem; color:var(--clr-text-3)">Cards, Netbanking, Wallets (via Secure Gateway)</div>
+                </div>
+              </label>
               <label style="display:flex; align-items:center; gap:16px; padding:var(--space-5); border:1px solid var(--clr-border); border-radius:var(--radius-lg); cursor:pointer; transition:all 0.2s" class="payment-method-label">
                 <input type="radio" name="payment" value="COD" style="width:20px; height:20px; accent-color:var(--clr-primary)">
                 <div>
@@ -150,6 +157,58 @@
                   <div style="font-size:0.75rem; color:var(--clr-text-3)">Pay when your collection arrives</div>
                 </div>
               </label>
+            </div>
+            </div>
+
+            <!-- UPI Details Block (Enhanced Elite UI) -->
+            <div id="upi-details" style="display:none; margin-top:24px; padding:32px; background:rgba(255,255,255,0.7); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-radius:24px; border:1px solid rgba(108,99,255,0.2); box-shadow:0 20px 40px rgba(0,0,0,0.05); animation:fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)">
+              <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:32px; align-items:start">
+                <div style="text-align:center">
+                  <div id="upi-qr-container" style="background:#fff; padding:16px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 8px 16px rgba(0,0,0,0.06); border:1px solid var(--clr-border); margin-bottom:12px">
+                    <img id="upi-qr-img" src="" alt="UPI QR Code" style="width:140px; height:140px; border-radius:8px">
+                  </div>
+                  <div style="font-size:0.75rem; font-weight:700; color:var(--clr-primary); letter-spacing:0.05em; text-transform:uppercase">Scan to Pay Safely</div>
+                </div>
+                
+                <div>
+                  <h4 style="font-size:1.2rem; font-family:var(--font-heading); margin-bottom:12px">Digital Payment</h4>
+                  <p style="font-size:0.85rem; color:var(--clr-text-2); margin-bottom:20px; line-height:1.5">Use your preferred UPI app to scan and pay. Your order will be processed instantly after verification.</p>
+                  
+                  <div style="display:flex; flex-direction:column; gap:16px">
+                    <div style="background:#fff; border:1px solid var(--clr-border); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center">
+                       <div style="flex:1">
+                         <div style="font-size:0.7rem; color:var(--clr-text-3); font-weight:700; text-transform:uppercase; margin-bottom:2px">Official UPI ID</div>
+                         <code id="upi-vpa-display" style="font-weight:700; font-size:0.95rem; color:var(--clr-primary)">pay@upi</code>
+                       </div>
+                       <button class="btn btn-ghost" onclick="copyUPI(this)" style="padding:8px 14px; height:auto; border-radius:8px; font-size:0.8rem">Copy</button>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px">
+                       <div style="flex:1; padding:10px; border:1px solid var(--clr-border); border-radius:12px; background:#fff; text-align:center">
+                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Google_Pay_Logo.svg/1024px-Google_Pay_Logo.svg.png" style="height:14px; margin-bottom:4px; opacity:0.8"><br>
+                         <span style="font-size:0.6rem; color:var(--clr-text-3); font-weight:700">G-Pay</span>
+                       </div>
+                       <div style="flex:1; padding:10px; border:1px solid var(--clr-border); border-radius:12px; background:#fff; text-align:center">
+                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/1024px-PhonePe_Logo.svg.png" style="height:14px; margin-bottom:4px; opacity:0.8"><br>
+                         <span style="font-size:0.6rem; color:var(--clr-text-3); font-weight:700">PhonePe</span>
+                       </div>
+                       <div style="flex:1; padding:10px; border:1px solid var(--clr-border); border-radius:12px; background:#fff; text-align:center">
+                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/1024px-Paytm_Logo_%28standalone%29.svg.png" style="height:12px; margin-top:2px; margin-bottom:4px; opacity:0.8"><br>
+                         <span style="font-size:0.6rem; color:var(--clr-text-3); font-weight:700">Paytm</span>
+                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div style="margin-top:32px; padding-top:24px; border-top:1px solid rgba(0,0,0,0.05)">
+                <label class="form-label" style="font-size:0.85rem; margin-bottom:10px; font-weight:700">Verification Reference (UTR)</label>
+                <div style="position:relative">
+                  <span style="position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:1.1rem; opacity:0.4">#</span>
+                  <input type="text" id="upi-txn-id" class="form-control" placeholder="12-digit transaction number" style="height:54px; padding-left:40px; border-radius:12px">
+                </div>
+                <div class="form-hint" style="font-size:0.75rem; margin-top:6px; color:var(--clr-text-3)">Usually found in your transaction history after successful payment.</div>
+              </div>
             </div>
           </div>
           <div style="display:flex; justify-content:space-between; margin-top:var(--space-4)">
@@ -255,6 +314,7 @@
   }
 
   function renderReview() {
+    const total = Cart.total() + (StoreState.isGiftWrapped ? 149 : 0);
     const reviewEl = UI.get('review-items');
     if (!reviewEl) return;
     reviewEl.innerHTML = Cart.get().map(item => `
@@ -266,7 +326,19 @@
         <span style="font-weight:900">${formatCurrency(item.price * item.qty)}</span>
       </div>
     `).join('') + (StoreState.isGiftWrapped ? `<div style="display:flex; justify-content:space-between; padding:16px 0; border-bottom:1px solid var(--clr-border); color:var(--clr-primary); font-weight:700"><span>🎁 Gift Wrapping Service</span><span>${formatCurrency(149)}</span></div>` : '') +
-    `<div style="display:flex; justify-content:space-between; padding:24px 0; font-weight:900; font-size:1.4rem"><span>Grand Total</span><span>${formatCurrency(Cart.total() + (StoreState.isGiftWrapped ? 149 : 0))}</span></div>`;
+    `<div style="display:flex; justify-content:space-between; padding:24px 0; font-weight:900; font-size:1.4rem"><span>Grand Total</span><span>${formatCurrency(total)}</span></div>`;
+    
+    // Show UPI info in review if selected
+    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value;
+    if (paymentMethod === 'UPI') {
+      const upiId = UI.get('upi-txn-id')?.value;
+      reviewEl.innerHTML += `
+        <div style="padding:16px; background:var(--clr-bg-3); border-radius:10px; margin-top:10px; border:1px dashed var(--clr-primary)">
+          <div style="font-weight:700; color:var(--clr-primary); margin-bottom:4px">Payment: UPI Scan & Pay</div>
+          <div style="font-size:0.8rem; color:var(--clr-text-2)">${upiId ? `Reference ID: ${upiId}` : 'Awaiting manual verification after placement.'}</div>
+        </div>
+      `;
+    }
   }
 
   function renderSavedAddresses() {
@@ -295,39 +367,63 @@
 
   function doPlaceOrder() {
     const user = Auth.getBuyer();
-    const cartItems = Cart.get();
-    if (!cartItems.length) return;
+    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'Card';
 
-    const orders = Store.getOrders();
-    const newOrder = {
-      id: `ORD-${Date.now().toString().slice(-6)}`,
-      userId: user.id,
-      subtotal: Cart.subtotal(),
-      shipping: Cart.shipping(),
-      tax: Cart.tax(),
-      giftWrapFee: StoreState.isGiftWrapped ? 149 : 0,
-      total: Cart.total() + (StoreState.isGiftWrapped ? 149 : 0),
-      status: 'pending',
-      date: new Date().toISOString().slice(0, 10),
-      items: cartItems,
-      address: `${UI.get('addr-name').value}, ${UI.get('addr-line1').value}, ${UI.get('addr-city').value} - ${UI.get('addr-zip').value}`,
-      paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'Card',
-      isGiftWrapped: StoreState.isGiftWrapped,
-      orderNotes: UI.get('order-notes').value.trim()
-    };
+    // TRIGGER GATEWAY IF SELECTED
+    if (paymentMethod === 'Gateway') {
+       return triggerGatewayCheckout();
+    }
 
-    orders.push(newOrder);
-    Store.setOrders(orders);
-    Cart.clear();
+    // Simulated Payment Verification Overlay (for UPI/Card)
+    const overlay = document.createElement('div');
+    overlay.className = 'payment-processing-overlay';
+    overlay.innerHTML = `
+      <div class="processing-card">
+        <div class="processing-spinner"></div>
+        <h2 style="font-family:var(--font-heading); font-size:2rem; margin-bottom:12px; color:var(--clr-primary)">Verifying Payment</h2>
+        <p style="color:var(--clr-text-2)">Checking your transaction reference with our banking partners...</p>
+        <div style="margin-top:24px; font-family:monospace; background:var(--clr-bg-3); padding:8px 16px; border-radius:8px">AUTH_ID: ${Math.random().toString(36).substr(2, 9).toUpperCase()}</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
 
-    // Show success screen
-    document.getElementById('checkout-main-layout').style.display = 'none';
-    document.getElementById('step-indicator').style.display = 'none';
-    document.querySelectorAll('.checkout-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-success').classList.add('active');
-    document.getElementById('success-order-id').textContent = `Order ID: ${newOrder.orderId || newOrder.id}`;
+    // Simulate network delay for verification
+    setTimeout(() => {
+      const orders = Store.getOrders();
+      const newOrder = {
+        id: `ORD-${Date.now().toString().slice(-6)}`,
+        userId: user.id,
+        subtotal: Cart.subtotal(),
+        shipping: Cart.shipping(),
+        tax: Cart.tax(),
+        giftWrapFee: StoreState.isGiftWrapped ? 149 : 0,
+        total: Cart.total() + (StoreState.isGiftWrapped ? 149 : 0),
+        status: 'pending',
+        date: new Date().toISOString().slice(0, 10),
+        items: cartItems,
+        address: `${UI.get('addr-name').value}, ${UI.get('addr-line1').value}, ${UI.get('addr-city').value} - ${UI.get('addr-zip').value}`,
+        paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'Card',
+        upiReference: UI.get('upi-txn-id')?.value || null,
+        isGiftWrapped: StoreState.isGiftWrapped,
+        orderNotes: UI.get('order-notes').value.trim()
+      };
 
-    showToast('Success! 🎉', 'Your order has been placed.', 'success');
+      orders.push(newOrder);
+      Store.setOrders(orders);
+      Cart.clear();
+
+      // Fade out overlay then show success
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.remove();
+        document.getElementById('checkout-main-layout').style.display = 'none';
+        document.getElementById('step-indicator').style.display = 'none';
+        document.querySelectorAll('.checkout-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-success').classList.add('active');
+        document.getElementById('success-order-id').textContent = `Order ID: ${newOrder.orderId || newOrder.id}`;
+        showToast('Success! 🎉', 'Your order has been placed.', 'success');
+      }, 500);
+    }, 2800);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -372,7 +468,140 @@
     UI.get('back-2').onclick = () => goToStep(1);
     UI.get('back-3').onclick = () => goToStep(2);
     UI.get('place-order-btn').onclick = doPlaceOrder;
+
+    const config = AdminStore.getSiteConfig();
+    if (config.payment?.gateway?.enabled) {
+      document.getElementById('payment-gateway-option').style.display = 'flex';
+      loadGatewayScript(config.payment.gateway.type);
+    }
+
+    // Payment method logic logic
+    const upiRadios = document.querySelectorAll('input[name="payment"]');
+    upiRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const upiDetails = document.getElementById('upi-details');
+        if (r.value === 'UPI') {
+          updateUPIDetails();
+          upiDetails.style.display = 'block';
+        } else {
+          upiDetails.style.display = 'none';
+        }
+      });
+    });
   });
+
+  function updateUPIDetails() {
+    const config = AdminStore.getSiteConfig();
+    const upiId = config.payment?.upiId || 'pay@upi';
+    const payeeName = config.payment?.payeeName || 'Arvaan Collective';
+    const totalAmount = Cart.total() + (StoreState.isGiftWrapped ? 149 : 0);
+    
+    document.getElementById('upi-vpa-display').textContent = upiId;
+    
+    // upi://pay?pa=VPA&pn=NAME&am=AMOUNT&cu=INR&tn=Order Payment
+    const upiLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent('Order ' + Date.now().toString().slice(-6))}`;
+    
+    // Generate QR using api.qrserver.com
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiLink)}`;
+    document.getElementById('upi-qr-img').src = qrUrl;
+  }
+
+  function copyUPI(btn) {
+    const vpa = document.getElementById('upi-vpa-display').textContent;
+    navigator.clipboard.writeText(vpa).then(() => {
+      const oldText = btn.textContent;
+      btn.textContent = 'Copied! ✅';
+      btn.style.color = 'var(--clr-success)';
+      setTimeout(() => {
+        btn.textContent = oldText;
+        btn.style.color = '';
+      }, 2000);
+      showToast('Copied!', 'UPI ID copied to clipboard', 'success');
+    });
+  }
+
+  function loadGatewayScript(type) {
+    if (type === 'razorpay') {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      document.head.appendChild(script);
+    }
+  }
+
+  function triggerGatewayCheckout() {
+    const config = AdminStore.getSiteConfig();
+    const gate = config.payment.gateway;
+    const items = Cart.get();
+    const total = Cart.total() + (StoreState.isGiftWrapped ? 149 : 0);
+    const buyer = Auth.getBuyer();
+
+    if (!gate.apiKey) {
+      showToast('Configuration Error', 'Gateway API Key is missing in admin settings.', 'error');
+      return;
+    }
+
+    const options = {
+      key: gate.apiKey,
+      amount: total * 100, // in paisa
+      currency: "INR",
+      name: "Arvaan Elite",
+      description: `Order for ${items.length} items`,
+      handler: function (response) {
+        // SUCCESS CALLBACK
+        console.log('Payment Success:', response.razorpay_payment_id);
+        finalizeOrder(response.razorpay_payment_id);
+      },
+      prefill: {
+        name: buyer.name,
+        email: buyer.email
+      },
+      theme: {
+        color: "#6C3BFF"
+      }
+    };
+
+    try {
+      const rzp1 = new Razorpay(options);
+      rzp1.open();
+    } catch (err) {
+      console.error('Gateway Initialization Failed:', err);
+      showToast('Gateway Error', 'Could not initialize payment secure checkout.', 'error');
+    }
+  }
+
+  function finalizeOrder(gatewayRef = null) {
+      const user = Auth.getBuyer();
+      const cartItems = Cart.get();
+      const orders = Store.getOrders();
+      const newOrder = {
+        id: `ORD-${Date.now().toString().slice(-6)}`,
+        userId: user.id,
+        subtotal: Cart.subtotal(),
+        shipping: Cart.shipping(),
+        tax: Cart.tax(),
+        giftWrapFee: StoreState.isGiftWrapped ? 149 : 0,
+        total: Cart.total() + (StoreState.isGiftWrapped ? 149 : 0),
+        status: 'paid',
+        date: new Date().toISOString().slice(0, 10),
+        items: cartItems,
+        address: `${UI.get('addr-name').value}, ${UI.get('addr-line1').value}, ${UI.get('addr-city').value} - ${UI.get('addr-zip').value}`,
+        paymentMethod: gatewayRef ? 'Gateway' : (document.querySelector('input[name="payment"]:checked')?.value || 'Card'),
+        gatewayReference: gatewayRef,
+        isGiftWrapped: StoreState.isGiftWrapped,
+        orderNotes: UI.get('order-notes').value.trim()
+      };
+
+      orders.push(newOrder);
+      Store.setOrders(orders);
+      Cart.clear();
+
+      document.getElementById('checkout-main-layout').style.display = 'none';
+      document.getElementById('step-indicator').style.display = 'none';
+      document.querySelectorAll('.checkout-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-success').classList.add('active');
+      document.getElementById('success-order-id').textContent = `Order ID: ${newOrder.orderId || newOrder.id}`;
+      showToast('Success! 🎉', 'Your order has been placed securely.', 'success');
+  }
 </script>
 </body>
 </html>

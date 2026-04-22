@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arvaan Collective — Premium Curated Marketplace</title>
+  <meta name="description" content="Discover premium collections at Arvaan Collective.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/store.css?v=8.1">
+</head>
+<body class="dynamic-page">
+
+<!-- ══ ANNOUNCEMENT BAR ══ -->
+<div class="announce-bar" id="announce-bar">
+  <div class="announce-inner">
+    <span class="announce-item active">🚚 Free Delivery on orders above ₹999</span>
+  </div>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<header class="site-header" id="site-header"></header>
+
+<main class="store-main">
+  <!-- Dynamic Route Container -->
+  <div class="page-header" style="background-color: var(--clr-surface-alt);">
+    <div class="page-container" style="padding: 60px 0; text-align: center;">
+       <div class="breadcrumb" style="display:flex; justify-content:center; gap:10px; font-size:0.85rem; color:var(--clr-text-3); margin-bottom: 20px;">
+          <a href="index.html">Home</a> <span>/</span> <span id="breadcrumb-page-title">Page</span>
+       </div>
+       <h1 class="section-heading" style="margin:0;">Loading...</h1>
+       <p class="page-last-updated" style="font-size: 0.9rem; color: var(--clr-text-3); margin-top: 15px; opacity: 0.8;"></p>
+    </div>
+  </div>
+
+  <div class="page-container" style="padding: 60px 0;">
+    <div class="policy-content-card" style="box-shadow: 0 10px 40px rgba(0,0,0,0.05); border-radius: 20px; overflow: hidden; background: #fff; border: 1px solid var(--clr-border);">
+      <div class="policy-content" id="dynamic-page-content" style="padding: 40px 60px; line-height: 1.8; color: var(--clr-text-2);">
+        <div style="text-align:center; padding: 40px;">
+           <div class="loader-spinner" style="margin: 0 auto 20px;"></div>
+           <p>Loading your content...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ FOOTER ══ -->
+<div id="global-footer"></div>
+<div id="global-modals"></div>
+
+<script src="../js/data.js?v=4"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/store.js?v=16"></script>
+</body>
+</html>
