@@ -73,7 +73,13 @@
   </div>
 </div>
 <div id="toast-container"></div>
-<script src="../js/data.js"></script><script src="../js/auth.js"></script><script src="../js/seller.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+<script src="../js/data.js"></script>
+  <script src="../js/firebase-sync.js"></script><script src="../js/auth.js"></script><script src="../js/seller.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => initSellerPage());</script>
 </body>
 </html>
