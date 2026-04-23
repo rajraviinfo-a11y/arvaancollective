@@ -380,6 +380,12 @@
        return triggerGatewayCheckout();
     }
 
+    // SKIP VERIFICATION FOR COD
+    if (paymentMethod === 'COD') {
+      finalizeOrder(null);
+      return;
+    }
+
     // Simulated Payment Verification Overlay (for UPI/Card)
     const overlay = document.createElement('div');
     overlay.className = 'payment-processing-overlay';
@@ -395,39 +401,11 @@
 
     // Simulate network delay for verification
     setTimeout(() => {
-      const orders = Store.getOrders();
-      const newOrder = {
-        id: `ORD-${Date.now().toString().slice(-6)}`,
-        userId: user.id,
-        subtotal: Cart.subtotal(),
-        shipping: Cart.shipping(),
-        tax: Cart.tax(),
-        giftWrapFee: StoreState.isGiftWrapped ? 149 : 0,
-        total: Cart.total() + (StoreState.isGiftWrapped ? 149 : 0),
-        status: 'pending',
-        date: new Date().toISOString().slice(0, 10),
-        items: cartItems,
-        address: `${UI.get('addr-name').value}, ${UI.get('addr-line1').value}, ${UI.get('addr-city').value} - ${UI.get('addr-zip').value}`,
-        paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'Card',
-        upiReference: UI.get('upi-txn-id')?.value || null,
-        isGiftWrapped: StoreState.isGiftWrapped,
-        orderNotes: UI.get('order-notes').value.trim()
-      };
-
-      orders.push(newOrder);
-      Store.setOrders(orders);
-      Cart.clear();
-
       // Fade out overlay then show success
       overlay.style.opacity = '0';
       setTimeout(() => {
         overlay.remove();
-        document.getElementById('checkout-main-layout').style.display = 'none';
-        document.getElementById('step-indicator').style.display = 'none';
-        document.querySelectorAll('.checkout-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-success').classList.add('active');
-        document.getElementById('success-order-id').textContent = `Order ID: ${newOrder.orderId || newOrder.id}`;
-        showToast('Success! 🎉', 'Your order has been placed.', 'success');
+        finalizeOrder(null);
       }, 500);
     }, 2800);
   }
@@ -579,6 +557,8 @@
       const user = Auth.getBuyer();
       const cartItems = Cart.get();
       const orders = Store.getOrders();
+      const paymentMethod = gatewayRef ? 'Gateway' : (document.querySelector('input[name="payment"]:checked')?.value || 'Card');
+      
       const newOrder = {
         id: `ORD-${Date.now().toString().slice(-6)}`,
         userId: user.id,
@@ -587,11 +567,12 @@
         tax: Cart.tax(),
         giftWrapFee: StoreState.isGiftWrapped ? 149 : 0,
         total: Cart.total() + (StoreState.isGiftWrapped ? 149 : 0),
-        status: 'paid',
+        status: paymentMethod === 'COD' ? 'pending' : 'paid',
         date: new Date().toISOString().slice(0, 10),
         items: cartItems,
         address: `${UI.get('addr-name').value}, ${UI.get('addr-line1').value}, ${UI.get('addr-city').value} - ${UI.get('addr-zip').value}`,
-        paymentMethod: gatewayRef ? 'Gateway' : (document.querySelector('input[name="payment"]:checked')?.value || 'Card'),
+        paymentMethod: paymentMethod,
+        upiReference: UI.get('upi-txn-id')?.value || null,
         gatewayReference: gatewayRef,
         isGiftWrapped: StoreState.isGiftWrapped,
         orderNotes: UI.get('order-notes').value.trim()
@@ -606,7 +587,7 @@
       document.querySelectorAll('.checkout-panel').forEach(p => p.classList.remove('active'));
       document.getElementById('panel-success').classList.add('active');
       document.getElementById('success-order-id').textContent = `Order ID: ${newOrder.orderId || newOrder.id}`;
-      showToast('Success! 🎉', 'Your order has been placed securely.', 'success');
+      showToast('Success! 🎉', 'Your order has been placed successfully.', 'success');
   }
 </script>
 </body>
