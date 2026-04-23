@@ -48,88 +48,43 @@ const CloudDB = {
     }
   },
 
-  // ── Products: Pull from Firestore → localStorage ──────────────────────────
-  async pullProducts() {
+  // ── Universal Collection Sync (Products, Orders, Sellers, etc) ────────────
+  async pullCollection(colName, localKey) {
     if (!this.ready) return null;
     try {
-      const snap = await this.db.collection('products').get();
+      const snap = await this.db.collection(colName).get();
       if (!snap.empty) {
-        const products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        localStorage.setItem('arvaan_products', JSON.stringify(products));
-        console.log(`CloudDB: Pulled ${products.length} products from Firestore`);
-        return products;
+        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        localStorage.setItem(localKey, JSON.stringify(items));
+        console.log(`CloudDB: Pulled ${items.length} ${colName} from Firestore`);
+        return items;
       }
     } catch (e) {
-      console.warn('CloudDB: pullProducts failed', e.message);
+      console.warn(`CloudDB: pullCollection(${colName}) failed`, e.message);
     }
     return null;
   },
 
-  // ── Products: Push entire product array to Firestore (batch) ─────────────
-  async pushProducts(products) {
-    if (!this.ready || !products || !products.length) return;
+  async pushCollection(colName, items) {
+    if (!this.ready || !items || !items.length) return;
     try {
       // Firestore batch limit is 500 — chunk if needed
       const chunks = [];
-      for (let i = 0; i < products.length; i += 400) {
-        chunks.push(products.slice(i, i + 400));
+      for (let i = 0; i < items.length; i += 400) {
+        chunks.push(items.slice(i, i + 400));
       }
       for (const chunk of chunks) {
         const batch = this.db.batch();
-        chunk.forEach(p => {
-          const ref = this.db.collection('products').doc(String(p.id));
-          batch.set(ref, p);
+        chunk.forEach(item => {
+          if (!item.id) return;
+          const ref = this.db.collection(colName).doc(String(item.id));
+          batch.set(ref, item);
         });
         await batch.commit();
       }
-      console.log(`CloudDB: Pushed ${products.length} products to Firestore`);
+      console.log(`CloudDB: Pushed ${items.length} ${colName} to Firestore`);
     } catch (e) {
-      console.warn('CloudDB: pushProducts failed', e.message);
-    }
-  },
-
-  // ── Single product save ───────────────────────────────────────────────────
-  async saveProduct(product) {
-    if (!this.ready) return;
-    try {
-      await this.db.collection('products').doc(String(product.id)).set(product);
-    } catch (e) {
-      console.warn('CloudDB: saveProduct failed', e.message);
-    }
-  },
-
-  // ── Single product delete ─────────────────────────────────────────────────
-  async deleteProduct(productId) {
-    if (!this.ready) return;
-    try {
-      await this.db.collection('products').doc(String(productId)).delete();
-    } catch (e) {
-      console.warn('CloudDB: deleteProduct failed', e.message);
-    }
-  },
-
-  // ── Orders ────────────────────────────────────────────────────────────────
-  async pullOrders(uid = null) {
-    if (!this.ready) return [];
-    try {
-      let query = this.db.collection('orders').orderBy('createdAt', 'desc');
-      if (uid) query = query.where('buyerId', '==', uid);
-      const snap = await query.get();
-      const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      localStorage.setItem('arvaan_orders', JSON.stringify(orders));
-      return orders;
-    } catch (e) {
-      console.warn('CloudDB: pullOrders failed', e.message);
-      return [];
-    }
-  },
-
-  async saveOrder(order) {
-    if (!this.ready) return;
-    try {
-      await this.db.collection('orders').doc(String(order.id)).set(order);
-    } catch (e) {
-      console.warn('CloudDB: saveOrder failed', e.message);
+      console.warn(`CloudDB: pushCollection(${colName}) failed`, e.message);
     }
   },
 
@@ -137,7 +92,6 @@ const CloudDB = {
   async saveUserProfile(uid, profile) {
     if (!this.ready) return;
     try {
-      // Remove password before storing in Firestore
       const safeProfile = { ...profile };
       delete safeProfile.password;
       await this.db.collection('users').doc(uid).set(safeProfile, { merge: true });
@@ -157,74 +111,37 @@ const CloudDB = {
     }
   },
 
-  // ── Cart (cloud sync for logged-in users) ─────────────────────────────────
-  async saveCart(uid, cart) {
+  // ── Cart / Wishlist ───────────────────────────────────────────────────────
+  async saveUserList(colName, uid, items) {
     if (!this.ready || !uid) return;
     try {
-      await this.db.collection('carts').doc(uid).set({
-        items: cart,
-        updatedAt: new Date().toISOString()
-      });
-    } catch (e) {
-      console.warn('CloudDB: saveCart failed', e.message);
-    }
+      await this.db.collection(colName).doc(uid).set({ items, updatedAt: new Date().toISOString() });
+    } catch (e) { console.warn(`CloudDB: saveUserList(${colName}) failed`, e.message); }
   },
 
-  async pullCart(uid) {
+  async pullUserList(colName, uid, localKey) {
     if (!this.ready || !uid) return null;
     try {
-      const snap = await this.db.collection('carts').doc(uid).get();
+      const snap = await this.db.collection(colName).doc(uid).get();
       if (snap.exists) {
-        const cart = snap.data().items || [];
-        localStorage.setItem('arvaan_cart', JSON.stringify(cart));
-        return cart;
+        const items = snap.data().items || [];
+        localStorage.setItem(localKey, JSON.stringify(items));
+        return items;
       }
-    } catch (e) {
-      console.warn('CloudDB: pullCart failed', e.message);
-    }
+    } catch (e) { console.warn(`CloudDB: pullUserList(${colName}) failed`, e.message); }
     return null;
   },
 
-  // ── Wishlist (cloud sync for logged-in users) ─────────────────────────────
-  async saveWishlist(uid, wishlist) {
-    if (!this.ready || !uid) return;
-    try {
-      await this.db.collection('wishlists').doc(uid).set({
-        items: wishlist,
-        updatedAt: new Date().toISOString()
-      });
-    } catch (e) {
-      console.warn('CloudDB: saveWishlist failed', e.message);
-    }
-  },
-
-  async pullWishlist(uid) {
-    if (!this.ready || !uid) return null;
-    try {
-      const snap = await this.db.collection('wishlists').doc(uid).get();
-      if (snap.exists) {
-        const wishlist = snap.data().items || [];
-        localStorage.setItem('arvaan_wishlist', JSON.stringify(wishlist));
-        return wishlist;
-      }
-    } catch (e) {
-      console.warn('CloudDB: pullWishlist failed', e.message);
-    }
-    return null;
-  },
+  async saveCart(uid, cart) { return this.saveUserList('carts', uid, cart); },
+  async pullCart(uid) { return this.pullUserList('carts', uid, 'arvaan_cart'); },
+  async saveWishlist(uid, list) { return this.saveUserList('wishlists', uid, list); },
+  async pullWishlist(uid) { return this.pullUserList('wishlists', uid, 'arvaan_wishlist'); },
 
   // ── First-run Seeding: push defaults if Firestore is empty ───────────────
   async seedIfEmpty() {
     if (!this.ready) return;
     try {
-      // Check products
-      const prodSnap = await this.db.collection('products').limit(1).get();
-      if (prodSnap.empty && typeof SEED_PRODUCTS !== 'undefined') {
-        console.log('CloudDB: First run — seeding products...');
-        await this.pushProducts(SEED_PRODUCTS);
-      }
-
-      // Check config
+      // Check config to determine if it's the first run
       const cfgSnap = await this.db.collection('config').doc('site').get();
       if (!cfgSnap.exists) {
         console.log('CloudDB: First run — seeding admin config...');
@@ -236,6 +153,13 @@ const CloudDB = {
           ['pages',      window.ADMIN_DEFAULT_PAGES],
         ];
         await Promise.all(seeds.map(([k, v]) => v ? this.pushConfig(k, v) : Promise.resolve()));
+      }
+
+      // If products collection is empty, seed products
+      const prodSnap = await this.db.collection('products').limit(1).get();
+      if (prodSnap.empty && typeof SEED_PRODUCTS !== 'undefined') {
+        console.log('CloudDB: First run — seeding products...');
+        await this.pushCollection('products', SEED_PRODUCTS);
       }
     } catch (e) {
       console.warn('CloudDB: seedIfEmpty failed', e.message);
@@ -249,10 +173,15 @@ const CloudDB = {
       return;
     }
     try {
-      // Parallel pull: config + products
+      // Parallel pull everything
       await Promise.all([
         this.pullConfig(),
-        this.pullProducts()
+        this.pullCollection('products', 'arvaan_products'),
+        this.pullCollection('orders', 'arvaan_orders'),
+        this.pullCollection('sellers', 'arvaan_sellers'),
+        this.pullCollection('promotions', 'arvaan_promotions'),
+        this.pullCollection('transactions', 'arvaan_transactions'),
+        this.pullCollection('reviews', 'arvaan_reviews')
       ]);
       // Seed on first run (no-op if data already exists)
       await this.seedIfEmpty();
@@ -265,39 +194,31 @@ const CloudDB = {
 };
 
 // ── Patch Store & AdminStore after they are defined ───────────────────────────
-// We wait for DOMContentLoaded so that data.js has already executed
 document.addEventListener('DOMContentLoaded', () => {
   CloudDB.bootstrap();
 
-  // Patch AdminStore.set → also write to Firestore
+  // Patch AdminStore.set
   if (typeof AdminStore !== 'undefined') {
     const _origAdminSet = AdminStore.set.bind(AdminStore);
     AdminStore.set = function(k, v) {
       _origAdminSet(k, v);
-      // Only sync the known config keys
       const syncKeys = ['site', 'homepage', 'categories', 'filters', 'pages'];
-      if (syncKeys.includes(k)) {
-        CloudDB.pushConfig(k, v).catch(() => {});
-      }
+      if (syncKeys.includes(k)) CloudDB.pushConfig(k, v).catch(() => {});
     };
   }
 
-  // Patch Store.set → also write to Firestore for products & orders
+  // Patch Store.set for generic collections
   if (typeof Store !== 'undefined') {
     const _origStoreSet = Store.set.bind(Store);
     Store.set = function(key, val) {
       _origStoreSet(key, val);
-      if (key === 'products' && Array.isArray(val)) {
-        // Debounce to avoid hammering Firestore on rapid updates
-        clearTimeout(Store._productSyncTimer);
-        Store._productSyncTimer = setTimeout(() => {
-          CloudDB.pushProducts(val).catch(() => {});
+      
+      const collections = ['products', 'orders', 'sellers', 'promotions', 'transactions', 'reviews'];
+      if (collections.includes(key) && Array.isArray(val)) {
+        clearTimeout(Store[`_${key}SyncTimer`]);
+        Store[`_${key}SyncTimer`] = setTimeout(() => {
+          CloudDB.pushCollection(key, val).catch(() => {});
         }, 800);
-      }
-      if (key === 'orders' && Array.isArray(val)) {
-        // Sync newest order (last in array)
-        const latest = val[val.length - 1];
-        if (latest) CloudDB.saveOrder(latest).catch(() => {});
       }
     };
   }
