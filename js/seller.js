@@ -18,6 +18,11 @@ const SellerState = {
 };
 
 // ── Currency & Utility Helpers ───────────────────────────────────────────────
+const CurrencyConfig = {
+  INR: { symbol: '₹', rate: 1 },
+  USD: { symbol: '$', rate: 1/83 }
+};
+
 let currentCurrency = 'INR';
 try {
   if (typeof Store !== 'undefined' && Store.getSettings) {
@@ -31,6 +36,12 @@ function formatCurrency(amt) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amt / 83);
   }
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amt);
+}
+
+function toBaseCurrency(val) {
+  const code = currentCurrency || 'INR';
+  if (code === 'USD') return val * 83; // Convert USD input to INR internal base
+  return val; // Already in INR
 }
 
 function debounce(func, wait) {
@@ -113,13 +124,6 @@ function showToast(title, msg, type = 'info') {
   }, 4000);
 }
 
-function toBaseCurrency(val) {
-  // Store Settings mapping
-  const settings = Store.getSettings ? Store.getSettings() : { currency: 'USD' };
-  const exchangeRates = { 'USD': 1, 'INR': 83.33 };
-  const rate = exchangeRates[settings.currency] || 1;
-  return val / rate;
-}
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 // ── Navigation ────────────────────────────────────────────────────────────────
