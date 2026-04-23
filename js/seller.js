@@ -27,6 +27,44 @@ const SafeUI = {
   safeShow(id) { const el = this.get(id); if (el) el.classList.remove('hidden'); }
 };
 
+function openModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.classList.remove('hidden');
+    setTimeout(() => modal.classList.add('active'), 10);
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeAllModals() {
+  document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+  setTimeout(() => {
+    document.querySelectorAll('.modal-overlay:not(.active)').forEach(el => el.classList.add('hidden'));
+  }, 350);
+  document.body.style.overflow = '';
+}
+
+function showToast(title, msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</div>
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      <div class="toast-desc">${msg}</div>
+    </div>
+    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+  `;
+  container.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
 function toBaseCurrency(val) {
   // Store Settings mapping
   const settings = Store.getSettings ? Store.getSettings() : { currency: 'USD' };
