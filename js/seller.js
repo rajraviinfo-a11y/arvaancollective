@@ -17,6 +17,41 @@ const SellerState = {
   variantMatrix: []
 };
 
+// ── Currency & Utility Helpers ───────────────────────────────────────────────
+let currentCurrency = 'INR';
+try {
+  if (typeof Store !== 'undefined' && Store.getSettings) {
+    currentCurrency = Store.getSettings().currency;
+  }
+} catch(e) { console.error("Currency init failed", e); }
+
+function formatCurrency(amt) {
+  const code = currentCurrency || 'INR';
+  if (code === 'USD') {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amt / 83);
+  }
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amt);
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+function escapeHtml(text) {
+  if (typeof text !== 'string') return text;
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const SafeUI = {
   get(id) { return document.getElementById(id); },
