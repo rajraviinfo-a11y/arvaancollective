@@ -44,6 +44,19 @@ function closeAllModals() {
   document.body.style.overflow = '';
 }
 
+function toggleUserDropdown(event) {
+  if (event) event.stopPropagation();
+  const menu = document.getElementById('user-dropdown-menu');
+  if (menu) menu.classList.toggle('active');
+}
+
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('user-dropdown-menu');
+  if (menu && menu.classList.contains('active') && !e.target.closest('.dropdown')) {
+    menu.classList.remove('active');
+  }
+});
+
 function showToast(title, msg, type = 'info') {
   const container = document.getElementById('toast-container');
   if (!container) return;
@@ -117,6 +130,23 @@ function initSellerPage() {
   if (page === 'analytics') renderAnalytics();
   if (page === 'financials') renderFinancials();
   if (page === 'settings') renderSettings();
+}
+
+function renderSellerApp() {
+  const seller = SellerState.currentSeller;
+  if (!seller) return;
+  SafeUI.safeHTML('sidebar-seller-name', seller.name);
+  SafeUI.safeHTML('sidebar-seller-email', seller.email);
+  SafeUI.safeHTML('dropdown-seller-name', seller.name);
+  SafeUI.safeHTML('dropdown-seller-email', seller.email);
+  
+  const avatarText = seller.name ? seller.name.charAt(0).toUpperCase() : 'S';
+  SafeUI.safeHTML('sidebar-seller-avatar', avatarText);
+  SafeUI.safeHTML('topbar-seller-avatar', avatarText);
+}
+
+function renderSellerAuthPage() {
+  // Handle UI changes when logged out
 }
 
 function navigateTo(page) {
