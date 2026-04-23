@@ -1733,7 +1733,16 @@ function initStoreContent() {
   updateCartUI();
   highlightActiveNavLinks();
 
-  if (path.includes('shop.html') || path.includes('electronics.html') || path.includes('fashion.html')) {
+  if (path.includes('product.html')) {
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get('id');
+    const p = Store.getProducts().find(x => x.id === pid);
+    if (p) initProductPage(p);
+  } else if (path.includes('checkout.html')) {
+    if (typeof renderCheckoutStep === 'function') renderCheckoutStep();
+  } else if (path.includes('account.html')) {
+    if (typeof renderAccountProfile === 'function') renderAccountProfile();
+  } else if (path.includes('shop.html') || path.includes('electronics.html') || path.includes('fashion.html')) {
     initShopPage();
   } else if (path.includes('categories.html')) {
     initCategoriesPage();
