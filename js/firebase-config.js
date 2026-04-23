@@ -1,16 +1,15 @@
 /* =============================================
    FIREBASE-CONFIG.JS — Arvaan Collective
-   ⚠️  FILL IN YOUR VALUES FROM FIREBASE CONSOLE
-   Step: Firebase Console → Project Settings → Your apps → Web app config
    ============================================= */
 
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey: "AIzaSyD73FCva8IVp_Dblzcgnx4jwXVm6OSkS9Q",
+  authDomain: "arvaan-collective.firebaseapp.com",
+  projectId: "arvaan-collective",
+  storageBucket: "arvaan-collective.firebasestorage.app",
+  messagingSenderId: "897472452613",
+  appId: "1:897472452613:web:3498c490dd53234913646c",
+  measurementId: "G-4S37XR09B1"
 };
 
 // Initialize Firebase
