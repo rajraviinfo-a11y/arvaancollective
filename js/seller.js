@@ -263,7 +263,7 @@ function renderDashboard(daysLimit = null) {
 function renderAnalytics(daysLimit = null) {
   const seller = SellerState.currentSeller;
   let all_orders = Store.getOrders().filter(o => o.sellerId === seller.id);
-  const all_products = Store.getProducts().filter(p => p.seller === seller.id);
+  const all_products = Store.getProducts().filter(p => p.seller === seller.id || p.sellerId === seller.id);
 
   if (daysLimit) {
     const cutoff = new Date();
@@ -656,7 +656,7 @@ function getUserName(userId) {
 // ── Products Table ────────────────────────────────────────────────────────────
 function renderProductsTable() {
   const seller = SellerState.currentSeller;
-  let products = Store.getProducts().filter(p => p.seller === seller.id);
+  let products = Store.getProducts().filter(p => p.seller === seller.id || p.sellerId === seller.id);
   if (SellerState.productSearch) {
     const q = SellerState.productSearch.toLowerCase();
     products = products.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
@@ -828,7 +828,7 @@ function bulkDeleteProducts() {
 // ── Bulk Inventory Editor ───────────────────────────────────────────────────
 function openBulkEditor() {
   const seller = SellerState.currentSeller;
-  const products = Store.getProducts().filter(p => p.seller === seller.id);
+  const products = Store.getProducts().filter(p => p.seller === seller.id || p.sellerId === seller.id);
   const tbody = document.getElementById('bulk-inventory-table-body');
   if (!tbody) return;
 
@@ -1926,7 +1926,7 @@ function updateOrderStatus(orderId, newStatus) {
 // ── Analytics ─────────────────────────────────────────────────────────────────
 function renderAnalytics() {
   const seller = SellerState.currentSeller;
-  const products = Store.getProducts().filter(p => p.seller === seller.id);
+  const products = Store.getProducts().filter(p => p.seller === seller.id || p.sellerId === seller.id);
   const orders = Store.getOrders().filter(o => o.sellerId === seller.id);
   const revenue = orders.reduce((s, o) => s + o.total, 0);
 
@@ -2963,7 +2963,7 @@ function renderReviewsTable() {
   const tbody = document.getElementById('reviews-table-body');
   if (!tbody) return;
   
-  const products = Store.getProducts().filter(p => p.seller === seller.id);
+  const products = Store.getProducts().filter(p => p.seller === seller.id || p.sellerId === seller.id);
   
   const allReviewsGlob = Store.getReviews();
   let allReviews = [];
@@ -3087,7 +3087,7 @@ function downloadCSV(csvContent, fileName) {
 function exportProductsCSV() {
   const seller = SellerState.currentSeller;
   if (!seller) return;
-  const products = Store.getProducts().filter(p => p.seller === seller.id);
+  const products = Store.getProducts().filter(p => p.seller === seller.id || p.sellerId === seller.id);
   
   if (!products.length) {
     showToast('Export Failed', 'No products to export.', 'error');
@@ -3168,7 +3168,7 @@ function renderNotifications() {
   let notifs = [];
   
   // High Priority: Low Stock
-  const products = Store.getProducts().filter(p => p.seller === seller.id);
+  const products = Store.getProducts().filter(p => p.seller === seller.id || p.sellerId === seller.id);
   products.forEach(p => {
     if (p.stock <= (p.lowStockThreshold || 10)) {
        notifs.push({
