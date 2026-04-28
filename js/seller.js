@@ -855,9 +855,11 @@ function bulkToggleProductStatus(active) {
 }
 
 function bulkDeleteProducts() {
-  const selected = Array.from(document.querySelectorAll('.product-select:checked')).map(c => c.value);
+  const selected = Array.from(document.querySelectorAll('.product-chk:checked')).map(c => c.value);
   if (!selected.length) return;
   if (!confirm(`Delete ${selected.length} products? This cannot be undone.`)) return;
+  // Record in permanent deleted-IDs list so seed merge never restores them
+  Store.addDeletedIds(selected);
   const products = Store.getProducts().filter(p => !selected.includes(p.id));
   Store.setProducts(products);
   renderProductsTable();
@@ -1413,6 +1415,8 @@ function deleteProduct(productId) {
   const p = products.find(pr => pr.id === productId);
   if (!p) return;
   if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+  // Record in permanent deleted-IDs list so seed merge never restores it
+  Store.addDeletedId(productId);
   Store.setProducts(products.filter(pr => pr.id !== productId));
   showToast('Product deleted', `"${p.name}" removed`, 'info');
   renderProductsTable();

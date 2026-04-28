@@ -231,6 +231,18 @@ const Store = {
   getProducts() { return this.get('products') || []; },
   setProducts(p) { this.set('products', p); },
 
+  // Tracks IDs that have been explicitly deleted so seed merges don't resurrect them
+  getDeletedIds() { try { return JSON.parse(localStorage.getItem('arvaan_deleted_product_ids') || '[]'); } catch(e) { return []; } },
+  addDeletedId(id) {
+    const ids = this.getDeletedIds();
+    if (!ids.includes(id)) { ids.push(id); localStorage.setItem('arvaan_deleted_product_ids', JSON.stringify(ids)); }
+  },
+  addDeletedIds(idsArray) {
+    const ids = this.getDeletedIds();
+    idsArray.forEach(id => { if (!ids.includes(id)) ids.push(id); });
+    localStorage.setItem('arvaan_deleted_product_ids', JSON.stringify(ids));
+  },
+
   getSellers() { return this.get('sellers') || []; },
   setSellers(s) { this.set('sellers', s); },
 
@@ -270,10 +282,12 @@ const Store = {
       console.log('Store.init: Checking seed version...', savedVersion);
       if (savedVersion !== 9 || currentProds.length === 0) {
         console.log('Store.init: Refreshing product catalog to version 9...');
-        const merged = [...SEED_PRODUCTS];
+        const deletedIds = this.getDeletedIds();
+        // Start from seed but skip any products the seller has explicitly deleted
+        const merged = SEED_PRODUCTS.filter(p => !deletedIds.includes(p.id));
         
         currentProds.forEach(sp => {
-          if (!merged.find(p => p.id === sp.id)) {
+          if (!merged.find(p => p.id === sp.id) && !deletedIds.includes(sp.id)) {
             // heal any nan prices that were created before toBaseCurrency fix
             if (isNaN(parseFloat(sp.price))) sp.price = sp.originalPrice || 999;
             merged.push(sp);
@@ -317,6 +331,7 @@ const Store = {
 const ADMIN_DEFAULT_CATEGORIES = [
   { id: 'cat-electronics', name: 'Electronics', icon: '📱', slug: 'Electronics',
     description: 'Phones, tablets, audio & more', isVisible: true, order: 1,
+    policy: { returnType: 'returnable', returnWindow: 7, returnCondition: 'original_packaging', freePickup: true, qualityCheck: true, replacement: true, warrantyClaim: true, refundMethod: 'both' },
     children: [
       { id: 'sub-mobiles',  name: 'Mobiles',  slug: 'Mobiles',  parentId: 'cat-electronics', isVisible: true, order: 0 },
       { id: 'sub-tablets',  name: 'Tablets',  slug: 'Tablets',  parentId: 'cat-electronics', isVisible: true, order: 1 },
@@ -325,6 +340,7 @@ const ADMIN_DEFAULT_CATEGORIES = [
   },
   { id: 'cat-fashion', name: 'Fashion', icon: '👗', slug: 'Fashion',
     description: 'Apparel, footwear & accessories', isVisible: true, order: 2,
+    policy: { returnType: 'exchange', returnWindow: 15, returnCondition: 'unused', freePickup: true, qualityCheck: false, replacement: false, warrantyClaim: false, refundMethod: 'store_credit' },
     children: [
       { id: 'sub-apparel',  name: 'Apparel',  slug: 'Apparel',  parentId: 'cat-fashion', isVisible: true, order: 0 },
       { id: 'sub-footwear', name: 'Footwear', slug: 'Footwear', parentId: 'cat-fashion', isVisible: true, order: 1 }
@@ -332,6 +348,7 @@ const ADMIN_DEFAULT_CATEGORIES = [
   },
   { id: 'cat-furniture', name: 'Furniture', icon: '🛋️', slug: 'Furniture',
     description: 'Living room, office & bedroom', isVisible: true, order: 3,
+    policy: { returnType: 'returnable', returnWindow: 30, returnCondition: 'undamaged', freePickup: true, qualityCheck: true, replacement: false, warrantyClaim: true, refundMethod: 'both' },
     children: [
       { id: 'sub-living',    name: 'Living Room', slug: 'Living Room', parentId: 'cat-furniture', isVisible: true, order: 0 },
       { id: 'sub-workplace', name: 'Workplace',   slug: 'Workplace',   parentId: 'cat-furniture', isVisible: true, order: 1 }
@@ -339,6 +356,7 @@ const ADMIN_DEFAULT_CATEGORIES = [
   },
   { id: 'cat-kitchen', name: 'Kitchen', icon: '☕', slug: 'Kitchen',
     description: 'Appliances, cooking & dining', isVisible: true, order: 4,
+    policy: { returnType: 'returnable', returnWindow: 10, returnCondition: 'original_packaging', freePickup: false, qualityCheck: true, replacement: true, warrantyClaim: true, refundMethod: 'original' },
     children: [
       { id: 'sub-appliances', name: 'Appliances', slug: 'Appliances', parentId: 'cat-kitchen', isVisible: true, order: 0 },
       { id: 'sub-cooking',    name: 'Cooking',    slug: 'Cooking',    parentId: 'cat-kitchen', isVisible: true, order: 1 }
@@ -346,6 +364,7 @@ const ADMIN_DEFAULT_CATEGORIES = [
   },
   { id: 'cat-wellness', name: 'Wellness', icon: '🌿', slug: 'Wellness',
     description: 'Personal care, skincare & fitness', isVisible: true, order: 5,
+    policy: { returnType: 'non_returnable', returnWindow: 0, returnCondition: 'unused', freePickup: false, qualityCheck: false, replacement: false, warrantyClaim: false, refundMethod: 'original', nonReturnReason: 'Hygiene & safety regulations' },
     children: [
       { id: 'sub-personalcare', name: 'Personal Care', slug: 'Personal Care', parentId: 'cat-wellness', isVisible: true, order: 0 },
       { id: 'sub-skincare',     name: 'Skincare',      slug: 'Skincare',      parentId: 'cat-wellness', isVisible: true, order: 1 },
@@ -354,6 +373,7 @@ const ADMIN_DEFAULT_CATEGORIES = [
   },
   { id: 'cat-travel', name: 'Travel', icon: '🎒', slug: 'Travel',
     description: 'Luggage, bags & outdoor gear', isVisible: true, order: 6,
+    policy: { returnType: 'returnable', returnWindow: 15, returnCondition: 'original_packaging', freePickup: true, qualityCheck: false, replacement: false, warrantyClaim: false, refundMethod: 'both' },
     children: [
       { id: 'sub-luggage',  name: 'Luggage',      slug: 'Luggage',      parentId: 'cat-travel', isVisible: true, order: 0 },
       { id: 'sub-outdoor',  name: 'Outdoor Gear', slug: 'Outdoor Gear', parentId: 'cat-travel', isVisible: true, order: 1 }
@@ -361,6 +381,7 @@ const ADMIN_DEFAULT_CATEGORIES = [
   },
   { id: 'cat-homedecor', name: 'Home Decor', icon: '🏠', slug: 'Home Decor',
     description: 'Lighting, wall art & decoratives', isVisible: true, order: 7,
+    policy: { returnType: 'exchange', returnWindow: 7, returnCondition: 'undamaged', freePickup: false, qualityCheck: false, replacement: false, warrantyClaim: false, refundMethod: 'store_credit' },
     children: [
       { id: 'sub-lighting', name: 'Lighting', slug: 'Lighting', parentId: 'cat-homedecor', isVisible: true, order: 0 },
       { id: 'sub-wallart',  name: 'Wall Art', slug: 'Wall Art', parentId: 'cat-homedecor', isVisible: true, order: 1 }

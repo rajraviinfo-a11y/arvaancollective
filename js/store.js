@@ -1024,6 +1024,39 @@ function initProductPage(p) {
     `).join('');
   }
 
+  // Return & Exchange Policy badges (from AdminStore category config)
+  const policyEl = document.getElementById('detail-return-policy');
+  if (policyEl && typeof AdminStore !== 'undefined') {
+    try {
+      const cats = AdminStore.getCategories();
+      const cat = cats.find(c => c.slug === p.category || c.name === p.category);
+      const pol = cat?.policy;
+      if (pol) {
+        const REFUND_MAP = { original:'Via original payment', store_credit:'Store credit/wallet', bank:'Bank transfer', both:'Original or store credit' };
+        const COND_MAP = { unused:'Unused & sealed', original_packaging:'Original packaging', undamaged:'Undamaged', any:'Any condition' };
+        let badges = [];
+        if (pol.returnType === 'non_returnable') {
+          badges.push(`<span class="policy-badge" style="background:#fee2e2;color:#dc2626;border-color:#fca5a5;">🚫 Non-Returnable${pol.nonReturnReason ? ' · ' + pol.nonReturnReason : ''}</span>`);
+        } else if (pol.returnType === 'exchange') {
+          badges.push(`<span class="policy-badge" style="background:#fef3c7;color:#92400e;border-color:#fde68a;">🔁 ${pol.returnWindow}-Day Exchange</span>`);
+          if (pol.freePickup) badges.push(`<span class="policy-badge">🚚 Free pickup</span>`);
+        } else {
+          badges.push(`<span class="policy-badge" style="background:#d1fae5;color:#065f46;border-color:#6ee7b7;">↩️ ${pol.returnWindow}-Day Returns</span>`);
+          if (pol.freePickup) badges.push(`<span class="policy-badge">🚚 Free pickup</span>`);
+          if (pol.replacement) badges.push(`<span class="policy-badge">✅ Free replacement</span>`);
+        }
+        if (pol.warrantyClaim) badges.push(`<span class="policy-badge">🛡️ Warranty support</span>`);
+        if (pol.refundMethod) badges.push(`<span class="policy-badge">💳 ${REFUND_MAP[pol.refundMethod] || ''}</span>`);
+        if (pol.returnCondition && pol.returnType !== 'non_returnable') badges.push(`<span class="policy-badge">📦 ${COND_MAP[pol.returnCondition] || ''}</span>`);
+        if (pol.qualityCheck) badges.push(`<span class="policy-badge">🔍 Quality check required</span>`);
+        policyEl.innerHTML = badges.join('');
+        policyEl.closest?.('[id="detail-policy-section"]')?.classList.remove('hidden');
+      } else {
+        policyEl.innerHTML = '<span class="policy-badge">ℹ️ Contact seller for return details</span>';
+      }
+    } catch(e) { /* silent fail */ }
+  }
+
   // Interaction Bindings
   const addCartBtn = document.getElementById('detail-add-cart');
   if (addCartBtn) addCartBtn.onclick = () => {

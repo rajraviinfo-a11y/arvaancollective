@@ -1060,3 +1060,48 @@ input, select, textarea { font-family: inherit; }
 .copy-target-item:hover { border-color: var(--admin-accent); background: var(--admin-accent-light); }
 .copy-target-item.selected { border-color: var(--admin-accent); background: var(--admin-accent-light); font-weight: 600; }
 
+/* ── POLICY PILLS (Category Return Policy Editor) ── */
+.policy-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border: 2px solid var(--admin-border);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  background: #fff;
+  position: relative;
+}
+.policy-pill input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+}
+.policy-pill:hover { border-color: #c4b5fd; background: var(--admin-accent-light); }
+.policy-pill.active {
+  border-color: var(--admin-accent);
+  background: rgba(108,99,255,0.08);
+  box-shadow: 0 0 0 3px rgba(108,99,255,0.12);
+}
+.policy-pill .pill-icon { font-size: 1.4rem; }
+.policy-pill .pill-title { font-size: 0.78rem; font-weight: 700; color: var(--admin-text); }
+.policy-pill .pill-sub   { font-size: 0.66rem; color: var(--admin-text-2); }
+
+/* ── POLICY BADGES (storefront + admin preview) ── */
+.policy-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #F3F4F6;
+  color: #374151;
+  border: 1px solid #E5E7EB;
+  white-space: nowrap;
+}
