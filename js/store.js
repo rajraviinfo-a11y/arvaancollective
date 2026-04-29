@@ -2521,6 +2521,7 @@ function initHomePage() {
   });
 
   initRevealOnScroll();
+  renderHeroContent();
   initHeroBadgePrice();
   initFlashCountdown();
   initProductTabs();
@@ -2560,6 +2561,25 @@ function initRevealOnScroll() {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('appear'); observer.unobserve(e.target); } });
   }, { threshold: 0.1 });
   els.forEach(el => observer.observe(el));
+}
+
+function renderHeroContent() {
+  const p1 = StoreState.products.find(p => p.id === 'p1');
+  const p2 = StoreState.products.find(p => p.id === 'p4');
+  
+  if (p1) {
+    const img1 = UI.get('hero-card-img-1');
+    const label1 = UI.get('hero-card-label-1');
+    if (img1) img1.src = p1.images[0];
+    if (label1) label1.textContent = `⭐ ${p1.rating || 4.5} · ${p1.name}`;
+  }
+  
+  if (p2) {
+    const img2 = UI.get('hero-card-img-2');
+    const label2 = UI.get('hero-card-label-2');
+    if (img2) img2.src = p2.images[0];
+    if (label2) label2.textContent = `${p2.discount ? '🔥 ' + p2.discount + '% OFF' : '⭐ ' + p2.rating} · ${p2.name}`;
+  }
 }
 
 function initHeroBadgePrice() {
