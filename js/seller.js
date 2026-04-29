@@ -160,15 +160,26 @@ function initSellerPage() {
     if (itemPage === page) n.classList.add('active');
   });
 
-  // Render specific content
-  if (page === 'dashboard' || page === 'seller') renderDashboard();
-  if (page === 'products') renderProductsTable();
-  if (page === 'promotions') renderPromotionsTable();
-  if (page === 'reviews') renderReviewsTable();
-  if (page === 'orders') renderOrdersTable();
-  if (page === 'analytics') renderAnalytics();
-  if (page === 'financials') renderFinancials();
-  if (page === 'settings') renderSettings();
+  // Helper to render the current page section
+  function renderCurrentPage() {
+    if (page === 'dashboard' || page === 'seller') renderDashboard();
+    if (page === 'products') renderProductsTable();
+    if (page === 'promotions') renderPromotionsTable();
+    if (page === 'reviews') renderReviewsTable();
+    if (page === 'orders') renderOrdersTable();
+    if (page === 'analytics') renderAnalytics();
+    if (page === 'financials') renderFinancials();
+    if (page === 'settings') renderSettings();
+  }
+
+  // Initial render with whatever is in localStorage right now
+  renderCurrentPage();
+
+  // Re-render after Firebase bootstrap completes so cloud data is shown
+  document.addEventListener('arvaan:cloud-ready', () => {
+    console.log('[SellerPage] Cloud ready — re-rendering page content');
+    renderCurrentPage();
+  }, { once: true });
 }
 
 function renderSellerApp() {
@@ -732,7 +743,7 @@ function renderProductsTable() {
         </div>
         ${p.stock < 10 ? `<div class="low-stock-badge">⚠ Low</div>` : ''}
       </td>
-      <td>${p.sold.toLocaleString()}</td>
+      <td>${(p.sold || 0).toLocaleString()}</td>
       <td>
         <span class="badge ${p.status === 'draft' ? 'badge-draft' : (p.isActive !== false ? 'badge-success' : 'badge-danger')}" style="cursor:pointer" onclick="toggleProductStatus('${p.id}')">
           ${p.status === 'draft' ? '📝 Draft' : (p.isActive !== false ? '✅ Active' : '🚫 Inactive')}
@@ -1378,6 +1389,12 @@ function saveProduct(e, status = 'published') {
   const isEditing = !!SellerState.editingProductId;
   const seller = Auth.getSeller();
   
+  // Use SellerState.currentSeller as fallback if Auth.getSeller() is null
+  const activeSeller = seller || SellerState.currentSeller;
+  if (!activeSeller) return showToast('Error', 'No seller session found. Please log in again.', 'error');
+
+  const existingProduct = isEditing ? products.find(p => String(p.id) === String(SellerState.editingProductId)) : null;
+
   const productData = {
     id: isEditing ? SellerState.editingProductId : `PRD-${Date.now()}`,
     name, brand, category, description,
@@ -1390,12 +1407,14 @@ function saveProduct(e, status = 'published') {
     tags: highlights,
     images: SellerState.productGallery.length ? SellerState.productGallery : ['https://via.placeholder.com/600x600?text=No+Image'],
     variants: SellerState.variantMatrix,
-    sellerId: seller.id,
-    isActive: true,
+    sellerId: activeSeller.id,
+    seller: activeSeller.id,
+    isActive: status !== 'draft',
     status: status,
-    rating: isEditing ? (products.find(p => p.id === SellerState.editingProductId)?.rating || 4.5) : 4.5,
-    reviewsCount: isEditing ? (products.find(p => p.id === SellerState.editingProductId)?.reviewsCount || 0) : 0,
-    dateAdded: isEditing ? (products.find(p => p.id === SellerState.editingProductId)?.dateAdded || new Date().toISOString()) : new Date().toISOString()
+    sold: existingProduct?.sold || 0,
+    rating: existingProduct?.rating || 4.5,
+    reviewsCount: existingProduct?.reviewsCount || 0,
+    dateAdded: existingProduct?.dateAdded || new Date().toISOString()
   };
 
   if (isEditing) {
