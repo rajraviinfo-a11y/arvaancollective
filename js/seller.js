@@ -855,7 +855,7 @@ function bulkToggleProductStatus(active) {
 }
 
 function bulkDeleteProducts() {
-  const selected = Array.from(document.querySelectorAll('.product-chk:checked')).map(c => c.value);
+  const selected = Array.from(document.querySelectorAll('.product-chk:checked')).map(c => String(c.value));
   if (!selected.length) return;
   if (!confirm(`Delete ${selected.length} products? This cannot be undone.`)) return;
   
@@ -866,7 +866,7 @@ function bulkDeleteProducts() {
   
   // Record in permanent deleted-IDs list so seed merge never restores them
   Store.addDeletedIds(selected);
-  const products = Store.getProducts().filter(p => !selected.includes(p.id));
+  const products = Store.getProducts().filter(p => !selected.includes(String(p.id)));
   Store.setProducts(products);
   renderProductsTable();
   showToast('Bulk Delete', `Removed ${selected.length} products`, 'info');
@@ -1418,18 +1418,19 @@ function saveProduct(e, status = 'published') {
 
 function deleteProduct(productId) {
   const products = Store.getProducts();
-  const p = products.find(pr => pr.id === productId);
+  const strId = String(productId);
+  const p = products.find(pr => String(pr.id) === strId);
   if (!p) return;
   if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
   
   // Delete from cloud immediately if connected
   if (typeof CloudDB !== 'undefined' && CloudDB.ready) {
-    CloudDB.deleteItem('products', productId);
+    CloudDB.deleteItem('products', strId);
   }
   
   // Record in permanent deleted-IDs list so seed merge never restores it
-  Store.addDeletedId(productId);
-  Store.setProducts(products.filter(pr => pr.id !== productId));
+  Store.addDeletedId(strId);
+  Store.setProducts(products.filter(pr => String(pr.id) !== strId));
   showToast('Product deleted', `"${p.name}" removed`, 'info');
   renderProductsTable();
 }

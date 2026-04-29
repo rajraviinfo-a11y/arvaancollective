@@ -235,11 +235,15 @@ const Store = {
   getDeletedIds() { try { return JSON.parse(localStorage.getItem('arvaan_deleted_product_ids') || '[]'); } catch(e) { return []; } },
   addDeletedId(id) {
     const ids = this.getDeletedIds();
-    if (!ids.includes(id)) { ids.push(id); localStorage.setItem('arvaan_deleted_product_ids', JSON.stringify(ids)); }
+    const strId = String(id);
+    if (!ids.includes(strId)) { ids.push(strId); localStorage.setItem('arvaan_deleted_product_ids', JSON.stringify(ids)); }
   },
   addDeletedIds(idsArray) {
     const ids = this.getDeletedIds();
-    idsArray.forEach(id => { if (!ids.includes(id)) ids.push(id); });
+    idsArray.forEach(id => { 
+      const strId = String(id);
+      if (!ids.includes(strId)) ids.push(strId); 
+    });
     localStorage.setItem('arvaan_deleted_product_ids', JSON.stringify(ids));
   },
 
@@ -284,10 +288,10 @@ const Store = {
         console.log('Store.init: Refreshing product catalog to version 9...');
         const deletedIds = this.getDeletedIds();
         // Start from seed but skip any products the seller has explicitly deleted
-        const merged = SEED_PRODUCTS.filter(p => !deletedIds.includes(p.id));
+        const merged = SEED_PRODUCTS.filter(p => !deletedIds.includes(String(p.id)));
         
         currentProds.forEach(sp => {
-          if (!merged.find(p => p.id === sp.id) && !deletedIds.includes(sp.id)) {
+          if (!merged.find(p => String(p.id) === String(sp.id)) && !deletedIds.includes(String(sp.id))) {
             // heal any nan prices that were created before toBaseCurrency fix
             if (isNaN(parseFloat(sp.price))) sp.price = sp.originalPrice || 999;
             merged.push(sp);
