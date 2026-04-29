@@ -54,7 +54,25 @@ const CloudDB = {
     try {
       const snap = await this.db.collection(colName).get();
       if (!snap.empty) {
-        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        let items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // For products: filter out any IDs the seller has explicitly deleted locally
+        // so a page reload never resurrects a deleted product from Firestore
+        if (colName === 'products' && typeof Store !== 'undefined') {
+          const deletedIds = Store.getDeletedIds();
+          if (deletedIds.length > 0) {
+            const staleIds = items
+              .map(p => String(p.id))
+              .filter(id => deletedIds.includes(id));
+            // Remove stale docs from Firestore in the background
+            staleIds.forEach(id => this.deleteItem('products', id).catch(() => {}));
+            items = items.filter(p => !deletedIds.includes(String(p.id)));
+            if (staleIds.length > 0) {
+              console.log(`CloudDB: Filtered out ${staleIds.length} deleted product(s) from Firestore pull`);
+            }
+          }
+        }
+
         localStorage.setItem(localKey, JSON.stringify(items));
         console.log(`CloudDB: Pulled ${items.length} ${colName} from Firestore`);
         return items;
@@ -64,6 +82,7 @@ const CloudDB = {
     }
     return null;
   },
+
 
   async pushCollection(colName, items) {
     if (!this.ready || !items || !items.length) return;
@@ -227,6 +246,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (collections.includes(key) && Array.isArray(val)) {
         clearTimeout(Store[`_${key}SyncTimer`]);
         Store[`_${key}SyncTimer`] = setTimeout(() => {
+          // For products: also explicitly delete any docs listed in deleted IDs
+          // because pushCollection only does batch.set (upsert) — it never removes docs
+          if (key === 'products') {
+            const deletedIds = Store.getDeletedIds();
+            deletedIds.forEach(id => CloudDB.deleteItem('products', id).catch(() => {}));
+          }
           CloudDB.pushCollection(key, val).catch(() => {});
         }, 800);
       }
