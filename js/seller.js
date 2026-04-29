@@ -2666,10 +2666,8 @@ function initSellerApp() {
   // Seller logout
   document.getElementById('seller-logout-btn')?.addEventListener('click', () => {
     Auth.logoutSeller();
-    SellerState.currentSeller = null;
-    renderSellerAuthPage();
-    showToast('Logged out', 'See you soon!', 'info');
   });
+
 
   // Sidebar toggle (mobile)
   document.getElementById('sidebar-toggle-btn')?.addEventListener('click', () => {

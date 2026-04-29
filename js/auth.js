@@ -113,7 +113,10 @@ const Auth = {
     Store.clearCurrentBuyer();
   },
 
-  logoutSeller() { Store.clearCurrentSeller(); },
+  logoutSeller() { 
+    Store.clearCurrentSeller(); 
+    window.location.href = 'seller.html';
+  },
 
   // ── Session getters ───────────────────────────────────────────────────────
   getBuyer()         { return Store.getCurrentBuyer(); },
