@@ -2673,6 +2673,16 @@ function initStore() {
     if (typeof Auth !== 'undefined' && Auth.initListeners) {
       Auth.initListeners();
     }
+
+    // 5. Cloud Data Sync (Late Update)
+    document.addEventListener('arvaan:cloud-ready', (e) => {
+      console.log('initStore: Cloud ready, refreshing state...');
+      if (typeof Store !== 'undefined') {
+        Store.init(); // Re-run init to filter deletedIds
+        StoreState.products = Store.getProducts();
+        initStoreContent(); // Re-render page with fresh data
+      }
+    });
   } catch (e) {
     console.error('initStore: Critical failure:', e);
   }

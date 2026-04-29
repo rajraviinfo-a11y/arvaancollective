@@ -301,6 +301,16 @@ const Store = {
         this.setProducts(merged);
         this.set('seed_version', 9);
         console.log('Store.init: Catalog refreshed to version 9.');
+      } else {
+        // Even if version matches, double check for any "resurrected" deleted products
+        const deletedIds = this.getDeletedIds();
+        if (deletedIds.length > 0) {
+          const filtered = currentProds.filter(p => !deletedIds.includes(String(p.id)));
+          if (filtered.length !== currentProds.length) {
+            console.log(`Store.init: Removing ${currentProds.length - filtered.length} resurrected product(s)`);
+            this.setProducts(filtered);
+          }
+        }
       }
 
       if (!this.get('sellers')) {
