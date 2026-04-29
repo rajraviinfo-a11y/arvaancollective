@@ -730,6 +730,7 @@ function renderProductsTable() {
         </div>
       </td>
       <td>${escapeHtml(p.category)}</td>
+      <td>${escapeHtml(p.subCategory || p.sub_category || '-')}</td>
       <td>
         <div style="position:relative; width:90px">
           <input type="number" class="form-control btn-sm" value="${(p.price * (CurrencyConfig[currentCurrency]?.rate || 1)).toFixed(2)}" style="font-weight:700" onchange="quickUpdateProduct('${p.id}', 'price', this.value)">
@@ -1135,6 +1136,79 @@ function openAddProduct() {
   attachPreviewListeners();
   openModal('product-form-modal');
 }
+function populateCategoryDropdown() {
+  const catSelect = document.getElementById('pf-category');
+  if (!catSelect) return;
+  
+  let categories = [];
+  try {
+    if (typeof AdminStore !== 'undefined') {
+      categories = AdminStore.getCategories();
+    }
+  } catch (e) { console.error("Failed to get categories from AdminStore", e); }
+  
+  if (categories.length === 0) {
+    // Fallback hardcoded
+    categories = [
+      { name: 'Electronics', children: [{ name: 'Mobiles' }, { name: 'Tablets' }, { name: 'Audio' }] },
+      { name: 'Fashion', children: [{ name: 'Apparel' }, { name: 'Footwear' }] },
+      { name: 'Furniture', children: [{ name: 'Living Room' }, { name: 'Workplace' }] }
+    ];
+  }
+  
+  catSelect.innerHTML = '<option value="">Select Category</option>' + 
+    categories.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');
+}
+
+function updateSubCategories(selectedSub = null) {
+  const catName = document.getElementById('pf-category').value;
+  const subSelect = document.getElementById('pf-sub-category');
+  if (!subSelect) return;
+  
+  if (!catName) {
+    subSelect.innerHTML = '<option value="">Select Category First</option>';
+    return;
+  }
+  
+  let categories = [];
+  try {
+    if (typeof AdminStore !== 'undefined') {
+      categories = AdminStore.getCategories();
+    }
+  } catch (e) {}
+  
+  const category = categories.find(c => c.name === catName);
+  const subs = category ? (category.children || []) : [];
+  
+  if (subs.length === 0) {
+    subSelect.innerHTML = '<option value="">No sub-categories available</option>';
+  } else {
+    subSelect.innerHTML = '<option value="">Select Sub-Category</option>' + 
+      subs.map(s => `<option value="${escapeHtml(s.name)}" ${selectedSub === s.name ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('');
+  }
+}
+
+function openAddProduct() {
+  SellerState.editingProductId = null;
+  SellerState.productGallery = [];
+  SellerState.variantMatrix = [];
+  SellerState.currentWizardStep = 1;
+  
+  document.getElementById('product-modal-title').textContent = '📦 Add New Masterpiece';
+  document.getElementById('product-form').reset();
+  document.getElementById('pf-specs-container').innerHTML = '';
+  addSpecRow();
+  
+  populateCategoryDropdown();
+  updateSubCategories();
+  
+  renderGallery();
+  renderVariantsMatrix();
+  moveWizard(0);
+  attachPreviewListeners();
+  updateBoutiquePreview();
+  openModal('product-form-modal');
+}
 
 function openEditProduct(productId) {
   const products = Store.getProducts();
@@ -1155,7 +1229,11 @@ function openEditProduct(productId) {
   // Load Data
   form.querySelector('#pf-name').value = p.name;
   form.querySelector('#pf-brand').value = p.brand || '';
+  
+  populateCategoryDropdown();
   form.querySelector('#pf-category').value = p.category;
+  updateSubCategories(p.subCategory || p.sub_category || '');
+  
   form.querySelector('#pf-description').value = p.description;
   form.querySelector('#pf-tags').value = (p.tags || []).join(', ');
   
@@ -1225,19 +1303,20 @@ function validateWizardStep() {
 }
 
 function attachPreviewListeners() {
-  const fields = ['pf-name', 'pf-category', 'pf-price', 'pf-brand', 'pf-description', 'pf-tags'];
+  const fields = ['pf-name', 'pf-category', 'pf-sub-category', 'pf-price', 'pf-brand', 'pf-description', 'pf-tags'];
   fields.forEach(f => document.getElementById(f)?.addEventListener('input', updateBoutiquePreview));
 }
 
 function updateBoutiquePreview() {
   const name = document.getElementById('pf-name').value || 'Product Name';
   const cat = document.getElementById('pf-category').value;
+  const subCat = document.getElementById('pf-sub-category').value;
   const price = parseFloat(document.getElementById('pf-price').value || 0);
   const brand = document.getElementById('pf-brand').value || 'ARVAAN';
   const desc = document.getElementById('pf-description').value || '';
 
   SafeUI.safeHTML('prev-card-name', name);
-  SafeUI.safeHTML('prev-card-cat', cat);
+  SafeUI.safeHTML('prev-card-cat', subCat ? `${cat} › ${subCat}` : cat);
   SafeUI.safeHTML('prev-card-price', formatCurrency(toBaseCurrency(price)));
   SafeUI.safeHTML('prev-card-brand', brand.toUpperCase());
   
@@ -1358,6 +1437,7 @@ function saveProduct(e, status = 'published') {
   
   const brand       = document.getElementById('pf-brand').value.trim();
   const category    = catInput.value;
+  const subCategory = document.getElementById('pf-sub-category').value;
   const description = document.getElementById('pf-description').value.trim();
   const highlights  = document.getElementById('pf-tags').value.split(',').map(t => t.trim()).filter(Boolean);
 
@@ -1397,7 +1477,7 @@ function saveProduct(e, status = 'published') {
 
   const productData = {
     id: isEditing ? SellerState.editingProductId : `PRD-${Date.now()}`,
-    name, brand, category, description,
+    name, brand, category, subCategory, description,
     price,
     originalPrice: origPrice > 0 ? origPrice : null,
     weightGms,
