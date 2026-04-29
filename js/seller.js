@@ -1245,6 +1245,7 @@ function openEditProduct(productId) {
   form.querySelector('#pf-weight').value = p.weightGms || 0;
   form.querySelector('#pf-low-stock').value = p.lowStockThreshold || '';
   form.querySelector('#pf-sku').value = p.sku || '';
+  form.querySelector('#pf-tax').value = p.taxClass || p.tax_class || '18';
 
   // Specs
   document.getElementById('pf-specs-container').innerHTML = '';

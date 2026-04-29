@@ -188,7 +188,8 @@ const Cart = {
         stock,
         variantName: variant ? variant.name : null,
         sellerId: product.seller || product.sellerId,
-        weightGms: product.weightGms || 0
+        weightGms: product.weightGms || 0,
+        taxClass: product.taxClass || product.tax_class
       }); 
     }
     Store.setCart(cart);
@@ -269,7 +270,13 @@ const Cart = {
     cart.forEach(item => {
       const sid = item.sellerId || 'seller1';
       const s = sellers.find(sel => sel.id === sid) || sellers[0];
-      const rate = (s.taxRate || 18) / 100;
+      
+      // Use product specific tax class if available, else fallback to seller default
+      let rate = (s.taxRate || 18) / 100;
+      if (item.taxClass && !isNaN(parseFloat(item.taxClass))) {
+        rate = parseFloat(item.taxClass) / 100;
+      }
+      
       const itemSubtotal = item.price * item.qty;
       
       // Proportionally apply discount if any
