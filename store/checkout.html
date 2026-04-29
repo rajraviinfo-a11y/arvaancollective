@@ -293,7 +293,18 @@
   function updateSummary() {
     UI.safeHTML('sum-subtotal', formatCurrency(Cart.subtotal()));
     UI.safeHTML('sum-shipping', Cart.shipping() === 0 ? 'FREE' : formatCurrency(Cart.shipping()));
-    UI.safeHTML('sum-tax', formatCurrency(Cart.tax()));
+    const taxAmt = Cart.tax();
+    UI.safeHTML('sum-tax', formatCurrency(taxAmt));
+    
+    // Update tax label with percentage
+    const taxLine = document.getElementById('sum-tax')?.closest('div');
+    if (taxLine) {
+      const label = taxLine.querySelector('span:first-child');
+      if (label) {
+        const rate = Cart.subtotal() > 0 ? Math.round((taxAmt / Cart.subtotal()) * 100) : 18;
+        label.textContent = `GST (${rate}%)`;
+      }
+    }
     
     if (UI.get('gift-wrap-line')) {
       UI.get('gift-wrap-line').style.display = StoreState.isGiftWrapped ? 'flex' : 'none';

@@ -269,7 +269,7 @@ const Cart = {
     cart.forEach(item => {
       const sid = item.sellerId || 'seller1';
       const s = sellers.find(sel => sel.id === sid) || sellers[0];
-      const rate = (s.taxRate || 8.5) / 100;
+      const rate = (s.taxRate || 18) / 100;
       const itemSubtotal = item.price * item.qty;
       
       // Proportionally apply discount if any
@@ -279,7 +279,7 @@ const Cart = {
 
     return totalTax;
   },
-  giftWrapFee() { return StoreState.isGiftWrapped ? 5.00 : 0; },
+  giftWrapFee() { return StoreState.isGiftWrapped ? 149 : 0; },
   total() { 
     if (this.subtotal() === 0) return 0;
     return Math.max(0, this.subtotal() - this.discountAmt() + this.shipping() + this.tax() + this.giftWrapFee()); 
@@ -1302,6 +1302,22 @@ function updateCartUI() {
   UI.safeHTML('cart-subtotal', formatCurrency(subtotal));
   const shippingLabel = UI.get('cart-shipping-label');
   if (shippingLabel) shippingLabel.textContent = Cart.shipping() === 0 ? 'Free' : formatCurrency(Cart.shipping());
+  
+  const taxAmt = Cart.tax();
+  const taxEl = UI.get('cart-tax');
+  if (taxEl) {
+    taxEl.textContent = formatCurrency(taxAmt);
+    // Try to find the effective tax rate to show in the label
+    const taxRow = UI.get('cart-tax-row');
+    if (taxRow) {
+      const label = taxRow.querySelector('span:first-child');
+      if (label) {
+        const rate = subtotal > 0 ? Math.round((taxAmt / subtotal) * 100) : 18;
+        label.textContent = `GST (${rate}%)`;
+      }
+    }
+  }
+
   const totalEl = UI.get('cart-total');
   if (totalEl) totalEl.textContent = formatCurrency(Cart.total());
 }
@@ -1338,9 +1354,15 @@ function renderCheckoutStep() {
     if (summary) {
       let itemsHtml = Cart.get().map(i => `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>${i.name} x ${i.qty}</span><span>${formatCurrency(i.price * i.qty)}</span></div>`).join('');
       if (StoreState.isGiftWrapped) {
-        itemsHtml += `<div style="display:flex;justify-content:space-between;margin-bottom:8px;color:var(--clr-primary)"><span>🎁 Premium Gift Wrapping</span><span>${formatCurrency(5)}</span></div>`;
+        itemsHtml += `<div style="display:flex;justify-content:space-between;margin-bottom:8px;color:var(--clr-primary)"><span>🎁 Premium Gift Wrapping</span><span>${formatCurrency(149)}</span></div>`;
       }
-      summary.innerHTML = itemsHtml + `<div style="border-top:1px solid var(--clr-border);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;font-weight:800"><span>Total</span><span>${formatCurrency(Cart.total())}</span></div>`;
+      const taxAmt = Cart.tax();
+      const taxRate = Cart.subtotal() > 0 ? Math.round((taxAmt / Cart.subtotal()) * 100) : 18;
+      summary.innerHTML = itemsHtml + `
+        <div style="border-top:1px solid var(--clr-border);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;color:var(--clr-text-2);font-size:0.9rem"><span>Subtotal</span><span>${formatCurrency(Cart.subtotal())}</span></div>
+        <div style="display:flex;justify-content:space-between;color:var(--clr-text-2);font-size:0.9rem"><span>Shipping</span><span>${Cart.shipping() === 0 ? 'Free' : formatCurrency(Cart.shipping())}</span></div>
+        <div style="display:flex;justify-content:space-between;color:var(--clr-text-2);font-size:0.9rem"><span>GST (${taxRate}%)</span><span>${formatCurrency(taxAmt)}</span></div>
+        <div style="margin-top:10px;padding-top:10px;border-top:2px solid var(--clr-primary);display:flex;justify-content:space-between;font-weight:900;font-size:1.1rem"><span>Total</span><span>${formatCurrency(Cart.total())}</span></div>`;
     }
   }
 
@@ -2284,6 +2306,7 @@ function renderGlobalModals() {
           <div class="cart-totals">
             <div class="cart-total-row"><span>Subtotal</span><span id="cart-subtotal">₹0</span></div>
             <div class="cart-total-row"><span>Shipping</span><span id="cart-shipping-label">Free</span></div>
+            <div class="cart-total-row" id="cart-tax-row"><span>GST</span><span id="cart-tax">₹0</span></div>
             <div class="cart-total-row grand"><span>Total (incl. GST)</span><span id="cart-total">₹0</span></div>
           </div>
           <a href="javascript:void(0)" class="btn-checkout" id="cart-checkout-btn" onclick="openCheckout()">Proceed to Checkout →</a>
