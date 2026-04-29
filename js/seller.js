@@ -2313,6 +2313,21 @@ function saveSettings(e) {
   const sellers = Store.getSellers();
   const idx = sellers.findIndex(s => s.id === sellerId);
   if (idx === -1) return;
+  
+  const gst = document.getElementById('settings-gst')?.value.trim().toUpperCase();
+  const pan = document.getElementById('settings-pan')?.value.trim().toUpperCase();
+  
+  // GST Validation (India)
+  const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+  if (gst && !gstRegex.test(gst)) {
+    return showToast('Invalid GSTIN', 'Please enter a valid 15-digit GST number.', 'error');
+  }
+
+  // PAN Validation (India)
+  const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+  if (pan && !panRegex.test(pan)) {
+    return showToast('Invalid PAN', 'Please enter a valid 10-digit PAN number.', 'error');
+  }
 
   // Capture all fields
   const updated = {
@@ -2324,8 +2339,8 @@ function saveSettings(e) {
     contactPerson: document.getElementById('settings-contact-person')?.value.trim(),
     registeredName: document.getElementById('settings-reg-name')?.value.trim(),
     businessType: document.getElementById('settings-biz-type')?.value,
-    gstNumber: document.getElementById('settings-gst')?.value.trim(),
-    panNumber: document.getElementById('settings-pan')?.value.trim(),
+    gstNumber: gst,
+    panNumber: pan,
     bankName: document.getElementById('settings-bank-name')?.value.trim(),
     branchName: document.getElementById('settings-branch-name')?.value.trim(),
     accountHolder: document.getElementById('settings-acc-holder')?.value.trim(),

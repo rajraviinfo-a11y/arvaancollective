@@ -88,14 +88,14 @@ const Auth = {
   },
 
   // ── Register a new seller ──────────────────────────────────────────────────
-  registerSeller({ name, email, password, shopName, phone, category, taxId, address }) {
+  registerSeller({ name, email, password, shopName, phone, category, gstNumber, panNumber, address }) {
     const sellers = Store.getSellers();
     if (sellers.find(s => s.email === email)) {
       return { ok: false, message: 'A seller account with this email already exists.' };
     }
     const seller = {
       id: Store.genId('seller'), name, email, password,
-      shopName, phone, category, taxId, address,
+      shopName, phone, category, gstNumber, panNumber, address,
       avatar: '🏪', rating: 0, totalSales: 0,
       joinDate: new Date().toISOString().slice(0, 10),
       social: { x: '', ig: '' }

@@ -17,12 +17,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const confirm = document.getElementById('reg-confirm-password').value;
       const phone = document.getElementById('reg-seller-phone').value.trim();
       const category = document.getElementById('reg-seller-category').value;
-      const taxId = document.getElementById('reg-seller-taxid').value.trim();
+      const gstNumber = document.getElementById('reg-seller-gst').value.trim().toUpperCase();
+      const panNumber = document.getElementById('reg-seller-pan').value.trim().toUpperCase();
       const address = document.getElementById('reg-seller-address').value.trim();
 
       // Basic Validation
-      if (!shopName || !ownerName || !email || !password || !phone || !category || !taxId || !address) {
+      if (!shopName || !ownerName || !email || !password || !phone || !category || !gstNumber || !panNumber || !address) {
         return showToast('Details Required', 'Please fill all mandatory fields to continue.', 'warning');
+      }
+
+      // GST Validation (India)
+      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstRegex.test(gstNumber)) {
+        return showToast('Invalid GSTIN', 'Please enter a valid 15-digit GST number (e.g. 29ABCDE1234F1Z5).', 'error');
+      }
+
+      // PAN Validation (India)
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (!panRegex.test(panNumber)) {
+        return showToast('Invalid PAN', 'Please enter a valid 10-digit PAN number (e.g. ABCDE1234F).', 'error');
       }
 
       if (password !== confirm) {
@@ -41,7 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
         shopName,
         phone,
         category,
-        taxId,
+        gstNumber,
+        panNumber,
         address
       });
 
