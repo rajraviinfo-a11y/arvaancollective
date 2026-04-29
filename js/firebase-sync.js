@@ -54,28 +54,48 @@ const CloudDB = {
     try {
       const snap = await this.db.collection(colName).get();
       if (!snap.empty) {
-        let items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        let cloudItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // For products: filter out any IDs the seller has explicitly deleted locally
-        // so a page reload never resurrects a deleted product from Firestore
+        // For products: apply deleted-ID filter AND merge with local-only items
         if (colName === 'products' && typeof Store !== 'undefined') {
+
+          // 1. Filter out explicitly deleted products
           const deletedIds = Store.getDeletedIds();
           if (deletedIds.length > 0) {
-            const staleIds = items
+            const staleIds = cloudItems
               .map(p => String(p.id))
               .filter(id => deletedIds.includes(id));
-            // Remove stale docs from Firestore in the background
             staleIds.forEach(id => this.deleteItem('products', id).catch(() => {}));
-            items = items.filter(p => !deletedIds.includes(String(p.id)));
+            cloudItems = cloudItems.filter(p => !deletedIds.includes(String(p.id)));
             if (staleIds.length > 0) {
-              console.log(`CloudDB: Filtered out ${staleIds.length} deleted product(s) from Firestore pull`);
+              console.log(`CloudDB: Filtered ${staleIds.length} deleted product(s) from Firestore pull`);
             }
+          }
+
+          // 2. Merge: preserve local-only products not yet synced to Firestore
+          // (these have PRD-* IDs and exist in localStorage but not in the cloud snap)
+          const existingLocalRaw = localStorage.getItem(localKey);
+          if (existingLocalRaw) {
+            try {
+              const localItems = JSON.parse(existingLocalRaw);
+              const cloudIds = new Set(cloudItems.map(p => String(p.id)));
+              const localOnlyItems = localItems.filter(p =>
+                !cloudIds.has(String(p.id)) &&
+                !deletedIds.includes(String(p.id))
+              );
+              if (localOnlyItems.length > 0) {
+                console.log(`CloudDB: Preserving ${localOnlyItems.length} local-only product(s) not yet in Firestore`);
+                // Push them to Firestore now so they sync up
+                this.pushCollection('products', localOnlyItems).catch(() => {});
+                cloudItems = [...cloudItems, ...localOnlyItems];
+              }
+            } catch (e) { /* ignore parse errors */ }
           }
         }
 
-        localStorage.setItem(localKey, JSON.stringify(items));
-        console.log(`CloudDB: Pulled ${items.length} ${colName} from Firestore`);
-        return items;
+        localStorage.setItem(localKey, JSON.stringify(cloudItems));
+        console.log(`CloudDB: Pulled ${cloudItems.length} ${colName} from Firestore`);
+        return cloudItems;
       }
     } catch (e) {
       console.warn(`CloudDB: pullCollection(${colName}) failed`, e.message);
@@ -202,6 +222,17 @@ const CloudDB = {
       return;
     }
     try {
+      // Sign in anonymously so Firestore security rules allow read/write
+      // Sellers are not Firebase-authenticated; anonymous auth grants access
+      if (this.auth && !this.auth.currentUser) {
+        try {
+          await this.auth.signInAnonymously();
+          console.log('CloudDB: Signed in anonymously for Firestore access');
+        } catch (authErr) {
+          console.warn('CloudDB: Anonymous sign-in failed', authErr.message);
+        }
+      }
+
       // Parallel pull everything
       await Promise.all([
         this.pullConfig(),
