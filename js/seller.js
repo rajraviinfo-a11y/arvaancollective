@@ -858,6 +858,12 @@ function bulkDeleteProducts() {
   const selected = Array.from(document.querySelectorAll('.product-chk:checked')).map(c => c.value);
   if (!selected.length) return;
   if (!confirm(`Delete ${selected.length} products? This cannot be undone.`)) return;
+  
+  // Delete from cloud immediately if connected
+  if (typeof CloudDB !== 'undefined' && CloudDB.ready) {
+    selected.forEach(id => CloudDB.deleteItem('products', id));
+  }
+  
   // Record in permanent deleted-IDs list so seed merge never restores them
   Store.addDeletedIds(selected);
   const products = Store.getProducts().filter(p => !selected.includes(p.id));
@@ -1415,6 +1421,12 @@ function deleteProduct(productId) {
   const p = products.find(pr => pr.id === productId);
   if (!p) return;
   if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+  
+  // Delete from cloud immediately if connected
+  if (typeof CloudDB !== 'undefined' && CloudDB.ready) {
+    CloudDB.deleteItem('products', productId);
+  }
+  
   // Record in permanent deleted-IDs list so seed merge never restores it
   Store.addDeletedId(productId);
   Store.setProducts(products.filter(pr => pr.id !== productId));

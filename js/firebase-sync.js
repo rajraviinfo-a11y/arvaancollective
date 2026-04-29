@@ -88,6 +88,16 @@ const CloudDB = {
     }
   },
 
+  async deleteItem(colName, docId) {
+    if (!this.ready || !colName || !docId) return;
+    try {
+      await this.db.collection(colName).doc(String(docId)).delete();
+      console.log(`CloudDB: Deleted ${docId} from ${colName}`);
+    } catch (e) {
+      console.warn(`CloudDB: deleteItem(${colName}, ${docId}) failed`, e.message);
+    }
+  },
+
   // ── User Profiles ─────────────────────────────────────────────────────────
   async saveUserProfile(uid, profile) {
     if (!this.ready) return;
