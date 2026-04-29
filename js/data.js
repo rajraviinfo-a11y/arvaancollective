@@ -284,7 +284,7 @@ const Store = {
       }
       
       console.log('Store.init: Checking seed version...', savedVersion);
-      if (savedVersion !== 9 || currentProds.length === 0) {
+      if (savedVersion !== 9) {
         console.log('Store.init: Refreshing product catalog to version 9...');
         const deletedIds = this.getDeletedIds();
         // Start from seed but skip any products the seller has explicitly deleted
