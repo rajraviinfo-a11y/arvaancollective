@@ -2073,6 +2073,16 @@ function updateOrderStatus(orderId, newStatus) {
   if (idx > -1) {
     orders[idx].status = newStatus;
     Store.setOrders(orders);
+    
+    // Notification for Delivery
+    if (newStatus === 'delivered' || newStatus === 'Delivered') {
+      const buyers = Store.getBuyers();
+      const user = buyers.find(u => u.id === orders[idx].userId);
+      if (user) {
+        NotificationSystem.sendDeliveryUpdate(orders[idx], user);
+      }
+    }
+
     showToast('Status updated', `Order ${orderId} → ${newStatus.replace(/_/g,' ')}`, 'success');
     renderOrdersTable();
     renderDashboard();

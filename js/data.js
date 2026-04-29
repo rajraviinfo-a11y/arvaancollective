@@ -604,3 +604,52 @@ window.ADMIN_DEFAULT_HOMEPAGE = ADMIN_DEFAULT_HOMEPAGE;
 window.ADMIN_DEFAULT_FILTERS = ADMIN_DEFAULT_FILTERS;
 window.ADMIN_DEFAULT_SITE = ADMIN_DEFAULT_SITE;
 
+// ── Notification System ───────────────────────────────────────────────────
+const NotificationSystem = {
+  // Simulate sending email and SMS
+  async send(recipient, subject, body, type = 'email') {
+    console.log(`[NotificationSystem] Sending ${type} to ${recipient}...`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Body: ${body}`);
+    
+    // Log to a global notification log for audit
+    const logs = JSON.parse(localStorage.getItem('arvaan_notifications') || '[]');
+    logs.unshift({
+      timestamp: new Date().toISOString(),
+      recipient,
+      subject,
+      type,
+      status: 'Sent (Simulated)'
+    });
+    localStorage.setItem('arvaan_notifications', JSON.stringify(logs.slice(0, 50)));
+    
+    return true;
+  },
+
+  async sendOrderConfirmation(order, user) {
+    const subject = `Order Confirmed: ${order.id}`;
+    const body = `Hi ${user.name},\n\nYour order ${order.id} for ${formatCurrency(order.total)} has been placed successfully. Thank you for shopping with Arvaan Collective!`;
+    
+    // Send to Email
+    this.send(user.email, subject, body, 'email');
+    // Send to Phone
+    if (user.phone) {
+      this.send(user.phone, 'Order Confirmed', `Your Arvaan order ${order.id} is confirmed. Total: ${formatCurrency(order.total)}.`, 'sms');
+    }
+  },
+
+  async sendDeliveryUpdate(order, user) {
+    const subject = `Order Delivered: ${order.id}`;
+    const body = `Hi ${user.name},\n\nGood news! Your order ${order.id} has been delivered. We hope you love your new curation.`;
+    
+    this.send(user.email, subject, body, 'email');
+    if (user.phone) {
+      this.send(user.phone, 'Order Delivered', `Order ${order.id} delivered! Hope you enjoy your purchase from Arvaan Collective.`, 'sms');
+    }
+  }
+};
+
+// Expose globally if in browser
+if (typeof window !== 'undefined') {
+  window.NotificationSystem = NotificationSystem;
+}

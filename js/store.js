@@ -1429,6 +1429,7 @@ function placeOrder() {
   Cart.clear(); 
   StoreState.checkoutStep = 4; 
   renderCheckoutStep();
+  NotificationSystem.sendOrderConfirmation(newOrder, user);
   showToast('Order Placed!', 'Your curation is on its way.', 'success');
 }
 
