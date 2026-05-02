@@ -185,6 +185,36 @@ const CloudDB = {
   async pullCart(uid) { return this.pullUserList('carts', uid, 'arvaan_cart'); },
   async saveWishlist(uid, list) { return this.saveUserList('wishlists', uid, list); },
   async pullWishlist(uid) { return this.pullUserList('wishlists', uid, 'arvaan_wishlist'); },
+  
+  // ── Deleted IDs Synchronization ───────────────────────────────────────────
+  async pullDeletedIds() {
+    if (!this.ready) return [];
+    try {
+      const snap = await this.db.collection('deleted_ids').get();
+      const ids = snap.docs.map(d => String(d.id));
+      if (ids.length > 0) {
+        // Merge with local deleted IDs
+        const localIds = Store.getDeletedIds();
+        const merged = Array.from(new Set([...localIds, ...ids]));
+        localStorage.setItem('arvaan_deleted_product_ids', JSON.stringify(merged));
+        console.log(`CloudDB: Pulled ${ids.length} deleted IDs from Firestore`);
+      }
+      return ids;
+    } catch (e) {
+      console.warn('CloudDB: pullDeletedIds failed', e.message);
+      return [];
+    }
+  },
+
+  async pushDeletedId(id) {
+    if (!this.ready || !id) return;
+    try {
+      await this.db.collection('deleted_ids').doc(String(id)).set({ deletedAt: new Date().toISOString() });
+      console.log(`CloudDB: Recorded tombstone for ${id} in Firestore`);
+    } catch (e) {
+      console.warn(`CloudDB: pushDeletedId(${id}) failed`, e.message);
+    }
+  },
 
   // ── First-run Seeding: push defaults if Firestore is empty ───────────────
   async seedIfEmpty() {
@@ -235,6 +265,7 @@ const CloudDB = {
       // Parallel pull everything
       await Promise.all([
         this.pullConfig(),
+        this.pullDeletedIds(), // Pull tombstones first
         this.pullCollection('products', 'arvaan_products'),
         this.pullCollection('orders', 'arvaan_orders'),
         this.pullCollection('sellers', 'arvaan_sellers'),
@@ -272,16 +303,22 @@ document.addEventListener('DOMContentLoaded', () => {
     Store.set = function(key, val) {
       _origStoreSet(key, val);
       
-      const collections = ['products', 'orders', 'sellers', 'promotions', 'transactions', 'reviews'];
+      const collections = ['products', 'orders', 'sellers', 'promotions', 'transactions', 'reviews', 'deleted_product_ids'];
       if (collections.includes(key) && Array.isArray(val)) {
         clearTimeout(Store[`_${key}SyncTimer`]);
         Store[`_${key}SyncTimer`] = setTimeout(() => {
-          // For products: also explicitly delete any docs listed in deleted IDs
-          // because pushCollection only does batch.set (upsert) — it never removes docs
+          // Special handling for products: also explicitly delete any docs listed in deleted IDs
           if (key === 'products') {
             const deletedIds = Store.getDeletedIds();
             deletedIds.forEach(id => CloudDB.deleteItem('products', id).catch(() => {}));
           }
+          
+          // Special handling for deleted IDs: push individual docs to 'deleted_ids' collection
+          if (key === 'deleted_product_ids') {
+            val.forEach(id => CloudDB.pushDeletedId(id).catch(() => {}));
+            return; // No need to call pushCollection for the whole array
+          }
+
           CloudDB.pushCollection(key, val).catch(() => {});
         }, 800);
       }

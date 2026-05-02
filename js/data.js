@@ -5,46 +5,6 @@
 'use strict';
 
 const SEED_PRODUCTS = [
-  // ── TECH ──────────────────────────────────────────────────────────────────
-  {
-    id: 'p1', name: 'Sony WH-1000XM5 Headphones', category: 'Electronics', subCategory: 'Audio',
-    price: 24999, originalPrice: 32999, discount: 24,
-    rating: 4.9, reviews: 8412, stock: 28, sold: 5200, weightGms: 250,
-    seller: 'seller1', featured: true, isNew: false, trending: true, isActive: true,
-    tags: ['wireless', 'noise-cancelling', 'premium'],
-    description: 'Industry-leading noise cancellation with 30-hour battery life. Crystal-clear calls with multipoint connection. Lightweight design for all-day comfort.',
-    images: [
-      'https://picsum.photos/seed/sony1/600/400',
-      'https://picsum.photos/seed/sony2/600/400'
-    ],
-    specifications: { 'Driver': '30mm HD', 'Battery': '30 Hours', 'Connectivity': 'Bluetooth 5.2', 'Weight': '250g' }
-  },
-  {
-    id: 'p2', name: 'Apple iPad Pro 12.9" M2', category: 'Electronics', subCategory: 'Tablets',
-    price: 89900, originalPrice: 99900, discount: 10,
-    rating: 4.8, reviews: 3241, stock: 14, sold: 890, weightGms: 682,
-    seller: 'seller1', featured: true, isNew: true, trending: true, isActive: true,
-    tags: ['apple', 'tablet', 'm2-chip'],
-    description: 'The most advanced iPad yet with M2 chip, Liquid Retina XDR display, ProMotion 120Hz, and support for Apple Pencil and Magic Keyboard.',
-    images: [
-      'https://picsum.photos/seed/ipad1/600/400',
-      'https://picsum.photos/seed/ipad2/600/400'
-    ],
-    specifications: { 'Chip': 'Apple M2', 'Display': '12.9" Liquid Retina XDR', 'Storage': '256GB', 'Battery': '10 Hours' }
-  },
-  {
-    id: 'p3', name: 'Samsung Galaxy S24 Ultra', category: 'Electronics', subCategory: 'Mobiles',
-    price: 129999, originalPrice: 149999, discount: 13,
-    rating: 4.7, reviews: 5603, stock: 22, sold: 3100, weightGms: 232,
-    seller: 'seller1', featured: false, isNew: true, trending: true, isActive: true,
-    tags: ['samsung', '5G', 'AI-camera'],
-    description: 'The ultimate smartphone with 200MP AI camera, built-in S Pen, and Galaxy AI features. Titanium frame with 5000mAh battery.',
-    images: [
-      'https://picsum.photos/seed/s24u1/600/400',
-      'https://picsum.photos/seed/s24u2/600/400'
-    ],
-    specifications: { 'Camera': '200MP AI', 'Processor': 'Snapdragon 8 Gen 3', 'Battery': '5000mAh', 'Display': '6.8" QHD+' }
-  },
   // ── FASHION ───────────────────────────────────────────────────────────────
   {
     id: 'p4', name: 'Nike Air Max 270 React', category: 'Fashion', subCategory: 'Footwear',
@@ -71,33 +31,6 @@ const SEED_PRODUCTS = [
       'https://picsum.photos/seed/jacket2/600/400'
     ],
     specifications: { 'Material': 'Premium PU', 'Lining': 'Poly Satin', 'Zipper': 'YKK Metal', 'Fit': 'Regular' }
-  },
-  // ── HOME & FURNITURE ──────────────────────────────────────────────────────
-  {
-    id: 'p6', name: 'Modular L-Shaped Sofa', category: 'Furniture', subCategory: 'Living Room',
-    price: 34999, originalPrice: 54999, discount: 36,
-    rating: 4.7, reviews: 340, stock: 6, sold: 88, weightGms: 85000,
-    seller: 'seller1', featured: true, isNew: false, trending: false, isActive: true,
-    tags: ['sofa', 'living-room', 'modular'],
-    description: 'Premium fabric, deep seat cushions, and reconfigurable sections let you create your perfect seating arrangement. Available in 6 fabric colors.',
-    images: [
-      'https://picsum.photos/seed/sofa1/600/400',
-      'https://picsum.photos/seed/sofa2/600/400'
-    ],
-    specifications: { 'Upholstery': 'Chenille Fabric', 'Fill': 'High-Density Foam', 'Legs': 'Solid Wood', 'Warranty': '3 Years' }
-  },
-  {
-    id: 'p7', name: 'Ergonomic Mesh Office Chair', category: 'Furniture', subCategory: 'Workplace',
-    price: 12999, originalPrice: 19999, discount: 35,
-    rating: 4.8, reviews: 1204, stock: 34, sold: 820, weightGms: 15000,
-    seller: 'seller1', featured: true, isNew: false, trending: true, isActive: true,
-    tags: ['office', 'ergonomic', 'chair'],
-    description: 'Breathable 3D mesh backrest, 4D armrests, adjustable lumbar support, and 135° recline. Built for 8+ hour work sessions.',
-    images: [
-      'https://picsum.photos/seed/chair1/600/400',
-      'https://picsum.photos/seed/chair2/600/400'
-    ],
-    specifications: { 'Back': '3D Mesh', 'Armrests': '4D Adjustable', 'Recline': 'Up to 135°', 'Weight Limit': '130kg' }
   },
   // ── KITCHEN ───────────────────────────────────────────────────────────────
   {
@@ -127,19 +60,6 @@ const SEED_PRODUCTS = [
     specifications: { 'Functions': '7-in-1', 'Capacity': '6 Quart', 'Programs': '13 Built-in', 'Safety': '10 Mechanisms' }
   },
   // ── WELLNESS & BEAUTY ─────────────────────────────────────────────────────
-  {
-    id: 'p10', name: 'Dyson Supersonic Hair Dryer', category: 'Wellness', subCategory: 'Personal Care',
-    price: 32900, originalPrice: 38900, discount: 15,
-    rating: 4.8, reviews: 5600, stock: 19, sold: 4200, weightGms: 690,
-    seller: 'seller1', featured: true, isNew: false, trending: true, isActive: true,
-    tags: ['dyson', 'hair-dryer', 'premium'],
-    description: 'Intelligent heat control prevents extreme heat damage. Air Multiplier technology creates a high-pressure, high-velocity jet of air for fast drying.',
-    images: [
-      'https://picsum.photos/seed/dryer1/600/400',
-      'https://picsum.photos/seed/dryer2/600/400'
-    ],
-    specifications: { 'Motor': 'Dyson Digital V9', 'Settings': '3 speeds + 4 heat', 'Cable': '3m', 'Warranty': '2 Years' }
-  },
   {
     id: 'p11', name: 'Forest Essentials Facial Kit', category: 'Wellness', subCategory: 'Skincare',
     price: 2499, originalPrice: 3200, discount: 22,
@@ -232,19 +152,28 @@ const Store = {
   setProducts(p) { this.set('products', p); },
 
   // Tracks IDs that have been explicitly deleted so seed merges don't resurrect them
-  getDeletedIds() { try { return JSON.parse(localStorage.getItem('arvaan_deleted_product_ids') || '[]'); } catch(e) { return []; } },
+  getDeletedIds() { try { return this.get('deleted_product_ids') || []; } catch(e) { return []; } },
   addDeletedId(id) {
     const ids = this.getDeletedIds();
     const strId = String(id);
-    if (!ids.includes(strId)) { ids.push(strId); localStorage.setItem('arvaan_deleted_product_ids', JSON.stringify(ids)); }
+    if (!ids.includes(strId)) { 
+      ids.push(strId); 
+      this.set('deleted_product_ids', ids);
+    }
   },
   addDeletedIds(idsArray) {
     const ids = this.getDeletedIds();
+    let changed = false;
     idsArray.forEach(id => { 
       const strId = String(id);
-      if (!ids.includes(strId)) ids.push(strId); 
+      if (!ids.includes(strId)) {
+        ids.push(strId);
+        changed = true;
+      }
     });
-    localStorage.setItem('arvaan_deleted_product_ids', JSON.stringify(ids));
+    if (changed) {
+      this.set('deleted_product_ids', ids);
+    }
   },
 
   getSellers() { return this.get('sellers') || []; },
@@ -284,14 +213,32 @@ const Store = {
       }
       
       console.log('Store.init: Checking seed version...', savedVersion);
-      if (savedVersion !== 9) {
-        console.log('Store.init: Refreshing product catalog to version 9...');
+      if (savedVersion !== 10) {
+        console.log('Store.init: Refreshing product catalog to version 10 (Removed seller1)...');
+        
+        // Cleanup seller1 data
+        const currentSellers = this.getSellers();
+        const cleanedSellers = currentSellers.filter(s => s.id !== 'seller1' && s.email !== 'seller@arvaan.com');
+        this.setSellers(cleanedSellers);
+
         const deletedIds = this.getDeletedIds();
-        // Start from seed but skip any products the seller has explicitly deleted
-        const merged = SEED_PRODUCTS.filter(p => !deletedIds.includes(String(p.id)));
+        // 1. Identify all products belonging to seller1 in the current catalog
+        const seller1ProdIds = currentProds
+          .filter(p => p.seller === 'seller1' || p.sellerId === 'seller1')
+          .map(p => String(p.id));
+        
+        // 2. Add them to deletedIds so they are purged from CloudDB/Firestore
+        if (seller1ProdIds.length > 0) {
+          console.log(`Store.init: Flagging ${seller1ProdIds.length} seller1 product(s) for deletion`);
+          this.addDeletedIds(seller1ProdIds);
+        }
+
+        // 3. Start from seed but skip any products that are deleted
+        const updatedDeletedIds = this.getDeletedIds();
+        const merged = SEED_PRODUCTS.filter(p => !updatedDeletedIds.includes(String(p.id)));
         
         currentProds.forEach(sp => {
-          if (!merged.find(p => String(p.id) === String(sp.id)) && !deletedIds.includes(String(sp.id))) {
+          if (sp.seller !== 'seller1' && sp.sellerId !== 'seller1' && !merged.find(p => String(p.id) === String(sp.id)) && !updatedDeletedIds.includes(String(sp.id))) {
             // heal any nan prices that were created before toBaseCurrency fix
             if (isNaN(parseFloat(sp.price))) sp.price = sp.originalPrice || 999;
             merged.push(sp);
@@ -299,8 +246,8 @@ const Store = {
         });
         
         this.setProducts(merged);
-        this.set('seed_version', 9);
-        console.log('Store.init: Catalog refreshed to version 9.');
+        this.set('seed_version', 10);
+        console.log('Store.init: Catalog refreshed to version 10.');
       } else {
         // Even if version matches, double check for any "resurrected" deleted products
         const deletedIds = this.getDeletedIds();
@@ -313,9 +260,8 @@ const Store = {
         }
       }
 
-      if (!this.get('sellers')) {
+      if (!this.get('sellers') || this.get('sellers').length === 0) {
         this.setSellers([
-          { id: 'seller1', name: 'Ravi Raj', email: 'seller@arvaan.com', password: 'seller123', shopName: 'Arvaan Official', joinDate: '2026-01-15', avatar: '🏪', payoutBalance: 24500, taxRate: 18, shippingConfig: { freeThreshold: 999, tiers: [{maxWeight:500,price:49},{maxWeight:2000,price:99},{maxWeight:5000,price:149}] } },
           { id: 'seller2', name: 'Priya Collections', email: 'priya@collections.com', password: 'seller123', shopName: 'Priya Collections', joinDate: '2026-02-01', avatar: '🛍️', payoutBalance: 18200, taxRate: 18, shippingConfig: { freeThreshold: 999, tiers: [{maxWeight:500,price:49},{maxWeight:2000,price:99}] } }
         ]);
       }

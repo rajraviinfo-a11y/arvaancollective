@@ -224,7 +224,8 @@ const Cart = {
 
     // Group items by seller
     cart.forEach(item => {
-      const sid = item.sellerId || 'seller1';
+      const sid = item.sellerId;
+      if (!sid) return; // Skip items without sellerId
       if (!sellerBuckets[sid]) sellerBuckets[sid] = { subtotal: 0, weight: 0 };
       sellerBuckets[sid].subtotal += item.price * item.qty;
       sellerBuckets[sid].weight += (item.weightGms || 0) * item.qty;
@@ -232,7 +233,8 @@ const Cart = {
 
     let totalShipping = 0;
     Object.keys(sellerBuckets).forEach(sid => {
-      const s = sellers.find(sel => sel.id === sid) || sellers[0];
+      const s = sellers.find(sel => sel.id === sid);
+      if (!s) return; // Skip if seller not found
       const bucket = sellerBuckets[sid];
       const config = s.shippingConfig || { freeThreshold: 1000, tiers: [{maxWeight:500, price:80}, {maxWeight:1000, price:160}] };
 
@@ -268,11 +270,11 @@ const Cart = {
     let totalTax = 0;
 
     cart.forEach(item => {
-      const sid = item.sellerId || 'seller1';
-      const s = sellers.find(sel => sel.id === sid) || sellers[0];
+      const sid = item.sellerId;
+      const s = sellers.find(sel => sel.id === sid);
       
       // Use product specific tax class if available, else fallback to seller default
-      let rate = (s.taxRate || 18) / 100;
+      let rate = (s ? (s.taxRate || 18) : 18) / 100;
       if (item.taxClass && !isNaN(parseFloat(item.taxClass))) {
         rate = parseFloat(item.taxClass) / 100;
       }
