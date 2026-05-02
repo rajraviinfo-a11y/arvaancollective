@@ -2105,13 +2105,13 @@ function renderGlobalNavigation() {
 
   let CATEGORIES = [];
   try {
-    const adminCats = typeof AdminStore !== 'undefined' ? AdminStore.getCategories().filter(c => c.isVisible) : [];
+    const adminCats = typeof AdminStore !== 'undefined' ? AdminStore.getCategories().filter(c => c.isVisible !== false && c.isVisible !== 'false') : [];
     
     CATEGORIES = adminCats.map(cat => ({
       name: cat.name,
       icon: cat.icon || '📁',
       slug: cat.slug || cat.name,
-      subs: (cat.children || []).filter(c => c.isVisible).map(c => c.name)
+      subs: (cat.children || []).filter(c => c.isVisible !== false && c.isVisible !== 'false').map(c => c.name)
     }));
 
     // Prepend 'All'
@@ -2407,7 +2407,11 @@ function renderMobileDrawer() {
   const container = UI.get('mobile-cat-list');
   if (!container) return;
   const products = StoreState.products;
-  const categories = [...new Set(products.map(p => p.category))];
+  let categories = [...new Set(products.map(p => p.category))];
+  if (typeof AdminStore !== 'undefined') {
+    const visibleAdminCats = AdminStore.getCategories().filter(c => c.isVisible !== false && c.isVisible !== 'false').map(c => c.name);
+    categories = categories.filter(cat => visibleAdminCats.includes(cat));
+  }
   const icons = { 'Tech': '💻', 'Electronics': '🔌', 'Fashion': '👗', 'Furniture': '🛋️', 'Wellness': '🌿', 'Kitchen': '☕', 'Travel': '🎒', 'Home Decor': '🏠', 'Art': '🎨' };
   
   // Dynamic Auth Status
@@ -2604,7 +2608,12 @@ function renderCategoryChips() {
   if (!container) return;
 
   const products = StoreState.products;
-  const categories = [...new Set(products.map(p => p.category))].slice(0, 8);
+  let categories = [...new Set(products.map(p => p.category))];
+  if (typeof AdminStore !== 'undefined') {
+    const visibleAdminCats = AdminStore.getCategories().filter(c => c.isVisible !== false && c.isVisible !== 'false').map(c => c.name);
+    categories = categories.filter(cat => visibleAdminCats.includes(cat));
+  }
+  categories = categories.slice(0, 8);
   const icons = { 'Tech': '💻', 'Electronics': '🔌', 'Fashion': '👗', 'Furniture': '🛋️', 'Wellness': '🌿', 'Kitchen': '☕', 'Travel': '🎒', 'Home Decor': '🏠', 'Art': '🎨' };
   container.innerHTML = categories.map(cat => {
     const count = products.filter(p => p.category === cat).length;
