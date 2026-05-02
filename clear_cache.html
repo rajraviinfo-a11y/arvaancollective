@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clear Cache & Data</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; text-align: center; }
+    button { padding: 15px 30px; font-size: 18px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px; }
+    #status { margin-top: 20px; font-size: 16px; color: #333; }
+  </style>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/firebase-sync.js"></script>
+</head>
+<body>
+  <h2>Arvaan Collective - System Reset</h2>
+  <p>Click the button below to completely wipe all local cache and all dummy products from the database.</p>
+  <button id="clearBtn">Wipe All Data</button>
+  <div id="status"></div>
+
+  <script>
+    document.getElementById('clearBtn').addEventListener('click', async () => {
+      const status = document.getElementById('status');
+      status.innerHTML = "Clearing Local Storage...<br>";
+      
+      // Clear LocalStorage
+      localStorage.clear();
+      status.innerHTML += "✅ Local Storage Cleared!<br>";
+
+      // Clear Firebase
+      if (window.CloudDB && window.CloudDB.db) {
+        status.innerHTML += "Connecting to Firebase to delete products...<br>";
+        try {
+          const snap = await window.CloudDB.db.collection('products').get();
+          if (!snap.empty) {
+            const batch = window.CloudDB.db.batch();
+            snap.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            status.innerHTML += `✅ Successfully deleted ${snap.docs.length} products from Firebase!<br>`;
+          } else {
+            status.innerHTML += "✅ No products found in Firebase.<br>";
+          }
+        } catch (e) {
+          status.innerHTML += "❌ Error clearing Firebase: " + e.message + "<br>";
+        }
+      } else {
+        status.innerHTML += "⚠️ Firebase not connected.<br>";
+      }
+      
+      status.innerHTML += "<br><strong>Done! You can now close this page and refresh the main site.</strong>";
+    });
+  </script>
+</body>
+</html>
