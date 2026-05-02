@@ -4,144 +4,7 @@
    ============================================= */
 'use strict';
 
-const SEED_PRODUCTS = [
-  // ── FASHION ───────────────────────────────────────────────────────────────
-  {
-    id: 'p4', name: 'Nike Air Max 270 React', category: 'Fashion', subCategory: 'Footwear',
-    price: 8995, originalPrice: 11995, discount: 25,
-    rating: 4.6, reviews: 2180, stock: 42, sold: 1800, weightGms: 320,
-    seller: 'seller2', featured: true, isNew: false, trending: true, isActive: true,
-    tags: ['nike', 'running', 'sneakers'],
-    description: 'Engineered for all-day comfort with React foam midsole and Max Air unit delivering exceptional cushioning. Lightweight mesh upper keeps you fresh.',
-    images: [
-      'https://picsum.photos/seed/nike1/600/400',
-      'https://picsum.photos/seed/nike2/600/400'
-    ],
-    specifications: { 'Upper': 'Engineered Mesh', 'Sole': 'React + Max Air', 'Closure': 'Lace-Up', 'Available': 'US 6–13' }
-  },
-  {
-    id: 'p5', name: 'Roadster Leather Biker Jacket', category: 'Fashion', subCategory: 'Apparel',
-    price: 3499, originalPrice: 5999, discount: 42,
-    rating: 4.5, reviews: 980, stock: 18, sold: 650, weightGms: 1100,
-    seller: 'seller2', featured: false, isNew: false, trending: false, isActive: true,
-    tags: ['leather', 'jacket', 'biker'],
-    description: 'Premium PU leather biker jacket with asymmetric front zip, silver-tone hardware, and quilted shoulder detailing. A wardrobe essential.',
-    images: [
-      'https://picsum.photos/seed/jacket1/600/400',
-      'https://picsum.photos/seed/jacket2/600/400'
-    ],
-    specifications: { 'Material': 'Premium PU', 'Lining': 'Poly Satin', 'Zipper': 'YKK Metal', 'Fit': 'Regular' }
-  },
-  // ── KITCHEN ───────────────────────────────────────────────────────────────
-  {
-    id: 'p8', name: 'Ninja Smart XL Blender', category: 'Kitchen', subCategory: 'Appliances',
-    price: 5499, originalPrice: 7999, discount: 31,
-    rating: 4.6, reviews: 2800, stock: 55, sold: 3400, weightGms: 2400,
-    seller: 'seller2', featured: false, isNew: false, trending: false, isActive: true,
-    tags: ['blender', 'kitchen', 'smart'],
-    description: '1400W motor with Auto-iQ presets for smoothies, frozen drinks, and soups. 72oz total crushing pitcher destroys ice on contact.',
-    images: [
-      'https://picsum.photos/seed/blender1/600/400',
-      'https://picsum.photos/seed/blender2/600/400'
-    ],
-    specifications: { 'Power': '1400W', 'Capacity': '72oz', 'Presets': 'Auto-iQ', 'BPA Free': 'Yes' }
-  },
-  {
-    id: 'p9', name: 'Instant Pot Duo 7-in-1', category: 'Kitchen', subCategory: 'Cooking',
-    price: 6299, originalPrice: 8999, discount: 30,
-    rating: 4.9, reviews: 14200, stock: 80, sold: 12000, weightGms: 5400,
-    seller: 'seller2', featured: false, isNew: false, trending: true, isActive: true,
-    tags: ['instant-pot', 'pressure-cooker', 'multi-cooker'],
-    description: 'Pressure cooker, slow cooker, rice cooker, steamer, sauté, yogurt maker, and warmer all in one. Cuts cooking time by up to 70%.',
-    images: [
-      'https://picsum.photos/seed/pot1/600/400',
-      'https://picsum.photos/seed/pot2/600/400'
-    ],
-    specifications: { 'Functions': '7-in-1', 'Capacity': '6 Quart', 'Programs': '13 Built-in', 'Safety': '10 Mechanisms' }
-  },
-  // ── WELLNESS & BEAUTY ─────────────────────────────────────────────────────
-  {
-    id: 'p11', name: 'Forest Essentials Facial Kit', category: 'Wellness', subCategory: 'Skincare',
-    price: 2499, originalPrice: 3200, discount: 22,
-    rating: 4.7, reviews: 1890, stock: 64, sold: 3800, weightGms: 400,
-    seller: 'seller2', featured: false, isNew: true, trending: false, isActive: true,
-    tags: ['skincare', 'ayurveda', 'natural'],
-    description: '5-piece Ayurvedic facial kit with Rose & Kashmiri Saffron cleanser, toner, moisturizer, serum, and face mask. Suitable for all skin types.',
-    images: [
-      'https://picsum.photos/seed/skincare1/600/400',
-      'https://picsum.photos/seed/skincare2/600/400'
-    ],
-    specifications: { 'Type': 'Ayurvedic', 'Pieces': '5', 'Skin Type': 'All', 'Free From': 'Parabens, SLS' }
-  },
-  // ── TRAVEL & BAGS ─────────────────────────────────────────────────────────
-  {
-    id: 'p12', name: 'American Tourister 55cm Cabin Bag', category: 'Travel', subCategory: 'Luggage',
-    price: 3799, originalPrice: 6499, discount: 42,
-    rating: 4.5, reviews: 4120, stock: 45, sold: 6200, weightGms: 2100,
-    seller: 'seller2', featured: false, isNew: false, trending: false, isActive: true,
-    tags: ['luggage', 'cabin', 'spinner'],
-    description: 'Textured polypropylene shell with 4 spinner wheels for 360° effortless rolling. TSA-approved lock and expandable compartment.',
-    images: [
-      'https://picsum.photos/seed/bag1/600/400',
-      'https://picsum.photos/seed/bag2/600/400'
-    ],
-    specifications: { 'Material': 'Polypropylene', 'Wheels': '4 Double Spinner', 'Lock': 'TSA Approved', 'Size': '55cm Cabin' }
-  },
-  {
-    id: 'p13', name: 'Wildcraft 45L Trekking Backpack', category: 'Travel', subCategory: 'Outdoor Gear',
-    price: 2199, originalPrice: 3499, discount: 37,
-    rating: 4.5, reviews: 2940, stock: 33, sold: 4800, weightGms: 1200,
-    seller: 'seller2', featured: false, isNew: true, trending: false, isActive: true,
-    tags: ['backpack', 'trekking', 'outdoor'],
-    description: 'Rain-proof 45L pack with adjustable shoulder straps, ventilated back panel, hydration sleeve, and multiple zipped compartments.',
-    images: [
-      'https://picsum.photos/seed/trek1/600/400',
-      'https://picsum.photos/seed/trek2/600/400'
-    ],
-    specifications: { 'Capacity': '45L', 'Material': 'Rip-Stop Nylon', 'Frame': 'Internal Aluminum', 'Rain Cover': 'Included' }
-  },
-  // ── HOME DECOR ────────────────────────────────────────────────────────────
-  {
-    id: 'p14', name: 'Himalayan Salt Lamp Set (3pcs)', category: 'Home Decor', subCategory: 'Lighting',
-    price: 1299, originalPrice: 1999, discount: 35,
-    rating: 4.6, reviews: 3400, stock: 92, sold: 7800, weightGms: 3000,
-    seller: 'seller2', featured: false, isNew: false, trending: false, isActive: true,
-    tags: ['salt-lamp', 'decor', 'wellness'],
-    description: 'Set of 3 hand-crafted natural Himalayan pink salt lamps with dimmer cord. Warm amber glow creates a soothing ambiance in any room.',
-    images: [
-      'https://picsum.photos/seed/lamp1/600/400',
-      'https://picsum.photos/seed/lamp2/600/400'
-    ],
-    specifications: { 'Pieces': '3', 'Type': 'Natural Himalayan', 'Dimmer': 'Included', 'Wattage': '15W' }
-  },
-  {
-    id: 'p15', name: 'Boho Macramé Wall Hanging', category: 'Home Decor', subCategory: 'Wall Art',
-    price: 899, originalPrice: 1299, discount: 30,
-    rating: 4.8, reviews: 2100, stock: 48, sold: 4300, weightGms: 500,
-    seller: 'seller2', featured: false, isNew: true, trending: false, isActive: true,
-    tags: ['macrame', 'wall-art', 'boho'],
-    description: 'Handwoven cotton macramé wall hanging with fringe details. 90cm × 45cm. Bring warmth and texture to any living room or bedroom.',
-    images: [
-      'https://picsum.photos/seed/boho1/600/400',
-      'https://picsum.photos/seed/boho2/600/400'
-    ],
-    specifications: { 'Material': '100% Cotton', 'Size': '90cm × 45cm', 'Hanging': 'Wooden Stick', 'Style': 'Boho' }
-  },
-  // ── SPORTS ───────────────────────────────────────────────────────────────
-  {
-    id: 'p16', name: 'Yoga Mat Premium Anti-Slip (6mm)', category: 'Wellness', subCategory: 'Fitness',
-    price: 1499, originalPrice: 2499, discount: 40,
-    rating: 4.7, reviews: 6800, stock: 120, sold: 14000, weightGms: 1200,
-    seller: 'seller2', featured: false, isNew: false, trending: true, isActive: true,
-    tags: ['yoga', 'fitness', 'anti-slip'],
-    description: '6mm thick NBR foam provides superior cushioning. Double-sided non-slip texture, alignment lines, and carrying strap included.',
-    images: [
-      'https://picsum.photos/seed/yoga1/600/400',
-      'https://picsum.photos/seed/yoga2/600/400'
-    ],
-    specifications: { 'Thickness': '6mm', 'Material': 'NBR Foam', 'Size': '183cm × 61cm', 'Carry Strap': 'Included' }
-  }
-];
+const SEED_PRODUCTS = [];
 
 // ── Global Store Logic ──────────────────────────────────────────────────────
 const Store = {
@@ -261,15 +124,11 @@ const Store = {
       }
 
       if (!this.get('sellers') || this.get('sellers').length === 0) {
-        this.setSellers([
-          { id: 'seller2', name: 'Priya Collections', email: 'priya@collections.com', password: 'seller123', shopName: 'Priya Collections', joinDate: '2026-02-01', avatar: '🛍️', payoutBalance: 18200, taxRate: 18, shippingConfig: { freeThreshold: 999, tiers: [{maxWeight:500,price:49},{maxWeight:2000,price:99}] } }
-        ]);
+        this.setSellers([]);
       }
 
       if (!this.get('buyers')) {
-        this.setBuyers([
-          { id: 'u1', name: 'Demo User', email: 'user@email.com', password: 'user123', joinDate: '2026-03-01', avatar: '👤' }
-        ]);
+        this.setBuyers([]);
       }
     } catch (err) {
       console.error("Store.init CRASHED:", err);
