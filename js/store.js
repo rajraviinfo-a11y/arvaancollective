@@ -1632,6 +1632,40 @@ function applyGlobalConfig() {
     root.style.setProperty('--font-heading', hFont);
     root.style.setProperty('--font-body',    bFont);
     
+    // Convert hex to rgb for --clr-primary-rgb if possible
+    if (cfg.primaryColor && /^#[0-9A-F]{6}$/i.test(cfg.primaryColor)) {
+      const hex = cfg.primaryColor.replace('#', '');
+      const r = parseInt(hex.substring(0,2), 16);
+      const g = parseInt(hex.substring(2,4), 16);
+      const b = parseInt(hex.substring(4,6), 16);
+      root.style.setProperty('--clr-primary-rgb', `${r}, ${g}, ${b}`);
+    }
+
+    // Apply Custom Logo
+    if (cfg.appearance.logoUrl) {
+      const brandLinks = document.querySelectorAll('.navbar-brand, .footer-brand');
+      brandLinks.forEach(el => {
+        const h = cfg.appearance.logoHeight || 28;
+        const nameText = cfg.siteName || 'Arvaan';
+        if (cfg.appearance.tintLogo) {
+          el.innerHTML = `<div style="display:inline-block; height:${h}px; width:${h*1.5}px; background-color: var(--clr-primary); -webkit-mask-image: url('${cfg.appearance.logoUrl}'); -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: left center; margin-right: 8px; vertical-align: middle;"></div> <span style="font-weight: 700; vertical-align: middle;">${nameText}</span>`;
+        } else {
+          el.innerHTML = `<img src="${cfg.appearance.logoUrl}" alt="${nameText}" style="height: ${h}px; width: auto; object-fit: contain; margin-right: 8px; vertical-align: middle;"> <span style="font-weight: 700; vertical-align: middle;">${nameText}</span>`;
+        }
+      });
+    }
+
+    // Apply Favicon
+    if (cfg.appearance.faviconUrl) {
+      let iconLink = document.querySelector("link[rel~='icon']");
+      if (!iconLink) {
+        iconLink = document.createElement('link');
+        iconLink.rel = 'icon';
+        document.head.appendChild(iconLink);
+      }
+      iconLink.href = cfg.appearance.faviconUrl;
+    }
+    
     // Load Fonts from Google
     const fontNames = [hFont, bFont].map(f => f.split(',')[0].replace(/'/g, '').replace(/ /g, '+'));
     const fontSet = [...new Set(fontNames)];
