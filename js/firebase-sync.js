@@ -113,6 +113,15 @@ const CloudDB = {
 
   async pushCollection(colName, items) {
     if (!this.ready || !items || !items.length) return;
+    
+    // Safety: Ensure auth is ready if using Firebase
+    if (this.auth && !this.auth.currentUser) {
+      console.warn(`CloudDB: Delaying push of ${colName} (Waiting for Auth)`);
+      // Retry in 2 seconds
+      setTimeout(() => this.pushCollection(colName, items), 2000);
+      return;
+    }
+
     try {
       // Firestore batch limit is 500 — chunk if needed
       const chunks = [];
@@ -143,6 +152,21 @@ const CloudDB = {
       console.log(`CloudDB: Deleted ${docId} from ${colName}`);
     } catch (e) {
       console.warn(`CloudDB: deleteItem(${colName}, ${docId}) failed`, e.message);
+    }
+  },
+
+  async purgeCollection(colName) {
+    if (!this.ready) return;
+    try {
+      const snap = await this.db.collection(colName).get();
+      if (snap.empty) return;
+      
+      const batch = this.db.batch();
+      snap.docs.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+      console.log(`CloudDB: Purged ${snap.size} items from ${colName} in Firestore`);
+    } catch (e) {
+      console.warn(`CloudDB: purgeCollection(${colName}) failed`, e.message);
     }
   },
 
@@ -289,6 +313,21 @@ const CloudDB = {
     }
     document.dispatchEvent(new CustomEvent('arvaan:cloud-ready', { detail: { offline: false } }));
     console.log('✅ CloudDB bootstrap complete');
+    
+    // Force a one-time sync of local data to cloud after bootstrap to catch any unsynced items
+    setTimeout(() => {
+      if (typeof Store !== 'undefined') {
+        const collections = ['products', 'orders', 'sellers', 'promotions'];
+        collections.forEach(col => {
+          const localKey = col === 'products' ? 'arvaan_products' : `arvaan_${col}`;
+          const items = Store.get(col === 'products' ? 'products' : col);
+          if (Array.isArray(items) && items.length > 0) {
+            console.log(`CloudDB: Running post-bootstrap sync for ${col}...`);
+            this.pushCollection(col, items).catch(e => console.warn(`CloudDB: Background sync for ${col} failed`, e));
+          }
+        });
+      }
+    }, 2000);
   }
 };
 
