@@ -21,55 +21,68 @@ document.addEventListener('DOMContentLoaded', () => {
       const panNumber = document.getElementById('reg-seller-pan').value.trim().toUpperCase();
       const address = document.getElementById('reg-seller-address').value.trim();
 
-      // Basic Validation
+      // Final Validation
       if (!shopName || !ownerName || !email || !password || !phone || !category || !gstNumber || !panNumber || !address) {
-        return showToast('Details Required', 'Please fill all mandatory fields to continue.', 'warning');
+        return showToast('Details Required', 'Please ensure all steps are complete.', 'warning');
       }
 
-      // GST Validation (India)
-      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-      if (!gstRegex.test(gstNumber)) {
-        return showToast('Invalid GSTIN', 'Please enter a valid 15-digit GST number (e.g. 29ABCDE1234F1Z5).', 'error');
-      }
-
-      // PAN Validation (India)
-      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-      if (!panRegex.test(panNumber)) {
-        return showToast('Invalid PAN', 'Please enter a valid 10-digit PAN number (e.g. ABCDE1234F).', 'error');
-      }
-
-      if (password !== confirm) {
-        return showToast('Password Mismatch', 'Confirmation password does not match.', 'error');
-      }
-
-      if (password.length < 8) {
-        return showToast('Security Alert', 'Password must be at least 8 characters for vendor security.', 'warning');
-      }
+      if (password !== confirm) return showToast('Password Mismatch', 'Confirmation password does not match.', 'error');
 
       // Call Auth registration
       const result = Auth.registerSeller({
-        name: ownerName,
-        email,
-        password,
-        shopName,
-        phone,
-        category,
-        gstNumber,
-        panNumber,
-        address
+        name: ownerName, email, password, shopName, phone, category, gstNumber, panNumber, address
       });
 
       if (result.ok) {
-        showToast('Application Successful', `Welcome, ${shopName}! Redirecting to your dashboard...`, 'success');
-        setTimeout(() => {
-          window.location.href = 'seller.html';
-        }, 2000);
+        showToast('Application Successful', `Welcome, ${shopName}! Redirecting...`, 'success');
+        setTimeout(() => { window.location.href = 'seller.html'; }, 2000);
       } else {
         showToast('Registration Error', result.message, 'error');
       }
     });
   }
 });
+
+function nextStep(step) {
+  // Validation for current step
+  if (step === 2) {
+    const shop = document.getElementById('reg-shop-name').value;
+    const owner = document.getElementById('reg-owner-name').value;
+    const cat = document.getElementById('reg-seller-category').value;
+    if (!shop || !owner || !cat) return showToast('Step 1 Incomplete', 'Please fill all brand details.', 'warning');
+  }
+  if (step === 3) {
+    const email = document.getElementById('reg-seller-email').value;
+    const pwd = document.getElementById('reg-seller-password').value;
+    const conf = document.getElementById('reg-confirm-password').value;
+    if (!email || !pwd || !conf) return showToast('Step 2 Incomplete', 'Please set your login credentials.', 'warning');
+    if (pwd.length < 8) return showToast('Weak Password', 'Password must be at least 8 characters.', 'warning');
+    if (pwd !== conf) return showToast('Mismatch', 'Passwords do not match.', 'error');
+  }
+
+  // Update UI
+  document.querySelectorAll('.step-pane').forEach(el => el.style.display = 'none');
+  document.getElementById(`step-${step}`).style.display = 'block';
+
+  // Update dots
+  document.querySelectorAll('.step-dot').forEach((dot, idx) => {
+    if (idx + 1 < step) {
+      dot.style.background = 'var(--clr-success, #00D4AA)';
+    } else if (idx + 1 === step) {
+      dot.style.background = 'var(--clr-primary)';
+    } else {
+      dot.style.background = 'rgba(255,255,255,0.1)';
+    }
+  });
+
+  // Update description
+  const descs = [
+    'Tell us about your brand and start selling today.',
+    'Set up your secure access credentials.',
+    'Final verification steps for business compliance.'
+  ];
+  document.getElementById('step-desc').textContent = descs[step-1];
+}
 
 // Toast Helper (Local Copy or global)
 function showToast(title, message, type = 'info') {

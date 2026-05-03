@@ -76,24 +76,22 @@ const Store = {
       }
       
       console.log('Store.init: Checking seed version...', savedVersion);
-      if (savedVersion !== 12) {
-        console.log('Store.init: Performing DEEP purge of sellers and products (v12)...');
+      if (savedVersion !== 13) {
+        console.log('Store.init: Performing FINAL DEEP purge (v13)...');
         
-        // 1. Purge Cloud Collections if CloudDB is ready
         if (window.CloudDB && window.CloudDB.ready) {
           window.CloudDB.purgeCollection('sellers').catch(() => {});
           window.CloudDB.purgeCollection('products').catch(() => {});
           window.CloudDB.purgeCollection('deleted_ids').catch(() => {});
+          window.CloudDB.purgeCollection('orders').catch(() => {});
         }
 
-        // 2. Clear local collections
         this.setSellers([]);
         this.setProducts([]);
+        this.setOrders([]);
         localStorage.setItem('arvaan_deleted_product_ids', '[]');
-        
-        // 3. Update version
-        localStorage.setItem('arvaan_seed_version', '12');
-        console.log('Store.init: DEEP purge complete.');
+        localStorage.setItem('arvaan_seed_version', '13');
+        console.log('Store.init: FINAL Purge complete.');
       } else {
         // Even if version matches, double check for any "resurrected" deleted products
         const deletedIds = this.getDeletedIds();
