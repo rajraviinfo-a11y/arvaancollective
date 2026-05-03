@@ -590,6 +590,23 @@
         orderNotes: UI.get('order-notes').value.trim()
       };
 
+      // Decrement product inventory and increment sold count
+      const products = Store.getProducts();
+      let inventoryChanged = false;
+      cartItems.forEach(cartItem => {
+         const product = products.find(p => p.id === cartItem.id);
+         if (product) {
+            if (typeof product.stock === 'number') {
+               product.stock = Math.max(0, product.stock - cartItem.qty);
+            }
+            product.sold = (product.sold || 0) + cartItem.qty;
+            inventoryChanged = true;
+         }
+      });
+      if (inventoryChanged) {
+         Store.setProducts(products);
+      }
+
       orders.push(newOrder);
       Store.setOrders(orders);
       Cart.clear();

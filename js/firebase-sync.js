@@ -57,50 +57,40 @@ const CloudDB = {
     if (!this.ready) return null;
     try {
       const snap = await this.db.collection(colName).get();
-      if (!snap.empty) {
-        let cloudItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      let cloudItems = snap.empty ? [] : snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // For products: apply deleted-ID filter AND merge with local-only items
-        if (colName === 'products' && typeof Store !== 'undefined') {
-
-          // 1. Filter out explicitly deleted products
+      if (typeof Store !== 'undefined') {
+        // 1. Filter out deleted products if applicable
+        if (colName === 'products') {
           const deletedIds = Store.getDeletedIds();
           if (deletedIds.length > 0) {
-            const staleIds = cloudItems
-              .map(p => String(p.id))
-              .filter(id => deletedIds.includes(id));
-            staleIds.forEach(id => this.deleteItem('products', id).catch(() => {}));
             cloudItems = cloudItems.filter(p => !deletedIds.includes(String(p.id)));
-            if (staleIds.length > 0) {
-              console.log(`CloudDB: Filtered ${staleIds.length} deleted product(s) from Firestore pull`);
-            }
-          }
-
-          // 2. Merge: preserve local-only products not yet synced to Firestore
-          // (these have PRD-* IDs and exist in localStorage but not in the cloud snap)
-          const existingLocalRaw = localStorage.getItem(localKey);
-          if (existingLocalRaw) {
-            try {
-              const localItems = JSON.parse(existingLocalRaw);
-              const cloudIds = new Set(cloudItems.map(p => String(p.id)));
-              const localOnlyItems = localItems.filter(p =>
-                !cloudIds.has(String(p.id)) &&
-                !deletedIds.includes(String(p.id))
-              );
-              if (localOnlyItems.length > 0) {
-                console.log(`CloudDB: Preserving ${localOnlyItems.length} local-only product(s) not yet in Firestore`);
-                // Push them to Firestore now so they sync up
-                this.pushCollection('products', localOnlyItems).catch(() => {});
-                cloudItems = [...cloudItems, ...localOnlyItems];
-              }
-            } catch (e) { /* ignore parse errors */ }
           }
         }
 
-        localStorage.setItem(localKey, JSON.stringify(cloudItems));
-        console.log(`CloudDB: Pulled ${cloudItems.length} ${colName} from Firestore`);
-        return cloudItems;
+        // 2. Universal Merge: preserve local-only items not yet in Firestore
+        const existingLocalRaw = localStorage.getItem(localKey);
+        if (existingLocalRaw) {
+          try {
+            const localItems = JSON.parse(existingLocalRaw);
+            if (Array.isArray(localItems)) {
+              const cloudIds = new Set(cloudItems.map(p => String(p.id)));
+              const localOnlyItems = localItems.filter(p => p.id && !cloudIds.has(String(p.id)));
+
+              if (localOnlyItems.length > 0) {
+                console.log(`CloudDB: Preserving ${localOnlyItems.length} local ${colName} items not in cloud`);
+                // Re-push these to sync up
+                this.pushCollection(colName, localOnlyItems).catch(() => {});
+                cloudItems = [...cloudItems, ...localOnlyItems];
+              }
+            }
+          } catch (e) { /* ignore parse errors */ }
+        }
       }
+
+      localStorage.setItem(localKey, JSON.stringify(cloudItems));
+      console.log(`CloudDB: Sync complete for ${colName} (${cloudItems.length} items total)`);
+      return cloudItems;
     } catch (e) {
       console.warn(`CloudDB: pullCollection(${colName}) failed`, e.message);
     }
