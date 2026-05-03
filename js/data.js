@@ -76,41 +76,23 @@ const Store = {
       }
       
       console.log('Store.init: Checking seed version...', savedVersion);
-      if (savedVersion !== 10) {
-        console.log('Store.init: Refreshing product catalog to version 10 (Removed seller1)...');
+      if (savedVersion !== 11) {
+        console.log('Store.init: Performing global purge of sellers and products (v11)...');
         
-        // Cleanup seller1 data
-        const currentSellers = this.getSellers();
-        const cleanedSellers = currentSellers.filter(s => s.id !== 'seller1' && s.email !== 'seller@arvaan.com');
-        this.setSellers(cleanedSellers);
-
-        const deletedIds = this.getDeletedIds();
-        // 1. Identify all products belonging to seller1 in the current catalog
-        const seller1ProdIds = currentProds
-          .filter(p => p.seller === 'seller1' || p.sellerId === 'seller1')
-          .map(p => String(p.id));
-        
-        // 2. Add them to deletedIds so they are purged from CloudDB/Firestore
-        if (seller1ProdIds.length > 0) {
-          console.log(`Store.init: Flagging ${seller1ProdIds.length} seller1 product(s) for deletion`);
-          this.addDeletedIds(seller1ProdIds);
+        // 1. Flag all current products for deletion in CloudDB
+        const allProdIds = currentProds.map(p => String(p.id));
+        if (allProdIds.length > 0) {
+          console.log(`Store.init: Flagging ${allProdIds.length} product(s) for cloud deletion`);
+          this.addDeletedIds(allProdIds);
         }
 
-        // 3. Start from seed but skip any products that are deleted
-        const updatedDeletedIds = this.getDeletedIds();
-        const merged = SEED_PRODUCTS.filter(p => !updatedDeletedIds.includes(String(p.id)));
+        // 2. Clear local collections
+        this.setSellers([]);
+        this.setProducts([]);
         
-        currentProds.forEach(sp => {
-          if (sp.seller !== 'seller1' && sp.sellerId !== 'seller1' && !merged.find(p => String(p.id) === String(sp.id)) && !updatedDeletedIds.includes(String(sp.id))) {
-            // heal any nan prices that were created before toBaseCurrency fix
-            if (isNaN(parseFloat(sp.price))) sp.price = sp.originalPrice || 999;
-            merged.push(sp);
-          }
-        });
-        
-        this.setProducts(merged);
-        this.set('seed_version', 10);
-        console.log('Store.init: Catalog refreshed to version 10.');
+        // 3. Update version
+        localStorage.setItem('arvaan_seed_version', '11');
+        console.log('Store.init: Global purge complete.');
       } else {
         // Even if version matches, double check for any "resurrected" deleted products
         const deletedIds = this.getDeletedIds();
