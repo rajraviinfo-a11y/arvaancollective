@@ -204,7 +204,7 @@ Auth.initListeners = function() {
       if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
 
       if (result.ok) {
-        if (typeof closeModal === 'function') closeModal('auth-modal');
+        if (typeof closeAllModals === 'function') closeAllModals();
         updateAuthUI();
         if (typeof showToast === 'function') showToast('Welcome back!', `Hello, ${result.user.name.split(' ')[0]} 👋`, 'success');
         loginForm.reset();
@@ -212,6 +212,9 @@ Auth.initListeners = function() {
         if (pendingCheckout) {
           sessionStorage.removeItem('arvaan_checkout_intent');
           setTimeout(() => { window.location.href = 'checkout.html'; }, 500);
+        } else if (window.location.pathname.includes('account.html') === false) {
+          // Optional: redirect to account if they just logged in from somewhere else, or just let them stay.
+          // Staying is usually better for seamless shopping.
         }
       } else {
         showFormError(loginForm, '#login-email', result.message);
@@ -241,10 +244,15 @@ Auth.initListeners = function() {
       if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
 
       if (result.ok) {
-        if (typeof closeModal === 'function') closeModal('auth-modal');
+        if (typeof closeAllModals === 'function') closeAllModals();
         updateAuthUI();
         if (typeof showToast === 'function') showToast('Account Created!', `Welcome to Arvaan, ${name.split(' ')[0]} ✨`, 'success');
         registerForm.reset();
+        const pendingCheckout = sessionStorage.getItem('arvaan_checkout_intent');
+        if (pendingCheckout) {
+          sessionStorage.removeItem('arvaan_checkout_intent');
+          setTimeout(() => { window.location.href = 'checkout.html'; }, 500);
+        }
       } else {
         showFormError(registerForm, '#reg-email', result.message);
       }
