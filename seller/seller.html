@@ -32,7 +32,10 @@
             <input class="form-control" type="email" id="seller-email" placeholder="seller@yourstore.com" autocomplete="email" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Secure Password</label>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2)">
+              <label class="form-label" style="margin-bottom:0">Secure Password</label>
+              <button type="button" class="btn-link" onclick="openForgotPwdModal()" style="font-size:0.75rem; color:var(--clr-primary); background:none; border:none; padding:0; cursor:pointer; font-weight:600">Forgot Password?</button>
+            </div>
             <input class="form-control" type="password" id="seller-password" placeholder="••••••••" autocomplete="current-password" required>
           </div>
           <button class="btn btn-primary btn-auth w-full" type="submit">Sign In to Dashboard →</button>
@@ -1202,6 +1205,32 @@
       </div>
       <div id="bulk-docs-content" style="max-height:70vh; overflow-y:auto; padding:var(--space-6)">
         <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal-overlay hidden" id="forgot-password-modal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>🔑 Reset Password</h3>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body" style="padding:var(--space-6)">
+      <form id="forgot-password-form">
+        <p style="font-size:0.85rem; color:var(--clr-text-3); margin-bottom:var(--space-4)">Enter your business email and we'll send you a simulation link to reset your password.</p>
+        <div class="form-group" style="margin-bottom:var(--space-4)">
+          <label class="form-label">Business Email</label>
+          <input type="email" class="form-control" id="forgot-email" placeholder="seller@yourstore.com" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-full">Send Reset Link</button>
+      </form>
+      <div id="forgot-success" style="display:none; text-align:center; padding:var(--space-4)">
+        <div style="font-size:3rem; margin-bottom:var(--space-3)">✉️</div>
+        <h4 style="margin-bottom:var(--space-2)">Check your Inbox</h4>
+        <p style="font-size:0.85rem; color:var(--clr-text-3)">If an account exists for <strong id="sent-email-display"></strong>, you'll receive a password reset link shortly.</p>
+        <button type="button" class="btn btn-outline w-full" style="margin-top:var(--space-5)" onclick="closeAllModals()">Back to Login</button>
       </div>
     </div>
   </div>

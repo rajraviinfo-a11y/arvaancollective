@@ -98,6 +98,19 @@ const CloudDB = {
   },
 
 
+  _clean(obj) {
+    if (Array.isArray(obj)) return obj.map(v => this._clean(v));
+    if (obj !== null && typeof obj === 'object') {
+      const cleaned = {};
+      Object.keys(obj).forEach(k => {
+        const v = obj[k];
+        if (v !== undefined) cleaned[k] = this._clean(v);
+      });
+      return cleaned;
+    }
+    return obj;
+  },
+
   async pushCollection(colName, items) {
     if (!this.ready || !items || !items.length) return;
     try {
@@ -109,9 +122,11 @@ const CloudDB = {
       for (const chunk of chunks) {
         const batch = this.db.batch();
         chunk.forEach(item => {
-          if (!item.id) return;
+          if (!item || !item.id) return;
           const ref = this.db.collection(colName).doc(String(item.id));
-          batch.set(ref, item);
+          // Sanitize object to remove 'undefined' values which Firestore rejects
+          const data = this._clean(item);
+          batch.set(ref, data);
         });
         await batch.commit();
       }

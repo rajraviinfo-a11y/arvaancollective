@@ -250,8 +250,8 @@ function changeDashboardPeriod(period, btn) {
 function renderDashboard(daysLimit = null) {
   const seller = SellerState.currentSeller;
   const config = CurrencyConfig[currentCurrency] || CurrencyConfig.USD;
-  const all_products = Store.getProducts().filter(p => p.sellerId === seller.id || p.seller === seller.id);
-  const all_orders = Store.getOrders().filter(o => o.sellerId === seller.id);
+  const all_products = Store.getProducts().filter(p => String(p.sellerId) === String(seller.id) || String(p.seller) === String(seller.id));
+  const all_orders = Store.getOrders().filter(o => String(o.sellerId) === String(seller.id));
   
   const revenue = all_orders.reduce((sum, o) => sum + o.total, 0);
   const pending = all_orders.filter(o => o.status === 'pending').length;
@@ -730,7 +730,8 @@ function formatDate(dateStr) {
 // ── Products Table ────────────────────────────────────────────────────────────
 function renderProductsTable() {
   const seller = SellerState.currentSeller;
-  let products = Store.getProducts().filter(p => p.seller === seller.id || p.sellerId === seller.id);
+  if (!seller) return;
+  let products = Store.getProducts().filter(p => String(p.seller) === String(seller.id) || String(p.sellerId) === String(seller.id));
   if (SellerState.productSearch) {
     const q = SellerState.productSearch.toLowerCase();
     products = products.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
@@ -1618,6 +1619,8 @@ function bulkTabAction(newStatus) {
 
 function renderOrdersTable() {
   const seller = SellerState.currentSeller;
+  if (!seller) return;
+  
   let allOrders = Store.getOrders()
     .filter(o => String(o.sellerId) === String(seller.id))
     .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -2752,8 +2755,41 @@ function initSellerApp() {
   // Settings form
   document.getElementById('settings-form')?.addEventListener('submit', saveSettings);
 
+  // Forgot password form
+  document.getElementById('forgot-password-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('forgot-email').value.trim();
+    if (!email) return;
+    
+    // Simulate API call
+    const form = document.getElementById('forgot-password-form');
+    const success = document.getElementById('forgot-success');
+    const displayEmail = document.getElementById('sent-email-display');
+    
+    if (form && success && displayEmail) {
+      displayEmail.textContent = email;
+      form.style.display = 'none';
+      success.style.display = 'block';
+      console.log(`[SellerAuth] Password reset requested for: ${email}`);
+    }
+  });
+
   // Close modals
   document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', () => closeAllModals()));
+}
+
+function openForgotPwdModal() {
+  const form = document.getElementById('forgot-password-form');
+  const success = document.getElementById('forgot-success');
+  const emailInput = document.getElementById('forgot-email');
+  
+  if (form) form.style.display = 'block';
+  if (success) success.style.display = 'none';
+  if (emailInput) {
+    emailInput.value = document.getElementById('seller-email')?.value || '';
+  }
+  
+  openModal('forgot-password-modal');
 }
 
 // --- Bulk Document Generation ---

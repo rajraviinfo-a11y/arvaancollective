@@ -573,6 +573,7 @@
       const newOrder = {
         id: `ORD-${Date.now().toString().slice(-6)}`,
         userId: user.id,
+        // Capture sellerId from cart item (supporting both sellerId and seller properties)
         sellerId: cartItems.length > 0 ? (cartItems[0].sellerId || cartItems[0].seller) : null,
         subtotal: Cart.subtotal(),
         shipping: Cart.shipping(),
