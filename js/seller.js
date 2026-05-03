@@ -703,6 +703,30 @@ function getUserName(userId) {
   return user ? escapeHtml(user.name) : 'Guest';
 }
 
+function getStatusBadge(status) {
+  if (!status) return '<span class="badge badge-ghost">Unknown</span>';
+  const s = status.toLowerCase();
+  let cls = 'badge-ghost';
+  if (s === 'pending') cls = 'badge-warning';
+  if (s === 'processing' || s === 'paid') cls = 'badge-info';
+  if (s === 'ready_to_ship' || s === 'shipped') cls = 'badge-primary';
+  if (s === 'delivered') cls = 'badge-success';
+  if (s === 'cancelled') cls = 'badge-danger';
+  
+  const label = status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch(e) { return dateStr; }
+}
+
+
 // ── Products Table ────────────────────────────────────────────────────────────
 function renderProductsTable() {
   const seller = SellerState.currentSeller;
@@ -1581,7 +1605,7 @@ function bulkTabAction(newStatus) {
 function renderOrdersTable() {
   const seller = SellerState.currentSeller;
   let allOrders = Store.getOrders()
-    .filter(o => o.sellerId === seller.id)
+    .filter(o => String(o.sellerId) === String(seller.id))
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   // Apply search filter

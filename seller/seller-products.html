@@ -79,7 +79,7 @@
         </div>
         <div class="table-toolbar">
           <div class="table-toolbar-left">
-            <div class="search-box" style="min-width:280px"><span class="search-icon">🔍</span><input type="text" id="product-search-input" placeholder="Search products…"></div>
+            <div class="search-box" style="min-width:280px"><span class="search-icon">🔍</span><input type="text" id="product-search-input" placeholder="Search products..."></div>
           </div>
           <div class="table-toolbar-right" id="product-bulk-actions" style="display:none; gap:var(--space-2)">
             <span style="font-size:0.8rem; color:var(--clr-text-3); align-self:center; margin-right:8px"><span id="selected-products-count">0</span> selected</span>
@@ -104,176 +104,13 @@
   </div>
 </div>
 
-<!-- Product Form Modal (Shared with seller.js logic) -->
-<div class="modal-overlay" id="product-form-modal">
-  <div class="modal" style="max-width:1100px; width:95%; height:90vh; display:flex; flex-direction:column">
-    <div class="modal-header">
-      <h3 id="product-modal-title">📦 Add New Masterpiece</h3>
-      <button class="modal-close">×</button>
-    </div>
-    
-    <div class="modal-body" style="flex:1; overflow:hidden; display:flex; padding:0">
-      <!-- LEFT: Form Wizard -->
-      <div style="flex:1; overflow-y:auto; padding:var(--space-6); border-right:1px solid var(--clr-border)">
-        
-        <!-- Progress Steps -->
-        <div class="wizard-steps">
-          <div class="wizard-progress" id="wizard-progress" style="width:0%"></div>
-          <div class="step-item active" id="step-dot-1"><div class="step-circle">1</div><div class="step-label">Identity</div></div>
-          <div class="step-item" id="step-dot-2"><div class="step-circle">2</div><div class="step-label">Logistics</div></div>
-          <div class="step-item" id="step-dot-3"><div class="step-circle">3</div><div class="step-label">Variants</div></div>
-          <div class="step-item" id="step-dot-4"><div class="step-circle">4</div><div class="step-label">Media & SEO</div></div>
-        </div>
-
-        <form id="product-form" novalidate>
-          
-          <!-- STEP 1: Identity -->
-          <div class="wizard-step" id="wizard-step-1">
-            <div class="form-grid">
-              <div class="form-group full"><label class="form-label">Product Name *</label><input class="form-control" type="text" id="pf-name" placeholder="e.g. Minimalist Gold Timepiece" required></div>
-              <div class="form-group"><label class="form-label">Brand / Artisan</label><input class="form-control" type="text" id="pf-brand" placeholder="e.g. Arvaan Studios"></div>
-              <div class="form-group"><label class="form-label">Category *</label><select class="form-control" id="pf-category" onchange="updateSubCategories()" required><option value="">Select Category</option></select></div>
-              <div class="form-group"><label class="form-label">Sub-Category *</label><select class="form-control" id="pf-sub-category" required><option value="">Select Category First</option></select></div>
-              <div class="form-group full"><label class="form-label">Luxury Description *</label><textarea class="form-control" id="pf-description" rows="4" placeholder="Tell the story of this product..." required></textarea></div>
-              <div class="form-group full"><label class="form-label">Editorial Highlights (Bullet points, comma separated)</label><input class="form-control" id="pf-tags" placeholder="e.g. Handcrafted, Limited Edition, 24k Gold"></div>
-            </div>
-          </div>
-
-          <!-- STEP 2: Logistics -->
-          <div class="wizard-step" id="wizard-step-2" style="display:none">
-            <div class="form-grid">
-              <div class="form-group"><label class="form-label">Selling Price *</label><input class="form-control" type="number" id="pf-price" step="0.01" required></div>
-              <div class="form-group"><label class="form-label">Original Price (for discount)</label><input class="form-control" type="number" id="pf-original-price" step="0.01"></div>
-              <div class="form-group"><label class="form-label">Product Weight (grams) *</label><input class="form-control" type="number" id="pf-weight" placeholder="e.g. 500" required></div>
-              <div class="form-group"><label class="form-label">Current Stock *</label><input class="form-control" type="number" id="pf-stock" required></div>
-              <div class="form-group"><label class="form-label">Low Stock Alert</label><input class="form-control" type="number" id="pf-low-stock" placeholder="5"></div>
-              <div class="form-group"><label class="form-label">SKU / Serial</label><input class="form-control" type="text" id="pf-sku" placeholder="AV-PROD-001"></div>
-              <div class="form-group"><label class="form-label">GST / Tax Category</label><select class="form-control" id="pf-tax"><option value="18">Standard (18%)</option><option value="5">Apparel (< ₹1000) (5%)</option><option value="12">Apparel (> ₹1000) (12%)</option><option value="28">Luxury (28%)</option><option value="0">Exempt (0%)</option></select></div>
-            </div>
-          </div>
-
-          <!-- STEP 3: Variants & Specs -->
-          <div class="wizard-step" id="wizard-step-3" style="display:none">
-            <div style="margin-bottom:var(--space-4)">
-              <label class="form-label">Product Specifications</label>
-              <div id="pf-specs-container" style="display:flex;flex-direction:column;gap:8px"></div>
-              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="addSpecRow()">＋ Add Attribute</button>
-            </div>
-            <div style="border-top:1px solid var(--clr-border); padding-top:var(--space-4)">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-                <label class="form-label" style="margin-bottom:0">Product Variations (Colors/Sizes)</label>
-                <button type="button" class="btn btn-outline btn-sm" onclick="generateVariants()">⚙️ Manage Matrix</button>
-              </div>
-              <div id="variants-container" style="max-height:200px; overflow-y:auto">
-                <p style="font-size:0.75rem; color:var(--clr-text-3); font-style:italic">Create variants to manage individual stock and price adjustments.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- STEP 4: Media & SEO -->
-          <div class="wizard-step" id="wizard-step-4" style="display:none">
-            <div class="form-group full">
-              <label class="form-label">Product Gallery (Add up to 5 images)</label>
-              <div style="display:flex; gap:10px">
-                <input class="form-control" type="url" id="pf-image-url" placeholder="Paste Image URL" style="flex:1">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="addGalleryImage()">Add</button>
-              </div>
-              <div id="pf-gallery-container" class="image-gallery-grid"></div>
-              <div style="margin-top:10px; border:1px dashed var(--clr-border); padding:12px; text-align:center; cursor:pointer; font-size:0.75rem; background:var(--clr-bg-3)" onclick="document.getElementById('pf-image-file').click()">
-                Or upload from your gallery
-                <input type="file" id="pf-image-file" style="display:none" onchange="handleImageFileChange(event)">
-              </div>
-            </div>
-            <div style="margin-top:var(--space-5); background:rgba(0,0,0,0.02); border-radius:8px; padding:var(--space-4)">
-              <label class="form-label">Google Search Preview</label>
-              <div style="font-family:arial,sans-serif; padding:10px; background:#fff; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.1)">
-                <div style="font-size:0.75rem; color:#202124">arvaancollective.com › product › <span id="seo-preview-slug">name</span></div>
-                <div style="font-size:1.1rem; color:#1a0dab; padding:4px 0" id="seo-preview-title">Product Title</div>
-                <div style="font-size:0.8rem; color:#4d5156" id="seo-preview-desc">Product description will appear here as a snippet for search engines...</div>
-              </div>
-            </div>
-          </div>
-
-        </form>
-      </div>
-
-      <!-- RIGHT: Live Editorial Preview -->
-      <div class="boutique-preview" style="background:#f8f9fa">
-        <div style="font-size:0.65rem; font-weight:800; color:var(--clr-text-3); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:15px">Editorial Preview</div>
-        <div class="preview-card">
-          <div style="aspect-ratio:3/4; position:relative; overflow:hidden">
-            <img id="prev-card-img" src="" class="preview-img" style="height:100%">
-            <div class="brand-badge" id="prev-card-brand">ARVAAN</div>
-          </div>
-          <div class="preview-content">
-            <div style="font-size:0.65rem; color:var(--clr-text-3); text-transform:uppercase; margin-bottom:4px" id="prev-card-cat">CATEGORY</div>
-            <div style="font-size:0.9rem; font-weight:700; margin-bottom:4px" id="prev-card-name">Product Name</div>
-            <div style="font-size:1.1rem; font-family:var(--font-mono); font-weight:800; color:var(--clr-primary)" id="prev-card-price">—</div>
-            
-            <div id="prev-card-highlights" style="margin-top:12px; display:flex; flex-direction:column; gap:4px"></div>
-            
-            <div id="prev-card-variants" style="margin-top:12px; display:flex; gap:6px; flex-wrap:wrap"></div>
-          </div>
-        </div>
-        <div style="margin-top:20px; font-size:0.7rem; color:var(--clr-text-3); line-height:1.5">
-          <p>This is a live simulation of your product in the premium boutique view.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Footer / Nav -->
-    <div class="modal-footer" style="padding:var(--space-4) var(--space-6); background:var(--clr-bg-3); border-top:1px solid var(--clr-border); display:flex; justify-content:space-between">
-      <button class="btn btn-ghost btn-sm" id="pf-back-btn" style="visibility:hidden" onclick="moveWizard(-1)">Back</button>
-      <div style="display:flex; gap:10px">
-        <button class="btn btn-ghost btn-sm" style="white-space:nowrap" onclick="closeAllModals()">Cancel</button>
-        <button class="btn btn-primary btn-sm" id="pf-next-btn" onclick="moveWizard(1)">Next Step</button>
-        <button class="btn btn-ghost btn-sm" id="pf-draft-btn" style="display:none" onclick="saveProduct(event, 'draft')">Save as Draft</button>
-        <button class="btn btn-success btn-sm" id="pf-save-btn" style="display:none" onclick="saveProduct(event, 'published')">Confirm & Publish</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Bulk Editor Modal -->
-<div class="modal-overlay" id="bulk-inventory-modal">
-  <div class="modal modal-lg">
-    <div class="modal-header"><h3 style="font-size:1.1rem">Bulk Inventory Editor</h3><button class="modal-close">×</button></div>
-    <div class="modal-body" style="padding:0">
-       <div style="max-height:60vh; overflow-y:auto">
-         <table class="data-table">
-            <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th></tr></thead>
-            <tbody id="bulk-inventory-table-body"></tbody>
-         </table>
-       </div>
-       <div style="padding:15px; text-align:right; border-top:1px solid var(--clr-border); background:var(--clr-bg-3)">
-         <button class="btn btn-primary btn-sm" onclick="saveBulkInventory()">Save All Changes</button>
-       </div>
-    </div>
-  </div>
-</div>
-
-<div id="toast-container"></div>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
 <script src="../js/data.js"></script>
-  <script src="../js/firebase-sync.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/seller.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    initSellerPage();
-    // Check for add action in URL
-    if (new URLSearchParams(window.location.search).get('action') === 'add') {
-      setTimeout(openAddProduct, 500);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  });
-</script>
+  <script src="../js/firebase-sync.js"></script><script src="../js/auth.js"></script><script src="../js/seller.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => initSellerPage());</script>
 </body>
 </html>
-
-
