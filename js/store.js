@@ -902,7 +902,7 @@ function initLiveSearch() {
     }
 
     const matches = Store.getProducts()
-      .filter(p => (p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)))
+      .filter(p => p.isActive !== false && (p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)))
       .slice(0, 8);
 
     if (matches.length > 0) {
@@ -935,7 +935,7 @@ function initStandardSearch() {
     }
 
     const matches = Store.getProducts()
-      .filter(p => (p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)))
+      .filter(p => p.isActive !== false && (p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)))
       .slice(0, 6);
 
     if (matches.length > 0) {
@@ -1243,7 +1243,7 @@ function renderFrequentlyBoughtTogether(id) {
 function renderRelatedProducts(id) {
   const products = Store.getProducts();
   const current = products.find(p => p.id === id);
-  const related = products.filter(p => p.category === current.category && p.id !== id).slice(0, 4);
+  const related = products.filter(p => p.isActive !== false && p.category === current.category && p.id !== id).slice(0, 4);
   const grid = document.getElementById('related-products-grid');
   if (grid) { grid.innerHTML = related.map(p => renderProductCard(p)).join(''); addProductCardListeners(); }
 }
@@ -1926,8 +1926,8 @@ function initShopPage() {
   console.log('initShopPage: Starting catalog initialization...');
   if (!StoreState.products || StoreState.products.length === 0) {
     const p = (typeof Store !== 'undefined') ? Store.getProducts() : [];
-    if (p && p.length > 0) StoreState.products = p;
-    else if (typeof SEED_PRODUCTS !== 'undefined') StoreState.products = SEED_PRODUCTS;
+    if (p && p.length > 0) StoreState.products = p.filter(prod => prod.isActive !== false);
+    else if (typeof SEED_PRODUCTS !== 'undefined') StoreState.products = SEED_PRODUCTS.filter(prod => prod.isActive !== false);
   }
 
   const max = getMaxPrice();
@@ -2701,7 +2701,7 @@ function initStore() {
     // 1. Core Data
     if (typeof Store !== 'undefined' && Store.init) {
        Store.init();
-       StoreState.products = Store.getProducts();
+       StoreState.products = Store.getProducts().filter(p => p.isActive !== false);
     }
     
     // 2. Critical Shell Components
@@ -2724,7 +2724,7 @@ function initStore() {
       console.log('initStore: Cloud ready, refreshing state...');
       if (typeof Store !== 'undefined') {
         Store.init(); // Re-run init to filter deletedIds
-        StoreState.products = Store.getProducts();
+        StoreState.products = Store.getProducts().filter(p => p.isActive !== false);
         initStoreContent(); // Re-render page with fresh data
       }
     });
