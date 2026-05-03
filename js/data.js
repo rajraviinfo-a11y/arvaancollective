@@ -76,34 +76,9 @@ const Store = {
       }
       
       console.log('Store.init: Checking seed version...', savedVersion);
-      if (savedVersion !== 13) {
-        console.log('Store.init: Performing FINAL DEEP purge (v13)...');
-        
-        if (window.CloudDB && window.CloudDB.ready) {
-          window.CloudDB.purgeCollection('sellers').catch(() => {});
-          window.CloudDB.purgeCollection('products').catch(() => {});
-          window.CloudDB.purgeCollection('deleted_ids').catch(() => {});
-          window.CloudDB.purgeCollection('orders').catch(() => {});
-        }
-
-        this.setSellers([]);
-        this.setProducts([]);
-        this.setOrders([]);
-        localStorage.setItem('arvaan_deleted_product_ids', '[]');
-        localStorage.setItem('arvaan_seed_version', '13');
-        console.log('Store.init: FINAL Purge complete.');
-      } else {
-        // Even if version matches, double check for any "resurrected" deleted products
-        const deletedIds = this.getDeletedIds();
-        if (deletedIds.length > 0) {
-          const filtered = currentProds.filter(p => !deletedIds.includes(String(p.id)));
-          if (filtered.length !== currentProds.length) {
-            console.log(`Store.init: Removing ${currentProds.length - filtered.length} resurrected product(s)`);
-            this.setProducts(filtered);
-          }
-        }
-      }
-
+      // Logic for version management is now primarily handled in CloudDB.bootstrap 
+      // to ensure Firebase is cleared before local data is pulled back.
+      
       if (!this.get('sellers') || this.get('sellers').length === 0) {
         this.setSellers([]);
       }
