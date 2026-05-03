@@ -11,16 +11,19 @@
   <style>
     :root {
       --register-width: 1100px;
+      --clr-gold: #D4AF37;
+      --grad-gold: linear-gradient(135deg, #F5D17E 0%, #D4AF37 50%, #B8860B 100%);
     }
 
     body {
-      background: #0f0f13;
+      background: radial-gradient(circle at top right, #1a1a2e 0%, #0f0f13 100%);
       overflow-x: hidden;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: var(--space-6) var(--space-4);
+      font-family: 'Inter', sans-serif;
     }
 
     .register-page {
@@ -29,10 +32,11 @@
       min-height: 700px;
       display: grid;
       grid-template-columns: 1fr 1.2fr;
-      background: var(--clr-surface);
+      background: rgba(30, 30, 38, 0.8);
+      backdrop-filter: blur(20px);
       border-radius: var(--radius-2xl);
-      border: 1px solid var(--clr-border);
-      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6);
       overflow: hidden;
       position: relative;
       z-index: 10;
@@ -40,13 +44,13 @@
 
     /* Benefits Side */
     .register-benefits {
-      background: linear-gradient(135deg, #16161e 0%, #0f0f13 100%);
+      background: linear-gradient(135deg, #16161e 0%, #0a0a0f 100%);
       padding: var(--space-12) var(--space-10);
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
-      border-right: 1px solid var(--clr-border);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .register-benefits::before {
@@ -56,8 +60,8 @@
       left: -100px;
       width: 300px;
       height: 300px;
-      background: radial-gradient(circle, var(--clr-primary) 0%, transparent 70%);
-      opacity: 0.15;
+      background: radial-gradient(circle, var(--clr-gold) 0%, transparent 70%);
+      opacity: 0.1;
       filter: blur(50px);
     }
 
@@ -71,35 +75,38 @@
     .benefits-logo .brand-icon {
       width: 48px;
       height: 48px;
-      background: var(--grad-primary);
+      background: var(--grad-gold);
       border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.4rem;
-      box-shadow: var(--shadow-primary);
+      box-shadow: 0 10px 20px rgba(184, 134, 11, 0.3);
     }
 
     .benefits-logo .brand-text {
-      font-weight: 700;
-      font-size: 1.4rem;
+      font-weight: 800;
+      font-size: 1.6rem;
       color: #fff;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
+      background: linear-gradient(to right, #fff, #aaa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .benefits-content h2 {
-      font-size: 2.8rem;
+      font-size: 3rem;
       font-weight: 800;
       line-height: 1.1;
       margin-bottom: var(--space-6);
-      background: linear-gradient(to bottom right, #fff 30%, rgba(255,255,255,0.4));
+      background: linear-gradient(to bottom right, #fff 40%, #D4AF37);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .benefits-content p {
-      color: var(--clr-text-3);
+      color: rgba(255, 255, 255, 0.6);
       font-size: 1.1rem;
       line-height: 1.6;
       margin-bottom: var(--space-10);
@@ -108,32 +115,35 @@
     .benefit-item {
       display: flex;
       gap: 16px;
-      margin-bottom: var(--space-6);
+      margin-bottom: var(--space-8);
     }
 
     .benefit-icon {
-      width: 32px;
-      height: 32px;
-      background: rgba(108, 99, 255, 0.1);
-      color: var(--clr-primary);
-      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      background: rgba(212, 175, 55, 0.1);
+      color: var(--clr-gold);
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
 
     .benefit-text h4 {
       color: #fff;
-      font-size: 1rem;
-      margin-bottom: 2px;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+      font-weight: 700;
     }
 
     .benefit-text p {
-      color: var(--clr-text-3);
-      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.85rem;
       margin: 0;
+      line-height: 1.5;
     }
 
     /* Form Side */
@@ -142,29 +152,30 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      background: #1e1e26;
+      background: transparent;
     }
 
     .form-header {
-      margin-bottom: var(--space-8);
+      margin-bottom: var(--space-10);
     }
 
     .form-header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
+      font-size: 2.2rem;
+      font-weight: 800;
       color: #fff;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
     }
 
     .form-header p {
-      color: var(--clr-text-3);
-      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 1rem;
     }
 
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--space-4);
+      gap: var(--space-5);
     }
 
     .form-group.full {
@@ -175,62 +186,81 @@
       font-weight: 600;
       font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.4);
       margin-bottom: 8px;
       display: block;
     }
 
     .form-control {
-      background: rgba(255, 255, 255, 0.05) !important;
-      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      background: rgba(255, 255, 255, 0.04) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
       color: #fff !important;
-      height: 48px;
-      padding: 0 16px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 52px;
+      padding: 0 18px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
     }
 
     .form-control::placeholder {
-      color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.2);
     }
 
     .form-control:focus {
-      background: rgba(255, 255, 255, 0.08) !important;
-      border-color: var(--clr-primary) !important;
-      box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.15) !important;
+      background: rgba(255, 255, 255, 0.07) !important;
+      border-color: var(--clr-gold) !important;
+      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15) !important;
     }
 
     select.form-control option {
       background: #1e1e26;
       color: #fff;
-      padding: 12px;
     }
 
-    .btn-apply {
+    .btn-primary {
+      background: var(--grad-gold);
+      color: #000 !important;
+      font-weight: 800;
+      border: none;
       height: 54px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      font-size: 1rem;
-      margin-top: var(--space-6);
-      background: var(--grad-primary);
-      box-shadow: 0 10px 30px rgba(108, 99, 255, 0.3);
-      transition: transform 0.2s, box-shadow 0.2s;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(184, 134, 11, 0.4);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .btn-apply:hover {
+    .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 40px rgba(108, 99, 255, 0.4);
+      box-shadow: 0 15px 35px rgba(184, 134, 11, 0.5);
+      filter: brightness(1.1);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-weight: 600;
+      height: 54px;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: #fff;
     }
 
     .register-footer {
       margin-top: var(--space-8);
       text-align: center;
-      font-size: 0.85rem;
-      color: var(--clr-text-3);
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.4);
     }
 
     .register-footer a {
-      color: var(--clr-primary);
+      color: var(--clr-gold);
       font-weight: 700;
       text-decoration: none;
     }
@@ -249,12 +279,12 @@
     .orb {
       position: fixed;
       border-radius: 50%;
-      filter: blur(80px);
+      filter: blur(100px);
       z-index: 1;
-      opacity: 0.4;
+      opacity: 0.3;
     }
-    .orb-1 { width: 500px; height: 500px; background: #6C63FF; top: -10%; right: -10%; }
-    .orb-2 { width: 400px; height: 400px; background: #00D4AA; bottom: -10%; left: -5%; }
+    .orb-1 { width: 600px; height: 600px; background: #B8860B; top: -10%; right: -10%; }
+    .orb-2 { width: 500px; height: 500px; background: #1a1a2e; bottom: -10%; left: -5%; }
   </style>
 </head>
 <body>
