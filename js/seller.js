@@ -1563,28 +1563,42 @@ function deleteProduct(productId) {
 // Track active orders tab in state
 SellerState.orderStatusTab = SellerState.orderStatusTab || 'all';
 
+function updateOrderTabActions() {
+  const status = SellerState.orderStatusTab || 'all';
+  const actionsBar = document.getElementById('order-tab-actions');
+  if (!actionsBar) return;
+
+  const quickActions = {
+    pending: `
+      <button class="btn btn-primary btn-sm" onclick="bulkTabAction('processing')">⚙️ Mark Processing</button>
+      <button class="btn btn-outline btn-sm" onclick="generateBulkInvoices()">📄 Bulk Invoices</button>
+    `,
+    processing: `
+      <button class="btn btn-primary btn-sm" onclick="bulkTabAction('ready_to_ship')">📦 Ready to Ship</button>
+      <button class="btn btn-outline btn-sm" onclick="generateBulkLabels()">🏷️ Bulk Labels</button>
+      <button class="btn btn-outline btn-sm" onclick="generateBulkInvoices()">📄 Bulk Invoices</button>
+    `,
+    ready_to_ship: `
+      <button class="btn btn-primary btn-sm" onclick="bulkTabAction('shipped')">🚚 Mark Shipped</button>
+      <button class="btn btn-outline btn-sm" onclick="generateBulkLabels()">🏷️ Bulk Labels</button>
+    `,
+    shipped: `<button class="btn btn-success btn-sm" onclick="bulkTabAction('delivered')">✅ Mark Delivered</button>`,
+  };
+
+  if (quickActions[status]) {
+    actionsBar.innerHTML = quickActions[status];
+    actionsBar.style.display = 'flex';
+  } else {
+    actionsBar.style.display = 'none';
+  }
+}
+
 function switchOrderTab(btn, status) {
   SellerState.orderStatusTab = status;
   document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
-
-  // Inject contextual bulk-action buttons for certain tabs
-  const actionsBar = document.getElementById('order-tab-actions');
-  if (actionsBar) {
-    const quickActions = {
-      pending:       `<button class="btn btn-outline btn-sm" onclick="bulkTabAction('processing')">⚙️ Mark Processing</button>`,
-      processing:    `<button class="btn btn-outline btn-sm" onclick="bulkTabAction('ready_to_ship')">📦 Ready to Ship</button>`,
-      ready_to_ship: `<button class="btn btn-primary btn-sm" onclick="bulkTabAction('shipped')">🚚 Mark Shipped</button>`,
-      shipped:       `<button class="btn btn-success btn-sm" onclick="bulkTabAction('delivered')">✅ Mark Delivered</button>`,
-    };
-    if (quickActions[status]) {
-      actionsBar.innerHTML = quickActions[status];
-      actionsBar.style.display = 'flex';
-    } else {
-      actionsBar.style.display = 'none';
-    }
-  }
-
+  
+  updateOrderTabActions();
   renderOrdersTable();
 }
 
@@ -1631,6 +1645,7 @@ function renderOrdersTable() {
   const selectAllChk = document.getElementById('selectAllOrders');
   if (selectAllChk) selectAllChk.checked = false;
   updateBulkButtons();
+  updateOrderTabActions();
 
   const tbody = document.getElementById('orders-table-body');
   if (!tbody) return;
@@ -2651,99 +2666,9 @@ function toggleAllOrders(mainCheckbox) {
   updateBulkButtons();
 }
 
-function updateBulkButtons() {
-  const checkedCount = document.querySelectorAll('.order-select:checked').length;
-  const labelBtn = document.getElementById('bulk-label-btn');
-  const invoiceBtn = document.getElementById('bulk-invoice-btn');
-  
-  if (labelBtn) labelBtn.disabled = checkedCount === 0;
-  if (invoiceBtn) invoiceBtn.disabled = checkedCount === 0;
-}
 
-function generateBulkInvoices() {
-  generateBulkDocs('Invoice');
-}
 
-function generateBulkLabels() {
-  generateBulkDocs('Shipping Label');
-}
 
-function generateBulkDocs(type) {
-  const selectedIds = Array.from(document.querySelectorAll('.order-select:checked')).map(cb => cb.value);
-  const orders = Store.getOrders().filter(o => selectedIds.includes(o.id));
-  
-  if (orders.length === 0) return;
-
-  const content = orders.map(order => `
-    <div class="print-doc" style="padding:40px; border:1px solid #ddd; margin-bottom:30px; background:#fff; position:relative; color:#333; page-break-after:always">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #333; padding-bottom:20px; margin-bottom:20px">
-        <div>
-          <h1 style="margin:0; font-size:24px">${type === 'Invoice' ? 'INVOICE' : 'SHIPPING LABEL'}</h1>
-          <p style="margin:5px 0; color:#666">Order #${order.id}</p>
-        </div>
-        <div style="text-align:right">
-          <p style="margin:0; font-weight:700">Arvaan Collective</p>
-          <p style="margin:0; font-size:12px">Luxury Marketplace</p>
-        </div>
-      </div>
-      
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-bottom:30px">
-        <div>
-          <p style="margin:0 0 5px; font-weight:700; font-size:12px; color:#888">FROM</p>
-          <p style="margin:0">${SellerState.currentSeller.shopName}</p>
-          <p style="margin:0; font-size:12px">${SellerState.currentSeller.address}</p>
-        </div>
-        <div>
-          <p style="margin:0 0 5px; font-weight:700; font-size:12px; color:#888">TO</p>
-          <p style="margin:0; font-weight:700">${order.address.split(',')[0]}</p>
-          <p style="margin:0; font-size:12px">${order.address}</p>
-        </div>
-      </div>
-
-      ${type === 'Invoice' ? `
-        <table style="width:100%; border-collapse:collapse; margin-bottom:30px">
-          <thead>
-            <tr style="background:#f5f5f5">
-              <th style="padding:10px; text-align:left; border:1px solid #ddd">Item</th>
-              <th style="padding:10px; text-align:center; border:1px solid #ddd">Qty</th>
-              <th style="padding:10px; text-align:right; border:1px solid #ddd">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${order.items.map(item => `
-              <tr>
-                <td style="padding:10px; border:1px solid #ddd">${item.name}</td>
-                <td style="padding:10px; text-align:center; border:1px solid #ddd">${item.qty}</td>
-                <td style="padding:10px; text-align:right; border:1px solid #ddd">${formatCurrency(item.price)}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="2" style="padding:10px; text-align:right; font-weight:700">TOTAL</td>
-              <td style="padding:10px; text-align:right; font-weight:700">${formatCurrency(order.total)}</td>
-            </tr>
-          </tfoot>
-        </table>
-      ` : `
-        <div style="border:2px dashed #000; padding:40px; text-align:center; margin-top:20px">
-          <div style="font-size:40px; margin-bottom:20px">${order.carrier || 'FEDEX'} GROUND</div>
-          <div style="font-family: 'Libre Barcode 39', cursive; font-size:60px">|||| ||| ||||| || || ||||</div>
-          <div style="font-weight:700; font-size:20px">TRK# ${order.trackingId || 'PENDING'}</div>
-        </div>
-      `}
-      
-      <div style="font-size:10px; color:#aaa; margin-top:40px; border-top:1px solid #eee; padding-top:10px">
-        Generated on ${new Date().toLocaleString()} | Digital Document
-      </div>
-    </div>
-  `).join('');
-
-  const titleEl = document.getElementById('bulk-docs-title');
-  if (titleEl) titleEl.textContent = `📄 Bulk ${type}s (${orders.length})`;
-  const contentEl = document.getElementById('bulk-docs-content');
-  if (contentEl) contentEl.innerHTML = content;
-  openModal('bulk-docs-modal');
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -2831,27 +2756,14 @@ function initSellerApp() {
   document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', () => closeAllModals()));
 }
 
-function toggleAllOrders(checkbox) {
-  document.querySelectorAll('.order-chk').forEach(c => c.checked = checkbox.checked);
-  updateBulkButtons();
-}
-
-function updateBulkButtons() {
-  const checked = document.querySelectorAll('.order-chk:checked');
-  const btnLabel = document.getElementById('bulk-label-btn');
-  const btnInvoice = document.getElementById('bulk-invoice-btn');
-  if (checked.length > 0) {
-    if (btnLabel) btnLabel.disabled = false;
-    if (btnInvoice) btnInvoice.disabled = false;
-  } else {
-    if (btnLabel) btnLabel.disabled = true;
-    if (btnInvoice) btnInvoice.disabled = true;
-  }
-}
+// --- Bulk Document Generation ---
 
 function generateBulkLabels() {
-  const checkedIds = Array.from(document.querySelectorAll('.order-chk:checked')).map(c => c.value);
-  if (!checkedIds.length) return;
+  const checkedIds = Array.from(document.querySelectorAll('.order-select:checked')).map(c => c.value);
+  if (!checkedIds.length) {
+    showToast('No Selection', 'Please select at least one order.', 'warning');
+    return;
+  }
   const orders = Store.getOrders();
   const validStatuses = ['pending', 'processing', 'ready_to_ship'];
   
@@ -2938,8 +2850,11 @@ function generateBulkLabels() {
 }
 
 function generateBulkInvoices() {
-  const checkedIds = Array.from(document.querySelectorAll('.order-chk:checked')).map(c => c.value);
-  if (!checkedIds.length) return;
+  const checkedIds = Array.from(document.querySelectorAll('.order-select:checked')).map(c => c.value);
+  if (!checkedIds.length) {
+    showToast('No Selection', 'Please select at least one order.', 'warning');
+    return;
+  }
   const orders = Store.getOrders();
   const seller = SellerState.currentSeller;
   
@@ -2959,7 +2874,7 @@ function generateBulkInvoices() {
       </tr>
     `).join('');
 
-    const subtotal = order.subtotal || order.total; // Fix: Use order.subtotal if available
+    const subtotal = order.subtotal || order.total;
     htmlResult += `
       <div style="font-family:'Inter',sans-serif;background:#fff;color:#111;padding:var(--space-6);border-radius:var(--radius-lg);max-width:700px;margin:0 auto;page-break-after: always;margin-bottom:var(--space-6)">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-6);border-bottom:2px solid #eaeaea;padding-bottom:var(--space-4)">
@@ -2990,6 +2905,14 @@ function generateBulkInvoices() {
           </div>
         </div>
 
+        <table style="width:100%;border-collapse:collapse;margin-bottom:var(--space-6)">
+          <thead>
+            <tr style="background:#f9f9f9">
+              <th style="padding:var(--space-2);text-align:left;border-bottom:2px solid #eaeaea;font-size:.75rem;color:#888;text-transform:uppercase">Item</th>
+              <th style="padding:var(--space-2);text-align:center;border-bottom:2px solid #eaeaea;font-size:.75rem;color:#888;text-transform:uppercase">Qty</th>
+              <th style="padding:var(--space-2);text-align:right;border-bottom:2px solid #eaeaea;font-size:.75rem;color:#888;text-transform:uppercase">Price</th>
+              <th style="padding:var(--space-2);text-align:right;border-bottom:2px solid #eaeaea;font-size:.75rem;color:#888;text-transform:uppercase">Total</th>
+            </tr>
           </thead>
           <tbody>
             ${itemsListHtml}
