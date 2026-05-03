@@ -173,25 +173,37 @@
 
     .form-label {
       font-weight: 600;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--clr-text-);
-      margin-bottom: 6px;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 8px;
       display: block;
     }
 
     .form-control {
-      background: rgba(255, 255, 255, 0.03) !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
       color: #fff !important;
-      transition: all 0.2s;
+      height: 48px;
+      padding: 0 16px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.3);
     }
 
     .form-control:focus {
-      background: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.08) !important;
       border-color: var(--clr-primary) !important;
-      box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1) !important;
+      box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.15) !important;
+    }
+
+    select.form-control option {
+      background: #1e1e26;
+      color: #fff;
+      padding: 12px;
     }
 
     .btn-apply {
