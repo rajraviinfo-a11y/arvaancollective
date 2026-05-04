@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (result.ok) {
-        showToast('Application Successful', `Welcome, ${shopName}! Redirecting...`, 'success');
-        setTimeout(() => { window.location.href = 'seller.html'; }, 2000);
+        showToast('Application Successful', `Welcome, ${shopName}! Redirecting to Dashboard...`, 'success');
+        setTimeout(() => { window.location.href = 'seller-dashboard.html'; }, 2000);
       } else {
         showToast('Registration Error', result.message, 'error');
       }
