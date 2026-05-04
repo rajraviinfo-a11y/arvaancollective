@@ -31,10 +31,8 @@ const CloudDB = {
         const snap = await this.db.collection('config').doc(key).get();
         if (snap.exists && snap.data().value !== undefined) {
           const localKey = `arvaan_admin_${key}`;
-          // Only pull from cloud if local config doesn't exist to prevent overwriting local admin changes
-          if (!localStorage.getItem(localKey)) {
-            localStorage.setItem(localKey, JSON.stringify(snap.data().value));
-          }
+          // Cloud is the source of truth for configuration
+          localStorage.setItem(localKey, JSON.stringify(snap.data().value));
         }
       } catch (e) {
         console.warn(`CloudDB: pullConfig(${key}) failed`, e.message);
@@ -46,7 +44,10 @@ const CloudDB = {
   async pushConfig(key, value) {
     if (!this.ready) return;
     try {
-      await this.db.collection('config').doc(key).set({ value });
+      await this.db.collection('config').doc(key).set({ 
+        value, 
+        updatedAt: new Date().toISOString() 
+      });
     } catch (e) {
       console.warn(`CloudDB: pushConfig(${key}) failed`, e.message);
     }
