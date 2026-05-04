@@ -2672,8 +2672,6 @@ function toggleAllOrders(mainCheckbox) {
 
 
 
-}
-
 // ── Init ──────────────────────────────────────────────────────────────────────
 function initSellerApp() {
   Store.init();
