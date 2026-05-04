@@ -2703,27 +2703,71 @@ function initSellerApp() {
     el.addEventListener('click', () => navigateTo(el.dataset.page));
   });
 
+  // Password toggle
+  document.getElementById('toggle-password')?.addEventListener('click', function() {
+    const pwd = document.getElementById('seller-password');
+    pwd.type = pwd.type === 'password' ? 'text' : 'password';
+    this.textContent = pwd.type === 'password' ? '👁️' : '🔒';
+  });
+
+  // Update Sync Status Badge
+  function updateSyncBadge() {
+    const dot = document.getElementById('sync-dot');
+    const text = document.getElementById('sync-text');
+    if (!dot || !text) return;
+    
+    if (typeof CloudDB !== 'undefined' && CloudDB.status === 'ready') {
+      dot.style.background = '#10b981'; // green
+      text.textContent = 'Cloud Connected & Synced';
+    } else {
+      dot.style.background = '#f59e0b'; // amber
+      text.textContent = 'Synchronizing with Cloud...';
+    }
+  }
+  updateSyncBadge();
+  document.addEventListener('arvaan:cloud-ready', updateSyncBadge);
+
   // Seller login form
   document.getElementById('seller-login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = document.getElementById('login-btn');
     const email = document.getElementById('seller-email').value.trim();
     const password = document.getElementById('seller-password').value;
     if (!email || !password) return showToast('Error', 'Please fill all fields', 'error');
 
-    // Wait for CloudDB to be ready so we have the latest sellers list
-    if (typeof CloudDB !== 'undefined' && CloudDB.status !== 'ready') {
-      showToast('Connecting...', 'Synchronizing accounts, please wait a moment.', 'info');
-      await CloudDB.waitForReady();
-    }
-    
-    const result = Auth.loginSeller({ email, password });
-    if (result.ok) {
-      SellerState.currentSeller = result.seller;
-      renderSellerApp();
-      navigateTo('dashboard');
-      showToast('Welcome back!', `Hello, ${result.seller.name.split(' ')[0]} 👋`, 'success');
-    } else {
-      showToast('Login Failed', result.message, 'error');
+    const originalBtnText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Authenticating...';
+
+    try {
+      // Wait for CloudDB to be ready so we have the latest sellers list
+      if (typeof CloudDB !== 'undefined' && CloudDB.status !== 'ready') {
+        showToast('Connecting...', 'Waiting for cloud synchronization...', 'info');
+        await CloudDB.waitForReady();
+        updateSyncBadge();
+      }
+      
+      const result = Auth.loginSeller({ email, password });
+      if (result.ok) {
+        SellerState.currentSeller = result.seller;
+        btn.textContent = 'Success! Entering...';
+        
+        showToast('Welcome back!', `Hello, ${result.seller.name.split(' ')[0]} 👋`, 'success');
+        
+        setTimeout(() => {
+          renderSellerApp();
+          navigateTo('dashboard');
+        }, 800);
+      } else {
+        showToast('Login Failed', result.message, 'error');
+        btn.disabled = false;
+        btn.textContent = originalBtnText;
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      showToast('Error', 'An unexpected error occurred. Please try again.', 'error');
+      btn.disabled = false;
+      btn.textContent = originalBtnText;
     }
   });
 

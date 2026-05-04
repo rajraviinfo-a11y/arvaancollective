@@ -392,6 +392,7 @@ const CloudDB = {
       console.warn('CloudDB: bootstrap error', e.message);
     }
     this.status = 'ready';
+    if (this._resolveReady) this._resolveReady();
     await this._processQueue();
     
     document.dispatchEvent(new CustomEvent('arvaan:cloud-ready', { detail: { offline: false } }));
