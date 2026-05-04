@@ -2758,49 +2758,65 @@ function initSellerApp() {
     updateSyncBadge();
   });
 
-  // Seller login form
-  document.getElementById('seller-login-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  // Seller login form handler
+  window.handleSellerLogin = async function(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     const btn = document.getElementById('login-btn');
     const email = document.getElementById('seller-email').value.trim();
     const password = document.getElementById('seller-password').value;
-    if (!email || !password) return showToast('Error', 'Please fill all fields', 'error');
+    
+    if (!email || !password) {
+      if (typeof showToast === 'function') showToast('Error', 'Please fill all fields', 'error');
+      return;
+    }
 
-    const originalBtnText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Authenticating...';
+    const originalBtnText = btn ? btn.textContent : 'Sign In';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Authenticating...';
+    }
 
     try {
       // Wait for CloudDB to be ready so we have the latest sellers list
       if (typeof CloudDB !== 'undefined' && CloudDB.status !== 'ready') {
-        showToast('Connecting...', 'Waiting for cloud synchronization...', 'info');
+        if (typeof showToast === 'function') showToast('Connecting...', 'Waiting for cloud synchronization...', 'info');
         await CloudDB.waitForReady();
-        updateSyncBadge();
+        if (typeof updateSyncBadge === 'function') updateSyncBadge();
       }
       
       const result = Auth.loginSeller({ email, password });
       if (result.ok) {
         SellerState.currentSeller = result.seller;
-        btn.textContent = 'Success! Entering...';
+        if (btn) btn.textContent = 'Success! Entering...';
         
-        showToast('Welcome back!', `Hello, ${result.seller.name.split(' ')[0]} 👋`, 'success');
+        if (typeof showToast === 'function') showToast('Welcome back!', `Hello, ${result.seller.name.split(' ')[0]} 👋`, 'success');
         
         setTimeout(() => {
           renderSellerApp();
           navigateTo('dashboard');
         }, 800);
       } else {
-        showToast('Login Failed', result.message, 'error');
-        btn.disabled = false;
-        btn.textContent = originalBtnText;
+        if (typeof showToast === 'function') showToast('Login Failed', result.message, 'error');
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = originalBtnText;
+        }
       }
     } catch (err) {
       console.error('Login error:', err);
-      showToast('Error', 'An unexpected error occurred. Please try again.', 'error');
-      btn.disabled = false;
-      btn.textContent = originalBtnText;
+      if (typeof showToast === 'function') showToast('Error', 'An unexpected error occurred.', 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = originalBtnText;
+      }
     }
-  });
+  };
+
+  document.getElementById('seller-login-form')?.addEventListener('submit', window.handleSellerLogin);
 
   // Seller logout
   document.getElementById('seller-logout-btn')?.addEventListener('click', () => {

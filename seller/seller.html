@@ -8,6 +8,14 @@
   <link rel="stylesheet" href="../css/base.css?v=1.2">
   <link rel="stylesheet" href="../css/components.css?v=1.2">
   <link rel="stylesheet" href="../css/seller.css?v=1.2">
+  <script>
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+      const err = `Global Error: ${msg}\nLine: ${lineNo}\nURL: ${url}`;
+      console.error(err);
+      if (typeof showToast === 'function') showToast('System Error', 'Check diagnostics', 'error');
+      return false;
+    };
+  </script>
 </head>
 <body>
 
@@ -56,7 +64,7 @@
             </label>
           </div>
 
-          <button class="btn btn-primary btn-auth w-full" type="submit" id="login-btn">Sign In to Dashboard →</button>
+          <button class="btn btn-primary btn-auth w-full" type="submit" id="login-btn" onclick="handleSellerLogin(event)">Sign In to Dashboard →</button>
         </div>
       </form>
 
