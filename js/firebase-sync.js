@@ -8,23 +8,39 @@
 const CloudDB = {
   db:   null,
   auth: null,
-  ready: false,
+  status: 'idle', // 'idle', 'init', 'ready'
+  _queue: [],
 
   // ── Init ───────────────────────────────────────────────────────────────────
   init() {
+    if (this.status !== 'idle') return true;
     if (typeof firebase === 'undefined' || !window.db) {
       console.warn('CloudDB: Firebase not available, running offline mode.');
       return false;
     }
     this.db   = window.db;
     this.auth = window.auth;
-    this.ready = true;
+    this.status = 'init';
     return true;
+  },
+
+  _addToQueue(fn) {
+    console.log('CloudDB: Queuing operation until ready...');
+    this._queue.push(fn);
+  },
+
+  async _processQueue() {
+    if (this._queue.length === 0) return;
+    console.log(`CloudDB: Processing ${this._queue.length} queued operations...`);
+    while (this._queue.length > 0) {
+      const fn = this._queue.shift();
+      try { await fn(); } catch (e) { console.warn('CloudDB: Queued op failed', e); }
+    }
   },
 
   // ── Config: Pull all admin config from Firestore → localStorage ────────────
   async pullConfig() {
-    if (!this.ready) return;
+    if (this.status === 'idle') return;
     const keys = ['site', 'homepage', 'categories', 'filters', 'pages'];
     await Promise.all(keys.map(async (key) => {
       try {
@@ -42,12 +58,16 @@ const CloudDB = {
 
   // ── Config: Push a single admin config doc to Firestore ───────────────────
   async pushConfig(key, value) {
-    if (!this.ready) return;
+    if (this.status !== 'ready') {
+      this._addToQueue(() => this.pushConfig(key, value));
+      return;
+    }
     try {
       await this.db.collection('config').doc(key).set({ 
         value, 
         updatedAt: new Date().toISOString() 
       });
+      console.log(`CloudDB: Pushed config ${key} to Firestore`);
     } catch (e) {
       console.warn(`CloudDB: pushConfig(${key}) failed`, e.message);
     }
@@ -55,7 +75,7 @@ const CloudDB = {
 
   // ── Universal Collection Sync (Products, Orders, Sellers, etc) ────────────
   async pullCollection(colName, localKey) {
-    if (!this.ready) return null;
+    if (this.status === 'idle') return null;
     try {
       const snap = await this.db.collection(colName).get();
       let cloudItems = snap.empty ? [] : snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -113,15 +133,11 @@ const CloudDB = {
   },
 
   async pushCollection(colName, items) {
-    if (!this.ready || !items || !items.length) return;
-    
-    // Safety: Ensure auth is ready if using Firebase
-    if (this.auth && !this.auth.currentUser) {
-      console.warn(`CloudDB: Delaying push of ${colName} (Waiting for Auth)`);
-      // Retry in 2 seconds
-      setTimeout(() => this.pushCollection(colName, items), 2000);
+    if (this.status !== 'ready') {
+      this._addToQueue(() => this.pushCollection(colName, items));
       return;
     }
+    if (!items || !items.length) return;
 
     try {
       // Firestore batch limit is 500 — chunk if needed
@@ -147,7 +163,11 @@ const CloudDB = {
   },
 
   async deleteItem(colName, docId) {
-    if (!this.ready || !colName || !docId) return;
+    if (this.status !== 'ready') {
+      this._addToQueue(() => this.deleteItem(colName, docId));
+      return;
+    }
+    if (!colName || !docId) return;
     try {
       await this.db.collection(colName).doc(String(docId)).delete();
       console.log(`CloudDB: Deleted ${docId} from ${colName}`);
@@ -157,7 +177,10 @@ const CloudDB = {
   },
 
   async purgeCollection(colName) {
-    if (!this.ready) return;
+    if (this.status !== 'ready') {
+      this._addToQueue(() => this.purgeCollection(colName));
+      return;
+    }
     try {
       const snap = await this.db.collection(colName).get();
       if (snap.empty) return;
@@ -241,7 +264,11 @@ const CloudDB = {
   },
 
   async pushDeletedId(id) {
-    if (!this.ready || !id) return;
+    if (this.status !== 'ready') {
+      this._addToQueue(() => this.pushDeletedId(id));
+      return;
+    }
+    if (!id) return;
     try {
       await this.db.collection('deleted_ids').doc(String(id)).set({ deletedAt: new Date().toISOString() });
       console.log(`CloudDB: Recorded tombstone for ${id} in Firestore`);
@@ -335,8 +362,11 @@ const CloudDB = {
     } catch (e) {
       console.warn('CloudDB: bootstrap error', e.message);
     }
+    this.status = 'ready';
+    await this._processQueue();
+    
     document.dispatchEvent(new CustomEvent('arvaan:cloud-ready', { detail: { offline: false } }));
-    console.log('✅ CloudDB bootstrap complete');
+    console.log('✅ CloudDB bootstrap complete & Queue processed');
     
     // Force a one-time sync of local data to cloud after bootstrap to catch any unsynced items
     setTimeout(() => {
