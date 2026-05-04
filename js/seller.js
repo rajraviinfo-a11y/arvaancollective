@@ -2714,18 +2714,49 @@ function initSellerApp() {
   function updateSyncBadge() {
     const dot = document.getElementById('sync-dot');
     const text = document.getElementById('sync-text');
+    const errInfo = document.getElementById('sync-error-info');
     if (!dot || !text) return;
     
-    if (typeof CloudDB !== 'undefined' && CloudDB.status === 'ready') {
-      dot.style.background = '#10b981'; // green
-      text.textContent = 'Cloud Connected & Synced';
-    } else {
-      dot.style.background = '#f59e0b'; // amber
-      text.textContent = 'Synchronizing with Cloud...';
+    if (typeof CloudDB !== 'undefined') {
+      if (CloudDB.status === 'ready') {
+        dot.style.background = '#10b981'; // green
+        text.textContent = 'Cloud Connected & Synced';
+        if (errInfo) errInfo.style.display = 'none';
+      } else if (CloudDB._lastError) {
+        dot.style.background = '#ef4444'; // red
+        text.textContent = 'Sync Error Detected';
+        if (errInfo) {
+          errInfo.textContent = CloudDB._lastError;
+          errInfo.style.display = 'block';
+        }
+      } else {
+        dot.style.background = '#f59e0b'; // amber
+        text.textContent = 'Synchronizing with Cloud...';
+      }
     }
   }
   updateSyncBadge();
   document.addEventListener('arvaan:cloud-ready', updateSyncBadge);
+
+  // Sync Diagnostics Button
+  document.getElementById('sync-troubleshoot')?.addEventListener('click', () => {
+    const sellers = Store.getSellers();
+    const current = Store.getCurrentSeller();
+    const ver = localStorage.getItem('arvaan_seed_version');
+    const lastErr = typeof CloudDB !== 'undefined' ? CloudDB._lastError : 'CloudDB not loaded';
+    
+    let diagMsg = `--- DIAGNOSTICS ---\n`;
+    diagMsg += `Cloud Status: ${typeof CloudDB !== 'undefined' ? CloudDB.status : 'N/A'}\n`;
+    diagMsg += `Last Sync Error: ${lastErr || 'None'}\n`;
+    diagMsg += `Local Sellers Found: ${sellers.length}\n`;
+    diagMsg += `Active Session: ${current ? current.email : 'None'}\n`;
+    diagMsg += `Data Version: ${ver}\n`;
+    diagMsg += `-------------------`;
+    
+    alert(diagMsg);
+    console.log(diagMsg);
+    updateSyncBadge();
+  });
 
   // Seller login form
   document.getElementById('seller-login-form')?.addEventListener('submit', async (e) => {

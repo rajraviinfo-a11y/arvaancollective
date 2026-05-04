@@ -25,11 +25,12 @@
     </div>
 
     <div id="seller-login-box">
-      <!-- Sync Status Badge -->
-      <div id="sync-status-badge" style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.04); padding:6px 12px; border-radius:100px; width:fit-content; margin:0 auto 20px; font-size:0.7rem; font-weight:700; color:var(--clr-text-3)">
+      <div id="sync-status-badge" style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.04); padding:6px 12px; border-radius:100px; width:fit-content; margin:0 auto 8px; font-size:0.7rem; font-weight:700; color:var(--clr-text-3)">
         <span class="sync-dot" id="sync-dot" style="width:8px; height:8px; border-radius:50%; background:#f59e0b; display:inline-block"></span>
         <span id="sync-text">Checking Cloud Sync...</span>
       </div>
+      <div id="sync-error-info" style="display:none; color:#ef4444; font-size:0.65rem; text-align:center; margin-bottom:20px; padding:0 20px; word-break:break-word"></div>
+      <button type="button" id="sync-troubleshoot" style="display:block; margin:0 auto 20px; background:none; border:none; color:var(--clr-primary); font-size:0.7rem; font-weight:600; cursor:pointer; text-decoration:underline">Sync Diagnostics</button>
 
       <form id="seller-login-form" novalidate>
         <div style="display:flex;flex-direction:column;gap:var(--space-5)">

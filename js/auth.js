@@ -80,13 +80,14 @@ const Auth = {
 
   // ── Login a seller (localStorage — sellers stay in localStorage for MVP) ───
   loginSeller({ email, password }) {
+    const inputEmail = email.toLowerCase().trim();
     const sellers = Store.getSellers();
-    let seller = sellers.find(s => s.email === email && s.password === password);
+    let seller = sellers.find(s => s.email.toLowerCase() === inputEmail && s.password === password);
     
     // Safety net: check if it's the current session seller if list was wiped
     if (!seller) {
       const current = Store.getCurrentSeller();
-      if (current && current.email === email && current.password === password) {
+      if (current && current.email.toLowerCase() === inputEmail && current.password === password) {
         console.log('Auth: Seller found in active session, restoring to list.');
         seller = current;
         sellers.push(seller);
@@ -105,11 +106,12 @@ const Auth = {
     localStorage.setItem('arvaan_seed_version', '14');
     
     const sellers = Store.getSellers();
-    if (sellers.find(s => s.email === email)) {
+    const normalizedEmail = email.toLowerCase().trim();
+    if (sellers.find(s => s.email.toLowerCase() === normalizedEmail)) {
       return { ok: false, message: 'A seller account with this email already exists.' };
     }
     const seller = {
-      id: Store.genId('seller'), name, email, password,
+      id: Store.genId('seller'), name, email: normalizedEmail, password,
       shopName, phone, category, gstNumber, panNumber, address,
       avatar: '🏪', rating: 0, totalSales: 0,
       joinDate: new Date().toISOString().slice(0, 10),

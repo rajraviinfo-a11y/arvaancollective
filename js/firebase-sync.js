@@ -11,6 +11,7 @@ const CloudDB = {
   status: 'idle', // 'idle', 'init', 'ready'
   _queue: [],
   _activeSyncs: 0,
+  _lastError: null,
 
   // ── Init ───────────────────────────────────────────────────────────────────
   init() {
@@ -86,6 +87,7 @@ const CloudDB = {
       localStorage.setItem(`arvaan_sync_ts_${key}`, now);
       console.log(`CloudDB: Pushed config ${key} to Firestore`);
     } catch (e) {
+      this._lastError = `pushConfig(${key}): ${e.message}`;
       console.warn(`CloudDB: pushConfig(${key}) failed`, e.message);
     } finally {
       this._activeSyncs--;
@@ -136,6 +138,7 @@ const CloudDB = {
       console.log(`CloudDB: Sync complete for ${colName} (${cloudItems.length} items total)`);
       return cloudItems;
     } catch (e) {
+      this._lastError = `pullCollection(${colName}): ${e.message}`;
       console.warn(`CloudDB: pullCollection(${colName}) failed`, e.message);
     }
     return null;
@@ -182,6 +185,7 @@ const CloudDB = {
       }
       console.log(`CloudDB: Pushed ${items.length} items to ${colName}`);
     } catch (e) {
+      this._lastError = `pushCollection(${colName}): ${e.message}`;
       console.warn(`CloudDB: pushCollection(${colName}) failed`, e.message);
     } finally {
       this._activeSyncs--;
