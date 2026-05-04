@@ -82,6 +82,11 @@ const Store = {
       if (!this.get('sellers') || this.get('sellers').length === 0) {
         this.setSellers([]);
       }
+      
+      // Ensure seed version is at least 14 to prevent unnecessary purges
+      if (!savedVersion || savedVersion < 14) {
+        localStorage.setItem('arvaan_seed_version', '14');
+      }
 
       if (!this.get('buyers')) {
         this.setBuyers([]);
@@ -419,6 +424,20 @@ const NotificationSystem = {
     }
   }
 };
+
+/**
+ * Apply Site Settings (colors, branding) to the UI
+ */
+function applyAdminSiteConfig() {
+  if (typeof AdminStore === 'undefined') return;
+  const cfg = AdminStore.getSiteConfig();
+  if (!cfg) return;
+  const root = document.documentElement;
+  if (cfg.primaryColor) root.style.setProperty('--clr-primary', cfg.primaryColor);
+  if (cfg.accentColor)  root.style.setProperty('--clr-accent',  cfg.accentColor);
+}
+
+window.applyAdminSiteConfig = applyAdminSiteConfig;
 
 // Expose globally if in browser
 if (typeof window !== 'undefined') {

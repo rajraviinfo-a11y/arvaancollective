@@ -2725,6 +2725,7 @@ function initStore() {
       if (typeof Store !== 'undefined') {
         Store.init(); // Re-run init to filter deletedIds
         StoreState.products = Store.getProducts().filter(p => p.isActive !== false);
+        if (typeof applyAdminSiteConfig === 'function') applyAdminSiteConfig();
         initStoreContent(); // Re-render page with fresh data
       }
     });

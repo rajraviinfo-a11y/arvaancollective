@@ -10,6 +10,7 @@ const CloudDB = {
   auth: null,
   status: 'idle', // 'idle', 'init', 'ready'
   _queue: [],
+  _activeSyncs: 0,
 
   // ── Init ───────────────────────────────────────────────────────────────────
   init() {
@@ -46,9 +47,21 @@ const CloudDB = {
       try {
         const snap = await this.db.collection('config').doc(key).get();
         if (snap.exists && snap.data().value !== undefined) {
+          const cloudData = snap.data();
           const localKey = `arvaan_admin_${key}`;
-          // Cloud is the source of truth for configuration
-          localStorage.setItem(localKey, JSON.stringify(snap.data().value));
+          const syncKey = `arvaan_sync_ts_${key}`;
+          
+          const localTs = localStorage.getItem(syncKey);
+          const cloudTs = cloudData.updatedAt;
+
+          // Only pull if cloud is newer or local is missing sync timestamp
+          if (!localTs || (cloudTs && new Date(cloudTs) > new Date(localTs))) {
+            console.log(`CloudDB: Pulling newer config for ${key}...`);
+            localStorage.setItem(localKey, JSON.stringify(cloudData.value));
+            if (cloudTs) localStorage.setItem(syncKey, cloudTs);
+          } else {
+            console.log(`CloudDB: Local config for ${key} is up to date.`);
+          }
         }
       } catch (e) {
         console.warn(`CloudDB: pullConfig(${key}) failed`, e.message);
@@ -62,15 +75,25 @@ const CloudDB = {
       this._addToQueue(() => this.pushConfig(key, value));
       return;
     }
+    this._activeSyncs++;
+    const now = new Date().toISOString();
     try {
       await this.db.collection('config').doc(key).set({ 
         value, 
-        updatedAt: new Date().toISOString() 
+        updatedAt: now 
       });
+      // Mark as synced locally
+      localStorage.setItem(`arvaan_sync_ts_${key}`, now);
       console.log(`CloudDB: Pushed config ${key} to Firestore`);
     } catch (e) {
       console.warn(`CloudDB: pushConfig(${key}) failed`, e.message);
+    } finally {
+      this._activeSyncs--;
     }
+  },
+
+  isSyncing() {
+    return this._activeSyncs > 0 || this._queue.length > 0;
   },
 
   // ── Universal Collection Sync (Products, Orders, Sellers, etc) ────────────
@@ -138,6 +161,7 @@ const CloudDB = {
       return;
     }
     if (!items || !items.length) return;
+    this._activeSyncs++;
 
     try {
       // Firestore batch limit is 500 — chunk if needed
@@ -156,9 +180,11 @@ const CloudDB = {
         });
         await batch.commit();
       }
-      console.log(`CloudDB: Pushed ${items.length} ${colName} to Firestore`);
+      console.log(`CloudDB: Pushed ${items.length} items to ${colName}`);
     } catch (e) {
       console.warn(`CloudDB: pushCollection(${colName}) failed`, e.message);
+    } finally {
+      this._activeSyncs--;
     }
   },
 
@@ -269,11 +295,14 @@ const CloudDB = {
       return;
     }
     if (!id) return;
+    this._activeSyncs++;
     try {
       await this.db.collection('deleted_ids').doc(String(id)).set({ deletedAt: new Date().toISOString() });
       console.log(`CloudDB: Recorded tombstone for ${id} in Firestore`);
     } catch (e) {
       console.warn(`CloudDB: pushDeletedId(${id}) failed`, e.message);
+    } finally {
+      this._activeSyncs--;
     }
   },
 

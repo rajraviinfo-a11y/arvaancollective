@@ -903,11 +903,21 @@
       };
 
       AdminStore.setSiteConfig(cfg);
-      adminToast('Configuration saved successfully!');
+      adminToast('Configuration saved successfully! Syncing to cloud...');
       
       // Apply immediate UI feedback
       document.documentElement.style.setProperty('--admin-accent', cfg.primaryColor);
-      setTimeout(() => location.reload(), 1000);
+      
+      // Wait for cloud sync before reloading
+      const syncCheck = setInterval(() => {
+        if (!CloudDB.isSyncing()) {
+          clearInterval(syncCheck);
+          location.reload();
+        }
+      }, 500);
+
+      // Timeout safety: reload anyway after 5 seconds
+      setTimeout(() => location.reload(), 5000);
     }
   </script>
 </body>
