@@ -81,7 +81,19 @@ const Auth = {
   // ── Login a seller (localStorage — sellers stay in localStorage for MVP) ───
   loginSeller({ email, password }) {
     const sellers = Store.getSellers();
-    const seller  = sellers.find(s => s.email === email && s.password === password);
+    let seller = sellers.find(s => s.email === email && s.password === password);
+    
+    // Safety net: check if it's the current session seller if list was wiped
+    if (!seller) {
+      const current = Store.getCurrentSeller();
+      if (current && current.email === email && current.password === password) {
+        console.log('Auth: Seller found in active session, restoring to list.');
+        seller = current;
+        sellers.push(seller);
+        Store.setSellers(sellers);
+      }
+    }
+
     if (!seller) return { ok: false, message: 'Invalid seller credentials.' };
     Store.setCurrentSeller(seller);
     return { ok: true, seller };
@@ -89,6 +101,9 @@ const Auth = {
 
   // ── Register a new seller ──────────────────────────────────────────────────
   registerSeller({ name, email, password, shopName, phone, category, gstNumber, panNumber, address }) {
+    // Ensure we are on the latest data version before registering
+    localStorage.setItem('arvaan_seed_version', '14');
+    
     const sellers = Store.getSellers();
     if (sellers.find(s => s.email === email)) {
       return { ok: false, message: 'A seller account with this email already exists.' };
@@ -102,6 +117,8 @@ const Auth = {
     };
     sellers.push(seller);
     Store.setSellers(sellers);
+    // Auto-login after registration for better UX
+    Store.setCurrentSeller(seller);
     return { ok: true, seller };
   },
 

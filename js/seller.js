@@ -2704,11 +2704,17 @@ function initSellerApp() {
   });
 
   // Seller login form
-  document.getElementById('seller-login-form')?.addEventListener('submit', (e) => {
+  document.getElementById('seller-login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('seller-email').value.trim();
     const password = document.getElementById('seller-password').value;
     if (!email || !password) return showToast('Error', 'Please fill all fields', 'error');
+
+    // Wait for CloudDB to be ready so we have the latest sellers list
+    if (typeof CloudDB !== 'undefined' && CloudDB.status !== 'ready') {
+      showToast('Connecting...', 'Synchronizing accounts, please wait a moment.', 'info');
+      await CloudDB.waitForReady();
+    }
     
     const result = Auth.loginSeller({ email, password });
     if (result.ok) {
