@@ -361,6 +361,10 @@
   gap: var(--space-4);
   position: relative;
 }
+@media (max-width: 480px) {
+  .topbar-actions .btn-sm:not(.btn-primary) { display: none !important; }
+  .topbar-actions { gap: var(--space-2); }
+}
 .dropdown-menu {
   position: absolute; top: calc(100% + 12px); right: 0;
   min-width: 200px;
@@ -668,12 +672,31 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
+  width: 42px;
+  height: 42px;
+  font-size: 1.4rem;
   border-radius: var(--radius-md);
-  transition: background 0.2s;
+  background: var(--clr-bg-3);
+  border: 1px solid var(--clr-border);
+  transition: all 0.2s;
+  cursor: pointer;
+  color: var(--clr-text);
+  margin-right: var(--space-2);
 }
+.sidebar-toggle:hover { background: var(--clr-bg-2); }
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: calc(var(--z-sticky) - 1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.sidebar-overlay.active { opacity: 1; pointer-events: all; }
 
 /* Table Wrapper for Horizontal Scroll */
 .table-wrap {
@@ -694,3 +717,40 @@
 
 /* Ensure modal header title wraps if long */
 .modal-header h3 { font-size: 1.1rem; line-height: 1.2; }
+
+/* Full Screen Mobile Modal */
+@media (max-width: 640px) {
+  .modal-xl, .modal-lg, .modal {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+  .modal-body {
+    height: calc(100vh - 120px); /* Adjust for header/footer */
+  }
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+  }
+}
+
+@media (max-width: 1024px) {
+  .seller-sidebar { 
+    transform: translateX(-100%); 
+    width: 280px; 
+    z-index: var(--z-sticky);
+    box-shadow: 10px 0 50px rgba(0,0,0,0.15);
+  }
+  .seller-sidebar.open { transform: translateX(0); }
+  
+  .seller-main { margin-left: 0; width: 100%; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .boutique-preview { display: none; }
+  
+  .sidebar-toggle { display: flex !important; }
+}

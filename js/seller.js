@@ -313,13 +313,42 @@ function attachGlobalEventListeners() {
     Auth.logoutSeller();
   });
 
-  // Mobile Sidebar
-  document.getElementById('sidebar-toggle-btn')?.addEventListener('click', () => {
-    document.querySelector('.seller-sidebar')?.classList.toggle('open');
-  });
-  document.querySelector('.seller-sidebar')?.addEventListener('click', (e) => {
-    if (e.target.classList.contains('seller-sidebar')) document.querySelector('.seller-sidebar').classList.remove('open');
-  });
+  // Mobile Sidebar & Overlay
+  const initSidebar = () => {
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    const sidebar = document.querySelector('.seller-sidebar');
+    if (!toggleBtn || !sidebar) return;
+
+    // Ensure overlay exists
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'sidebar-overlay';
+      document.body.appendChild(overlay);
+    }
+
+    const toggleSidebar = (state) => {
+      const isOpen = state !== undefined ? state : !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', isOpen);
+      overlay.classList.toggle('active', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : ''; // Prevent scroll when open
+    };
+
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSidebar();
+    });
+
+    overlay.addEventListener('click', () => toggleSidebar(false));
+
+    // Close on nav click (for mobile)
+    sidebar.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 1024) toggleSidebar(false);
+      });
+    });
+  };
+  initSidebar();
 
   // Password toggle
   document.getElementById('toggle-password')?.addEventListener('click', function() {
