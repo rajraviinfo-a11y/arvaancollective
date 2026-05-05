@@ -151,9 +151,11 @@ function initSellerApp() {
       window.location.href = 'seller.html';
       return;
     }
-    // If on login page and not logged in, render the auth page UI
+    // If on login page and not logged in, render auth page and wire login form only
     if (isLoginPage) {
       renderSellerAuthPage();
+      attachGlobalEventListeners(); // Wire the login form, password toggle etc.
+      return; // CRITICAL: Don't fall through to dashboard rendering
     }
   } else {
     // If logged in and on login page, go to dashboard
@@ -305,7 +307,13 @@ function attachGlobalEventListeners() {
   });
 
   // Forms
-  document.getElementById('seller-login-form')?.addEventListener('submit', window.handleSellerLogin);
+  // Login form — handler is defined globally as window.handleSellerLogin
+  const loginForm = document.getElementById('seller-login-form');
+  if (loginForm) {
+    // Remove any duplicate native submit to avoid double-fire
+    loginForm.onsubmit = null;
+    loginForm.addEventListener('submit', window.handleSellerLogin);
+  }
   document.getElementById('settings-form')?.addEventListener('submit', saveSettings);
   
   // Logout
@@ -645,8 +653,69 @@ function renderSellerApp() {
 }
 
 function renderSellerAuthPage() {
-  // Handle UI changes when logged out
+  const appEl = document.getElementById('seller-app');
+  const authEl = document.getElementById('seller-auth-page');
+  if (appEl) appEl.style.display = 'none';
+  if (authEl) authEl.style.display = 'flex';
 }
+
+// ── Seller Login Handler ──────────────────────────────────────────────────────
+window.handleSellerLogin = async function(event) {
+  event.preventDefault();
+
+  const emailEl = document.getElementById('seller-email');
+  const passwordEl = document.getElementById('seller-password');
+  const loginBtn = document.getElementById('login-btn');
+
+  if (!emailEl || !passwordEl) return;
+
+  const email = emailEl.value.trim();
+  const password = passwordEl.value;
+
+  if (!email || !password) {
+    showToast('Missing Fields', 'Please enter your email and password.', 'error');
+    emailEl.focus();
+    return;
+  }
+
+  // Show loading state
+  if (loginBtn) {
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Signing in…';
+  }
+
+  // Small delay to let UI update
+  await new Promise(r => setTimeout(r, 150));
+
+  try {
+    const result = Auth.loginSeller({ email, password });
+
+    if (result.ok) {
+      showToast('Welcome back!', `Hello, ${result.seller.shopName || result.seller.name} 👋`, 'success');
+      SellerState.currentSeller = result.seller;
+
+      // Redirect to dashboard
+      setTimeout(() => {
+        window.location.href = 'seller-dashboard.html';
+      }, 600);
+    } else {
+      showToast('Login Failed', result.message || 'Invalid credentials. Please try again.', 'error');
+      passwordEl.value = '';
+      passwordEl.focus();
+      if (loginBtn) {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In to Dashboard →';
+      }
+    }
+  } catch (err) {
+    console.error('[Seller Login Error]', err);
+    showToast('Error', 'Something went wrong. Please try again.', 'error');
+    if (loginBtn) {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Sign In to Dashboard →';
+    }
+  }
+};
 
 function navigateTo(page) {
   const targetFile = `seller-${page}.html`;
