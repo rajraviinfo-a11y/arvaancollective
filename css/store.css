@@ -1325,7 +1325,7 @@ input, select, textarea { font-family: inherit; }
 
 /* Tablet (Regular) & Mobile (Landscape) */
 @media (max-width: 768px) {
-  .site-header { top: 32px; }
+  .site-header { top: 0; } /* Announcement bar might be closed or integrated */
   .navbar { height: 64px; padding: 0 16px; justify-content: space-between; gap: 12px; }
   .navbar-center { display: none; }
   .mobile-menu-btn { display: block; order: -1; }
@@ -1336,7 +1336,7 @@ input, select, textarea { font-family: inherit; }
   
   .cat-navbar { height: 40px; }
   .cat-navbar-inner { padding: 0 16px; }
-  .store-main { margin-top: calc(32px + 64px + 40px); }
+  .store-main { margin-top: calc(0px + 64px + 40px); }
 
   .hero-banner { padding: 48px 0; }
   .hero-banner-content { grid-template-columns: 1fr; text-align: center; gap: 40px; }
@@ -1347,21 +1347,17 @@ input, select, textarea { font-family: inherit; }
   
   .product-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .value-props-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  
+  .promo-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 480px) {
   .navbar-brand { font-size: 1rem; }
   .hero-heading { font-size: 1.7rem; letter-spacing: -0.01em; }
   
-  /* Restoring Hero Stack with Scaling */
   .hero-cards-stack { 
-    display: block !important;
-    position: relative !important;
-    width: 320px !important;
-    height: 240px !important; 
-    margin: 20px auto 0 !important;
-    transform: scale(0.7) !important;
-    transform-origin: top center;
+    display: none !important; /* Hide complex stack on small mobile for cleaner hero */
   }
   
   .hero-banner { padding: 32px 0 40px; }
@@ -1377,10 +1373,8 @@ input, select, textarea { font-family: inherit; }
   .newsletter-form input { border-radius: var(--radius-md); width: 100%; border: 1px solid rgba(255,255,255,0.2) !important; padding: 12px; }
   .btn-newsletter { border-radius: var(--radius-md); width: 100%; height: 48px; }
 
-  /* Navigation accessibility fixes */
   .back-to-top { bottom: 16px; right: 16px; width: 40px; height: 40px; z-index: 1000; }
   
-  /* Header cleanup - Hide secondary actions on mobile to prevent clutter */
   #nav-login-btn, #nav-wishlist-btn, #nav-user-menu, #currency-select { display: none !important; }
   .navbar-actions { gap: 12px; }
   .navbar-brand { margin-right: auto; }

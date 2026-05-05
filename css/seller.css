@@ -624,8 +624,73 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-  .seller-sidebar { transform: translateX(-100%); width: 280px; }
+  .seller-sidebar { 
+    transform: translateX(-100%); 
+    width: 260px; 
+    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+  }
+  .seller-sidebar.open { transform: translateX(0); }
+  
   .seller-main { margin-left: 0; width: 100%; }
   .charts-grid { grid-template-columns: 1fr; }
   .boutique-preview { display: none; }
+  
+  .sidebar-toggle { display: flex !important; }
 }
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+  .table-toolbar { flex-direction: column; align-items: stretch; }
+  .table-toolbar-left, .table-toolbar-right { justify-content: space-between; }
+  
+  .modal-xl { max-width: 95vw; margin: 10px; }
+  .wizard-step [style*="grid-template-columns:1.2fr 1fr"] { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .seller-topbar { padding: 0 var(--space-4); }
+  .page-header { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+  
+  .wizard-steps-indicator { display: none !important; }
+  .modal-body { padding: 0 !important; }
+  .form-section-title { font-size: 0.9rem; }
+  
+  .data-table th, .data-table td { padding: 8px; font-size: 0.75rem; }
+  
+  /* Form grid in wizard */
+  .form-grid { grid-template-columns: 1fr !important; }
+  .form-group.full { grid-column: auto !important; }
+}
+
+/* Sidebar Toggle Visibility */
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  border-radius: var(--radius-md);
+  transition: background 0.2s;
+}
+
+/* Table Wrapper for Horizontal Scroll */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-wrap::-webkit-scrollbar { height: 4px; }
+.table-wrap::-webkit-scrollbar-thumb { background: var(--clr-border-2); border-radius: 10px; }
+
+/* Wizard Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+.form-group.full { grid-column: span 2; }
+
+/* Ensure modal header title wraps if long */
+.modal-header h3 { font-size: 1.1rem; line-height: 1.2; }

@@ -139,6 +139,7 @@ body {
   letter-spacing: -0.01em;
   min-height: 100vh;
   overflow-x: hidden;
+  width: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -253,6 +254,17 @@ h5 { font-size: 0.9rem; }
 .fade-in-on-scroll.appear {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Responsive Container */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+@media (max-width: 640px) {
+  .container { padding: 0 var(--space-3); }
 }
 
 /* Glass surfaces */
