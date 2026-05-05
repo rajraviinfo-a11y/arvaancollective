@@ -4,24 +4,7 @@
    ============================================= */
 'use strict';
 
-const SEED_PRODUCTS = [
-  { id: 'prd-1', name: 'Elite Chrono Watch', brand: 'Arvaan Luxe', category: 'Electronics', subCategory: 'Audio', price: 12500, stock: 45, images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600'], description: 'A masterpiece of timekeeping and style.' },
-  { id: 'prd-2', name: 'Sonic Pro Earbuds', brand: 'AudioGen', category: 'Electronics', subCategory: 'Audio', price: 4500, stock: 120, images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=600'], description: 'Immersive sound with active noise cancellation.' },
-  { id: 'prd-3', name: 'Silk Drape Saree', brand: 'Vedic Threads', category: 'Fashion', subCategory: 'Apparel', price: 8900, stock: 15, images: ['https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600'], description: 'Hand-woven silk with intricate gold embroidery.' },
-  { id: 'prd-4', name: 'Leather Monk Shoes', brand: 'StepWell', category: 'Fashion', subCategory: 'Footwear', price: 5600, stock: 30, images: ['https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=600'], description: 'Premium Italian leather with double monk straps.' },
-  { id: 'prd-5', name: 'Velvet Sofa Set', brand: 'HomeSoul', category: 'Furniture', subCategory: 'Living Room', price: 45000, stock: 5, images: ['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=600'], description: 'Luxurious velvet upholstery for your living room.' },
-  { id: 'prd-6', name: 'ErgoWork Desk', brand: 'HomeSoul', category: 'Furniture', subCategory: 'Workplace', price: 18000, stock: 12, images: ['https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&q=80&w=600'], description: 'Ergonomic wooden desk for peak productivity.' },
-  { id: 'prd-7', name: 'ChefPro Mixer', brand: 'KitchenAid', category: 'Kitchen', subCategory: 'Appliances', price: 12000, stock: 25, images: ['https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&q=80&w=600'], description: 'Professional grade mixer for your gourmet kitchen.' },
-  { id: 'prd-8', name: 'Organic Yoga Mat', brand: 'ZenPath', category: 'Wellness', subCategory: 'Fitness', price: 2500, stock: 80, images: ['https://images.unsplash.com/photo-1601925260368-ae2f207554ad?auto=format&fit=crop&q=80&w=600'], description: 'Eco-friendly cork mat for perfect balance.' },
-  { id: 'prd-9', name: 'Glow Serum', brand: 'PureSkin', category: 'Wellness', subCategory: 'Skincare', price: 1800, stock: 200, images: ['https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=600'], description: 'Vitamin C enriched serum for radiant skin.' },
-  { id: 'prd-10', name: 'Hardshell Spinner', brand: 'Voyager', category: 'Travel', subCategory: 'Luggage', price: 9500, stock: 40, images: ['https://images.unsplash.com/photo-1565026057447-bc90a3dceb87?auto=format&fit=crop&q=80&w=600'], description: 'Durable and lightweight luggage for global explorers.' },
-  { id: 'prd-11', name: 'Artisan Table Lamp', brand: 'Lumina', category: 'Home Decor', subCategory: 'Lighting', price: 3200, stock: 50, images: ['https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&q=80&w=600'], description: 'Minimalist lamp that adds warmth to any space.' },
-  { id: 'prd-12', name: 'Abstract Canvas', brand: 'ArtDeco', category: 'Home Decor', subCategory: 'Wall Art', price: 7500, stock: 10, images: ['https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&q=80&w=600'], description: 'Original abstract painting on premium canvas.' },
-  { id: 'prd-13', name: 'Vortex Gaming Mouse', brand: 'GamerGear', category: 'Electronics', subCategory: 'Audio', price: 3500, stock: 150, images: ['https://images.unsplash.com/photo-1527698266440-12104e498b76?auto=format&fit=crop&q=80&w=600'], description: 'High-precision gaming mouse with RGB lighting.' },
-  { id: 'prd-14', name: 'Cashmere Scarf', brand: 'Vedic Threads', category: 'Fashion', subCategory: 'Apparel', price: 4200, stock: 60, images: ['https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&q=80&w=600'], description: 'Ultra-soft 100% pure cashmere.' },
-  { id: 'prd-15', name: 'Smart Coffee Maker', brand: 'KitchenAid', category: 'Kitchen', subCategory: 'Appliances', price: 15000, stock: 20, images: ['https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?auto=format&fit=crop&q=80&w=600'], description: 'Brew the perfect cup from your smartphone.' },
-  { id: 'prd-16', name: 'Camping Backpack', brand: 'ZenPath', category: 'Travel', subCategory: 'Outdoor Gear', price: 6800, stock: 35, images: ['https://images.unsplash.com/photo-1523944339743-0fe06f079939?auto=format&fit=crop&q=80&w=600'], description: 'Rugged 60L backpack for weekend treks.' }
-];
+const SEED_PRODUCTS = [];
 
 // ── Global Store Logic ──────────────────────────────────────────────────────
 const Store = {

@@ -360,24 +360,19 @@ const CloudDB = {
       const rawVer = localStorage.getItem('arvaan_seed_version');
       const ver = rawVer ? parseInt(rawVer) : 0;
       
-      if (ver < 14) {
-        console.log(`CloudDB: Version ${ver} detected. Performing mandatory DEEP PURGE to v14...`);
-        await Promise.all([
-          this.purgeCollection('sellers'),
-          this.purgeCollection('products'),
-          this.purgeCollection('orders'),
-          this.purgeCollection('deleted_ids'),
-          this.purgeCollection('wishlists'),
-          this.purgeCollection('carts')
-        ]);
+      if (ver < 15) {
+        console.log(`CloudDB: Version ${ver} detected. Cleaning up dummy products...`);
+        const products = Store.getProducts();
+        const dummyIds = Array.from({length: 16}, (_, i) => `prd-${i+1}`);
+        const filtered = products.filter(p => !dummyIds.includes(String(p.id)));
         
-        // Clear local counterparts to ensure clean state
-        localStorage.setItem('arvaan_sellers', '[]');
-        localStorage.setItem('arvaan_products', '[]');
-        localStorage.setItem('arvaan_orders', '[]');
-        localStorage.setItem('arvaan_deleted_product_ids', '[]');
-        localStorage.setItem('arvaan_seed_version', '14');
-        console.log('CloudDB: DEEP PURGE complete. Systems ready for clean data.');
+        if (products.length !== filtered.length) {
+          Store.setProducts(filtered);
+          if (this.status === 'ready') {
+            await this.pushCollection('products', filtered);
+          }
+        }
+        localStorage.setItem('arvaan_seed_version', '15');
       }
 
       // Parallel pull everything
