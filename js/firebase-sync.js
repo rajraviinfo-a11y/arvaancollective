@@ -326,12 +326,13 @@ const CloudDB = {
           ['pages',      window.ADMIN_DEFAULT_PAGES],
         ];
         await Promise.all(seeds.map(([k, v]) => v ? this.pushConfig(k, v) : Promise.resolve()));
+      }
 
-        // If products collection is also empty, seed products
-        if (typeof SEED_PRODUCTS !== 'undefined') {
-          console.log('CloudDB: First run — seeding products...');
-          await this.pushCollection('products', SEED_PRODUCTS);
-        }
+      // Independent product check
+      const prodSnap = await this.db.collection('products').limit(1).get();
+      if (prodSnap.empty && typeof SEED_PRODUCTS !== 'undefined' && SEED_PRODUCTS.length > 0) {
+        console.log('CloudDB: Seeding products (independent check)...');
+        await this.pushCollection('products', SEED_PRODUCTS);
       }
     } catch (e) {
       console.warn('CloudDB: seedIfEmpty failed', e.message);

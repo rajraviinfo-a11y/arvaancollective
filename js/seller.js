@@ -127,18 +127,33 @@ function showToast(title, msg, type = 'info') {
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 // ── Navigation ────────────────────────────────────────────────────────────────
-function initSellerPage() {
-  Store.init();
-  const saved = Auth.getSeller();
+function initSellerApp() {
+  console.log('[Seller] initSellerApp started (Unified)');
   
-  const path = window.location.pathname;
-  const isLoginPage = path.endsWith('seller.html');
+  try {
+    // 1. Ensure modals are present before attaching listeners
+    ensureSellerModals();
+
+    // 2. Initialize Store and Auth
+    if (typeof Store !== 'undefined' && typeof Store.init === 'function') {
+      Store.init();
+    }
+    
+    const saved = (typeof Auth !== 'undefined' && typeof Auth.getSeller === 'function') ? Auth.getSeller() : null;
+    
+    const path = window.location.pathname;
+    const isLoginPage = path.endsWith('seller.html');
   
+  // 3. Handle Authentication Redirects
   if (!saved) {
-    // Redirect to login if not authenticated on a subpage
     if (!isLoginPage && (path.includes('seller-') || path.includes('/seller/'))) {
+      console.log('[Seller] No session, redirecting to login');
       window.location.href = 'seller.html';
       return;
+    }
+    // If on login page and not logged in, render the auth page UI
+    if (isLoginPage) {
+      renderSellerAuthPage();
     }
   } else {
     // If logged in and on login page, go to dashboard
@@ -146,12 +161,13 @@ function initSellerPage() {
       window.location.href = 'seller-dashboard.html';
       return;
     }
+    SellerState.currentSeller = saved;
+    renderSellerApp();
   }
 
+  // 4. Determine Current Page for Sidebar & Rendering
   const page = path.split('/').pop().replace('seller-', '').replace('.html', '') || 'dashboard';
-  
-  SellerState.currentSeller = saved;
-  if (saved) renderSellerApp();
+  console.log('[Seller] Current page context:', page);
 
   // Set active state in sidebar
   document.querySelectorAll('.nav-item').forEach(n => {
@@ -160,8 +176,9 @@ function initSellerPage() {
     if (itemPage === page) n.classList.add('active');
   });
 
-  // Helper to render the current page section
-  function renderCurrentPage() {
+  // 5. Initial Rendering
+  const renderCurrentPage = () => {
+    console.log('[Seller] Rendering content for:', page);
     if (page === 'dashboard' || page === 'seller') renderDashboard();
     if (page === 'products') renderProductsTable();
     if (page === 'promotions') renderPromotionsTable();
@@ -170,16 +187,419 @@ function initSellerPage() {
     if (page === 'analytics') renderAnalytics();
     if (page === 'financials') renderFinancials();
     if (page === 'settings') renderSettings();
-  }
+  };
 
-  // Initial render with whatever is in localStorage right now
   renderCurrentPage();
 
-  // Re-render after Firebase bootstrap completes so cloud data is shown
+  // 6. Re-render after Firebase bootstrap completes
   document.addEventListener('arvaan:cloud-ready', () => {
-    console.log('[SellerPage] Cloud ready — re-rendering page content');
+    console.log('[Seller] Cloud ready — refreshing content');
     renderCurrentPage();
   }, { once: true });
+
+  // 7. Global Event Listeners (Dashboard & Navigation)
+  attachGlobalEventListeners();
+
+  // 8. Notifications
+  initNotifications();
+  setTimeout(renderNotifications, 500);
+
+  // 9. Handle URL actions (e.g. ?action=add)
+  const urlParams = new URLSearchParams(window.location.search);
+  const actionParam = urlParams.get('action');
+  
+  if (actionParam === 'add') {
+    sessionStorage.setItem('arvaan_pending_action', 'add');
+    console.log('[Seller] URL action=add detected, saved to session');
+  }
+
+  const pendingAction = sessionStorage.getItem('arvaan_pending_action');
+  if (pendingAction === 'add') {
+    sessionStorage.removeItem('arvaan_pending_action');
+    console.log('[Seller] Executing pending action: add');
+    setTimeout(() => {
+       if (typeof openAddProduct === 'function') openAddProduct();
+       else console.error('[Seller] openAddProduct not found!');
+    }, 800);
+  }
+  } catch (err) {
+    console.error('[Seller] Critical error in initSellerApp:', err);
+  }
+}
+
+// Backwards compatibility for subpages calling initSellerPage
+function initSellerPage() {
+  initSellerApp();
+}
+
+function attachGlobalEventListeners() {
+  console.log('[Seller] attachGlobalEventListeners started');
+
+  function updateSyncBadge() {
+    const dot = document.getElementById('sync-dot');
+    const text = document.getElementById('sync-text');
+    const errInfo = document.getElementById('sync-error-info');
+    if (!dot || !text) return;
+    
+    if (typeof CloudDB !== 'undefined') {
+      if (CloudDB.status === 'ready') {
+        dot.style.background = '#10b981';
+        text.textContent = 'Cloud Connected & Synced';
+        if (errInfo) errInfo.style.display = 'none';
+      } else if (CloudDB._lastError) {
+        dot.style.background = '#ef4444';
+        text.textContent = 'Sync Error Detected';
+        if (errInfo) {
+          errInfo.textContent = CloudDB._lastError;
+          errInfo.style.display = 'block';
+        }
+      } else {
+        dot.style.background = '#f59e0b';
+        text.textContent = 'Synchronizing with Cloud...';
+      }
+    }
+  }
+  updateSyncBadge();
+  document.addEventListener('arvaan:cloud-ready', updateSyncBadge);
+
+  // User Dropdown
+  document.getElementById('user-dropdown')?.addEventListener('click', toggleUserDropdown);
+  
+  // Search Inputs
+  document.getElementById('product-search-input')?.addEventListener('input', debounce((e) => {
+    SellerState.productSearch = e.target.value.trim();
+    renderProductsTable();
+  }, 300));
+
+  document.getElementById('order-search-input')?.addEventListener('input', debounce((e) => {
+    SellerState.orderSearch = e.target.value.trim();
+    renderOrdersTable();
+  }, 300));
+
+  // Product Actions
+  document.getElementById('product-form')?.addEventListener('submit', saveProduct);
+  const addBtn1 = document.getElementById('add-product-btn');
+  const addBtn2 = document.getElementById('add-product-btn-2');
+  console.log('[Seller] Add Product buttons found:', !!addBtn1, !!addBtn2);
+  addBtn1?.addEventListener('click', openAddProduct);
+  addBtn2?.addEventListener('click', openAddProduct);
+
+  // Forgot password form
+  document.getElementById('forgot-password-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('forgot-email').value.trim();
+    if (!email) return;
+    const form = document.getElementById('forgot-password-form');
+    const success = document.getElementById('forgot-success');
+    const displayEmail = document.getElementById('sent-email-display');
+    if (form && success && displayEmail) {
+      displayEmail.textContent = email;
+      form.style.display = 'none';
+      success.style.display = 'block';
+    }
+  });
+
+  // Modal Close
+  document.querySelectorAll('.modal-close').forEach(btn => {
+    btn.addEventListener('click', closeAllModals);
+  });
+
+  // Forms
+  document.getElementById('seller-login-form')?.addEventListener('submit', window.handleSellerLogin);
+  document.getElementById('settings-form')?.addEventListener('submit', saveSettings);
+  
+  // Logout
+  document.getElementById('seller-logout-btn')?.addEventListener('click', () => {
+    Auth.logoutSeller();
+  });
+
+  // Mobile Sidebar
+  document.getElementById('sidebar-toggle-btn')?.addEventListener('click', () => {
+    document.querySelector('.seller-sidebar')?.classList.toggle('open');
+  });
+  document.querySelector('.seller-sidebar')?.addEventListener('click', (e) => {
+    if (e.target.classList.contains('seller-sidebar')) document.querySelector('.seller-sidebar').classList.remove('open');
+  });
+
+  // Password toggle
+  document.getElementById('toggle-password')?.addEventListener('click', function() {
+    const pwd = document.getElementById('seller-password');
+    if (pwd) {
+      pwd.type = pwd.type === 'password' ? 'text' : 'password';
+      this.textContent = pwd.type === 'password' ? '👁️' : '🔒';
+    }
+  });
+
+  // Sync Diagnostics
+  document.getElementById('sync-troubleshoot')?.addEventListener('click', () => {
+    const sellers = Store.getSellers();
+    const current = Store.getCurrentSeller();
+    const ver = localStorage.getItem('arvaan_seed_version');
+    const lastErr = typeof CloudDB !== 'undefined' ? CloudDB._lastError : 'CloudDB not loaded';
+    
+    let diagMsg = `--- DIAGNOSTICS ---\n`;
+    diagMsg += `Cloud Status: ${typeof CloudDB !== 'undefined' ? CloudDB.status : 'N/A'}\n`;
+    diagMsg += `Last Sync Error: ${lastErr || 'None'}\n`;
+    diagMsg += `Local Sellers Found: ${sellers.length}\n`;
+    diagMsg += `Active Session: ${current ? current.email : 'None'}\n`;
+    diagMsg += `Data Version: ${ver}\n`;
+    diagMsg += `-------------------`;
+    
+    alert(diagMsg);
+  });
+}
+
+function ensureSellerModals() {
+  console.log('[Seller] ensureSellerModals called');
+  if (document.getElementById('product-form-modal')) {
+    console.log('[Seller] Modals already exist in DOM');
+    return;
+  }
+  console.log('[Seller] Injecting dynamic wizard modals into DOM...');
+
+  const modalsHtml = `
+    <!-- Product Form Modal (Wizard) -->
+    <div class="modal-overlay hidden" id="product-form-modal">
+      <div class="modal modal-xl">
+        <div class="modal-header">
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <h3 id="product-modal-title" style="margin:0">📦 Add New Product</h3>
+            <div class="wizard-steps-indicator" style="display:flex; gap:16px; margin-top:8px">
+              <div class="step-dot active" id="step-dot-1" title="Basic Info">1</div>
+              <div class="step-dot" id="step-dot-2" title="Media">2</div>
+              <div class="step-dot" id="step-dot-3" title="Inventory">3</div>
+              <div class="step-dot" id="step-dot-4" title="Preview">4</div>
+            </div>
+          </div>
+          <button class="modal-close">×</button>
+        </div>
+        
+        <div class="wizard-progress-wrap" style="height:4px; background:var(--clr-bg-3); position:relative">
+          <div id="wizard-progress" style="height:100%; width:0%; background:var(--grad-primary); transition:width 0.3s ease"></div>
+        </div>
+
+        <div class="modal-body" style="max-height:75vh; overflow-y:auto; padding:0">
+          <form id="product-form" novalidate>
+            
+            <!-- STEP 1: BASIC INFO -->
+            <div class="wizard-step" id="step-1">
+              <div style="padding:24px">
+                <div class="form-section-title">📋 Basic Information</div>
+                <div class="form-grid">
+                  <div class="form-group full">
+                    <label class="form-label">Product Name *</label>
+                    <input class="form-control" type="text" id="pf-name" placeholder="e.g. Premium Wireless Earbuds" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Brand</label>
+                    <input class="form-control" type="text" id="pf-brand" placeholder="Your Brand Name">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Category *</label>
+                    <select class="form-control" id="pf-category" required onchange="updateSubCategories()"></select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Sub-Category</label>
+                    <select class="form-control" id="pf-sub-category"></select>
+                  </div>
+                  <div class="form-group full">
+                    <label class="form-label">Description *</label>
+                    <textarea class="form-control" id="pf-description" rows="5" placeholder="Describe your product's unique features..." required></textarea>
+                  </div>
+                  <div class="form-group full">
+                    <label class="form-label">Tags (comma separated)</label>
+                    <input class="form-control" type="text" id="pf-tags" placeholder="electronics, audio, wireless">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 2: MEDIA -->
+            <div class="wizard-step" id="step-2" style="display:none">
+              <div style="padding:24px">
+                <div class="form-section-title">🖼️ Product Media</div>
+                <p style="font-size:0.85rem; color:var(--clr-text-3); margin-bottom:16px">Add up to 5 high-quality images. The first image will be your primary cover.</p>
+                
+                <div class="image-upload-zone" id="pf-upload-zone" style="border:2px dashed var(--clr-border); border-radius:12px; padding:32px; text-align:center; transition:all 0.3s ease; background:rgba(255,255,255,0.02); cursor:pointer">
+                  <div style="font-size:2rem; margin-bottom:8px">☁️</div>
+                  <div style="font-weight:600">Click to upload or drag and drop</div>
+                  <div style="font-size:0.75rem; color:var(--clr-text-3)">PNG, JPG or WebP (Max 5MB)</div>
+                  <input type="file" id="pf-image-file" hidden accept="image/*" onchange="handleImageFileChange(event)">
+                </div>
+
+                <div style="margin-top:20px">
+                  <label class="form-label">Or paste Image URL</label>
+                  <div style="display:flex; gap:8px">
+                    <input class="form-control" type="url" id="pf-image-url" placeholder="https://example.com/image.jpg">
+                    <button type="button" class="btn btn-outline" onclick="addGalleryImage()">Add</button>
+                  </div>
+                </div>
+
+                <div id="pf-gallery-container" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; margin-top:24px">
+                  <!-- Gallery items injected here -->
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 3: INVENTORY & PRICING -->
+            <div class="wizard-step" id="step-3" style="display:none">
+              <div style="padding:24px">
+                <div class="form-section-title">⚙️ Inventory & Pricing</div>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label">Selling Price *</label>
+                    <div style="position:relative">
+                      <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--clr-text-3); font-weight:600">₹</span>
+                      <input class="form-control" type="number" step="0.01" min="0" id="pf-price" required style="padding-left:28px">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Original Price (MRP)</label>
+                    <div style="position:relative">
+                      <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--clr-text-3)">₹</span>
+                      <input class="form-control" type="number" step="0.01" min="0" id="pf-original-price" style="padding-left:28px">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Stock Quantity *</label>
+                    <input class="form-control" type="number" min="0" id="pf-stock" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">SKU (Stock Keeping Unit)</label>
+                    <input class="form-control" type="text" id="pf-sku" placeholder="XYZ-123-ABC">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Weight (gms)</label>
+                    <input class="form-control" type="number" id="pf-weight" placeholder="500">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Low Stock Threshold</label>
+                    <input class="form-control" type="number" id="pf-low-stock" placeholder="10">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Tax Class</label>
+                    <select class="form-control" id="pf-tax">
+                      <option value="18">GST 18% (Standard)</option>
+                      <option value="12">GST 12%</option>
+                      <option value="5">GST 5%</option>
+                      <option value="0">Zero Rated</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-section-title" style="margin-top:32px">📐 Specifications</div>
+                <div id="pf-specs-container" style="display:flex; flex-direction:column; gap:10px; margin-bottom:12px"></div>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="addSpecRow()">➕ Add Spec Row</button>
+
+                <div class="form-section-title" style="margin-top:32px">🎨 Variants (Optional)</div>
+                <div id="pf-variants-container">
+                   <!-- Variant logic can be added here if needed -->
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 4: PREVIEW -->
+            <div class="wizard-step" id="step-4" style="display:none">
+              <div style="padding:24px">
+                <div class="form-section-title">✨ Review & Preview</div>
+                <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:32px">
+                  <div>
+                    <p style="font-size:0.9rem; color:var(--clr-text-2); margin-bottom:20px">This is how your product will appear to customers in the Arvaan Collective boutique.</p>
+                    <!-- Boutique Card Preview -->
+                    <div class="preview-card-wrap" style="background:var(--clr-bg-2); border-radius:16px; padding:40px; display:flex; justify-content:center; border:1px solid var(--clr-border)">
+                       <div class="product-card" style="width:280px; pointer-events:none">
+                         <div class="product-card-img">
+                           <img id="prev-card-img" src="" alt="Preview">
+                         </div>
+                         <div class="product-card-info">
+                           <div class="product-card-brand" id="prev-card-brand">ARVAAN</div>
+                           <h3 class="product-card-name" id="prev-card-name">Product Name</h3>
+                           <div class="product-card-cat" id="prev-card-cat">Category</div>
+                           <div class="product-card-footer">
+                             <div class="product-card-price" id="prev-card-price">₹0</div>
+                             <div class="product-card-action"><span>🛍️</span></div>
+                           </div>
+                         </div>
+                       </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:20px; border:1px solid var(--clr-border)">
+                      <div style="font-size:0.75rem; color:var(--clr-text-3); text-transform:uppercase; font-weight:700; margin-bottom:12px">SEO Search Result Preview</div>
+                      <div id="seo-preview-title" style="color:#1a0dab; font-size:1.1rem; margin-bottom:4px">Product Name | Arvaan Collective</div>
+                      <div style="color:#006621; font-size:0.85rem; margin-bottom:4px">arvaancollective.com › shop › <span id="seo-preview-slug">product-name</span></div>
+                      <div id="seo-preview-desc" style="color:#545454; font-size:0.82rem; line-height:1.4">Product description preview will appear here...</div>
+                    </div>
+
+                    <div style="margin-top:24px; padding:16px; background:rgba(16,185,129,0.05); border-left:4px solid var(--clr-success); border-radius:4px">
+                      <div style="font-weight:700; color:var(--clr-success); font-size:0.9rem">Ready to Launch!</div>
+                      <p style="font-size:0.82rem; margin-top:4px">Double check all details. Once saved, your product will be synchronized with the cloud and visible in your catalog.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MODAL FOOTER / NAVIGATION -->
+            <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--clr-border); display:flex; justify-content:space-between; align-items:center; background:var(--clr-bg-2); border-bottom-left-radius:16px; border-bottom-right-radius:16px">
+              <div>
+                <button type="button" class="btn btn-ghost" id="pf-back-btn" onclick="moveWizard(-1)" style="visibility:hidden">← Back</button>
+              </div>
+              <div style="display:flex; gap:12px">
+                <button type="button" class="btn btn-ghost" onclick="closeAllModals()">Cancel</button>
+                <button type="button" class="btn btn-outline" id="pf-draft-btn" onclick="saveProduct(event, 'draft')">💾 Save as Draft</button>
+                <button type="button" class="btn btn-primary" id="pf-next-btn" onclick="moveWizard(1)">Next Step →</button>
+                <button type="submit" class="btn btn-primary" id="pf-save-btn" style="display:none">🚀 Launch Product</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipping Modal -->
+    <div class="modal-overlay hidden" id="shipping-modal">
+      <div class="modal">
+        <div class="modal-header"><h3>🚚 Mark as Shipped</h3><button class="modal-close">×</button></div>
+        <div class="modal-body">
+          <form id="shipping-form">
+            <input type="hidden" id="ship-order-id">
+            <div class="form-group">
+              <label class="form-label">Carrier</label>
+              <select class="form-control" id="ship-carrier" required>
+                <option>FedEx</option><option>UPS</option><option>DHL</option><option>Delhivery</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-top:16px">
+              <label class="form-label">Tracking Number</label>
+              <input class="form-control" type="text" id="ship-tracking" required>
+            </div>
+            <button class="btn btn-primary btn-lg w-full" type="submit" style="margin-top:24px">Update Status →</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const container = document.createElement('div');
+  container.id = 'dynamic-seller-modals';
+  container.innerHTML = modalsHtml;
+  document.body.appendChild(container);
+
+  // Re-bind modal close events
+  container.querySelectorAll('.modal-close').forEach(btn => {
+    btn.addEventListener('click', closeAllModals);
+  });
+
+  // Setup drag and drop for step 2
+  const zone = document.getElementById('pf-upload-zone');
+  if (zone) {
+    zone.addEventListener('click', () => document.getElementById('pf-image-file').click());
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--clr-primary)'; zone.style.background = 'rgba(108,99,255,0.05)'; });
+    zone.addEventListener('dragleave', () => { zone.style.borderColor = 'var(--clr-border)'; zone.style.background = 'rgba(255,255,255,0.02)'; });
+    zone.addEventListener('drop', handleImageDrop);
+  }
 }
 
 function renderSellerApp() {
@@ -873,10 +1293,17 @@ function toggleProductStatus(id) {
   const products = Store.getProducts();
   const idx = products.findIndex(p => p.id === id);
   if (idx > -1) {
-    products[idx].isActive = products[idx].isActive === false;
+    const p = products[idx];
+    if (p.status === 'draft') {
+      p.status = 'published';
+      p.isActive = true;
+      showToast('Published', `"${p.name}" is now live!`, 'success');
+    } else {
+      p.isActive = p.isActive === false;
+      showToast('Status Updated', `"${p.name}" is now ${p.isActive !== false ? 'Active' : 'Inactive'}`);
+    }
     Store.setProducts(products);
     renderProductsTable();
-    showToast('Status Updated', `"${products[idx].name}" is now ${products[idx].isActive !== false ? 'Active' : 'Inactive'}`);
   }
 }
 
@@ -897,7 +1324,7 @@ function bulkDeleteProducts() {
   if (!confirm(`Delete ${selected.length} products? This cannot be undone.`)) return;
   
   // Delete from cloud immediately if connected
-  if (typeof CloudDB !== 'undefined' && CloudDB.ready) {
+  if (typeof CloudDB !== 'undefined' && CloudDB.status === 'ready') {
     selected.forEach(id => CloudDB.deleteItem('products', id));
   }
   
@@ -958,7 +1385,8 @@ function saveBulkInventory() {
     const idx = products.findIndex(p => p.id === id);
     if (idx > -1) {
       if (products[idx].price !== price || products[idx].stock !== stock) {
-        products[idx].price = price;
+        // Fix: Convert price back to base currency (INR) before saving
+        products[idx].price = typeof toBaseCurrency === 'function' ? toBaseCurrency(price) : price;
         products[idx].stock = stock;
         updatedCount++;
       }
@@ -1017,7 +1445,8 @@ function addSpecRow(key = '', value = '') {
   const container = document.getElementById('pf-specs-container');
   if (!container) return;
   const row = document.createElement('div');
-  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center';
+  row.className = 'spec-row';
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px';
   row.innerHTML = `
     <input class="form-control spec-key" type="text" placeholder="e.g. Battery Life" value="${escapeHtml(key)}" style="font-size:.82rem">
     <input class="form-control spec-val" type="text" placeholder="e.g. 30 Hours" value="${escapeHtml(value)}" style="font-size:.82rem">
@@ -1107,25 +1536,32 @@ function handleImageFile(file) {
   }
   const reader = new FileReader();
   reader.onload = (e) => {
-    uploadedImageDataUrl = e.target.result;
-    // Clear URL field when a file is chosen
-    const urlInput = document.getElementById('pf-image-url');
-    if (urlInput) urlInput.value = '';
-    setImagePreview(uploadedImageDataUrl);
+    if (SellerState.productGallery.length >= 5) {
+      showToast('Limit Reached', 'Maximum 5 images allowed.', 'warning');
+      return;
+    }
+    SellerState.productGallery.push(e.target.result);
+    renderGallery();
+    if (typeof updateBoutiquePreview === 'function') updateBoutiquePreview();
   };
   reader.readAsDataURL(file);
 }
 
 function handleImageFileChange(event) {
-  handleImageFile(event.target.files[0]);
+  const files = event.target.files;
+  if (files && files.length) {
+    Array.from(files).forEach(handleImageFile);
+  }
 }
 
 function handleImageDrop(event) {
   event.preventDefault();
   const zone = document.getElementById('pf-upload-zone');
   if (zone) { zone.style.borderColor = 'var(--clr-border)'; zone.style.background = 'rgba(255,255,255,0.02)'; }
-  const file = event.dataTransfer?.files[0];
-  if (file) handleImageFile(file);
+  const files = event.dataTransfer?.files;
+  if (files && files.length) {
+    Array.from(files).forEach(handleImageFile);
+  }
 }
 
 function handleImageUrlInput(value) {
@@ -1142,25 +1578,6 @@ function handleImageUrlInput(value) {
 
 // ── Product CRUD ──────────────────────────────────────────────────────────────
 // ── Product CRUD (Wizard Flow) ───────────────────────────────────────────────
-function openAddProduct() {
-  SellerState.editingProductId = null;
-  SellerState.productGallery = [];
-  SellerState.variantMatrix = [];
-  SellerState.currentWizardStep = 1;
-  
-  document.getElementById('product-modal-title').textContent = '📦 Add New Masterpiece';
-  document.getElementById('product-form').reset();
-  document.getElementById('pf-specs-container').innerHTML = '';
-  document.getElementById('pf-gallery-container').innerHTML = '';
-  document.getElementById('variants-container').innerHTML = '<p style="font-size:0.75rem; color:var(--clr-text-3); font-style:italic">Create variants to manage individual stock and price adjustments.</p>';
-  
-  moveWizard(0); // Reset to step 1
-  addSpecRow();
-  
-  // Wire real-time preview
-  attachPreviewListeners();
-  openModal('product-form-modal');
-}
 function populateCategoryDropdown() {
   const catSelect = document.getElementById('pf-category');
   if (!catSelect) return;
@@ -1214,25 +1631,42 @@ function updateSubCategories(selectedSub = null) {
 }
 
 function openAddProduct() {
-  SellerState.editingProductId = null;
-  SellerState.productGallery = [];
-  SellerState.variantMatrix = [];
-  SellerState.currentWizardStep = 1;
-  
-  document.getElementById('product-modal-title').textContent = '📦 Add New Masterpiece';
-  document.getElementById('product-form').reset();
-  document.getElementById('pf-specs-container').innerHTML = '';
-  addSpecRow();
-  
-  populateCategoryDropdown();
-  updateSubCategories();
-  
-  renderGallery();
-  renderVariantsMatrix();
-  moveWizard(0);
-  attachPreviewListeners();
-  updateBoutiquePreview();
-  openModal('product-form-modal');
+  console.log('[Seller] openAddProduct function EXECUTION STARTED');
+  try {
+    ensureSellerModals();
+    SellerState.editingProductId = null;
+    SellerState.productGallery = [];
+    SellerState.variantMatrix = [];
+    SellerState.currentWizardStep = 1;
+    
+    const title = document.getElementById('product-modal-title');
+    if (title) title.textContent = '📦 Add New Masterpiece';
+    
+    const form = document.getElementById('product-form');
+    if (form) form.reset();
+    
+    const specs = document.getElementById('pf-specs-container');
+    if (specs) specs.innerHTML = '';
+    
+    addSpecRow();
+    
+    populateCategoryDropdown();
+    updateSubCategories();
+    
+    if (typeof moveWizard === 'function') moveWizard(0);
+    if (typeof attachPreviewListeners === 'function') attachPreviewListeners();
+    
+    if (typeof openModal === 'function') {
+      openModal('product-form-modal');
+      console.log('[Seller] product-form-modal opened');
+    } else {
+      console.error('[Seller] openModal function missing!');
+      const m = document.getElementById('product-form-modal');
+      if (m) m.classList.remove('hidden');
+    }
+  } catch (err) {
+    console.error('[Seller] Critical error in openAddProduct:', err);
+  }
 }
 
 function openEditProduct(productId) {
@@ -1385,21 +1819,7 @@ function renderGallery() {
   `).join('');
 }
 
-function handleImageFileChange(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    if (SellerState.productGallery.length >= 5) {
-      showToast('Limit Reached', 'Maximum 5 images allowed.', 'warning');
-      return;
-    }
-    SellerState.productGallery.push(event.target.result);
-    renderGallery();
-    updateBoutiquePreview();
-  };
-  reader.readAsDataURL(file);
-}
+// Duplicate handleImageFileChange removed to favor consolidated version above
 
 function generateVariants() {
   const color = prompt("Add a color variant (e.g. Midnight Black):");
@@ -1542,6 +1962,7 @@ function saveProduct(e, status = 'published') {
 
 
 function deleteProduct(productId) {
+  console.log('[Seller] deleteProduct called for ID:', productId);
   const products = Store.getProducts();
   const strId = String(productId);
   const p = products.find(pr => String(pr.id) === strId);
@@ -1549,15 +1970,17 @@ function deleteProduct(productId) {
   if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
   
   // Delete from cloud immediately if connected
-  if (typeof CloudDB !== 'undefined' && CloudDB.ready) {
+  if (typeof CloudDB !== 'undefined' && CloudDB.status === 'ready') {
     CloudDB.deleteItem('products', strId);
   }
   
   // Record in permanent deleted-IDs list so seed merge never restores it
   Store.addDeletedId(strId);
-  Store.setProducts(products.filter(pr => String(pr.id) !== strId));
-  showToast('Product deleted', `"${p.name}" removed`, 'info');
+  const updatedProducts = products.filter(pr => String(pr.id) !== strId);
+  Store.setProducts(updatedProducts);
   renderProductsTable();
+  showToast('Product deleted', `"${p.name}" removed`, 'info');
+  updateProductBulkButtons();
 }
 
 // ── Orders Table ──────────────────────────────────────────────────────────────
@@ -1682,7 +2105,10 @@ function renderOrdersTable() {
       </td>
       <td style="font-size:0.78rem">${formatDate(o.date)}</td>
       <td>
-        <button class="btn btn-ghost btn-sm" onclick="openProcessOrderModal('${o.id}')" title="Update Status">⚙️ Process</button>
+        <div style="display:flex; gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="generateInvoice('${o.id}')" title="Download Invoice">📄 Invoice</button>
+          <button class="btn btn-ghost btn-sm" onclick="openProcessOrderModal('${o.id}')" title="Update Status">⚙️ Process</button>
+        </div>
       </td>
     </tr>
   `).join('');
@@ -2672,207 +3098,6 @@ function toggleAllOrders(mainCheckbox) {
 
 
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-function initSellerApp() {
-  Store.init();
-  const saved = Auth.getSeller();
-
-  if (saved) {
-    SellerState.currentSeller = saved;
-    renderSellerApp();
-    
-    // Only navigate automatically if on the base seller.html
-    const path = window.location.pathname;
-    if (!path.includes('seller-')) {
-       window.location.href = 'seller-dashboard.html';
-    }
-  } else {
-    renderSellerAuthPage();
-    
-    // Check for registration mode in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('mode') === 'register') {
-      window.location.href = 'register.html';
-    }
-  }
-
-  // Nav items
-  document.querySelectorAll('.nav-item[data-page]').forEach(el => {
-    el.addEventListener('click', () => navigateTo(el.dataset.page));
-  });
-
-  // Password toggle
-  document.getElementById('toggle-password')?.addEventListener('click', function() {
-    const pwd = document.getElementById('seller-password');
-    pwd.type = pwd.type === 'password' ? 'text' : 'password';
-    this.textContent = pwd.type === 'password' ? '👁️' : '🔒';
-  });
-
-  // Update Sync Status Badge
-  function updateSyncBadge() {
-    const dot = document.getElementById('sync-dot');
-    const text = document.getElementById('sync-text');
-    const errInfo = document.getElementById('sync-error-info');
-    if (!dot || !text) return;
-    
-    if (typeof CloudDB !== 'undefined') {
-      if (CloudDB.status === 'ready') {
-        dot.style.background = '#10b981'; // green
-        text.textContent = 'Cloud Connected & Synced';
-        if (errInfo) errInfo.style.display = 'none';
-      } else if (CloudDB._lastError) {
-        dot.style.background = '#ef4444'; // red
-        text.textContent = 'Sync Error Detected';
-        if (errInfo) {
-          errInfo.textContent = CloudDB._lastError;
-          errInfo.style.display = 'block';
-        }
-      } else {
-        dot.style.background = '#f59e0b'; // amber
-        text.textContent = 'Synchronizing with Cloud...';
-      }
-    }
-  }
-  updateSyncBadge();
-  document.addEventListener('arvaan:cloud-ready', updateSyncBadge);
-
-  // Sync Diagnostics Button
-  document.getElementById('sync-troubleshoot')?.addEventListener('click', () => {
-    const sellers = Store.getSellers();
-    const current = Store.getCurrentSeller();
-    const ver = localStorage.getItem('arvaan_seed_version');
-    const lastErr = typeof CloudDB !== 'undefined' ? CloudDB._lastError : 'CloudDB not loaded';
-    
-    let diagMsg = `--- DIAGNOSTICS ---\n`;
-    diagMsg += `Cloud Status: ${typeof CloudDB !== 'undefined' ? CloudDB.status : 'N/A'}\n`;
-    diagMsg += `Last Sync Error: ${lastErr || 'None'}\n`;
-    diagMsg += `Local Sellers Found: ${sellers.length}\n`;
-    diagMsg += `Active Session: ${current ? current.email : 'None'}\n`;
-    diagMsg += `Data Version: ${ver}\n`;
-    diagMsg += `-------------------`;
-    
-    alert(diagMsg);
-    console.log(diagMsg);
-    updateSyncBadge();
-  });
-
-  // Seller login form handler
-  window.handleSellerLogin = async function(e) {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
-    const btn = document.getElementById('login-btn');
-    const email = document.getElementById('seller-email').value.trim();
-    const password = document.getElementById('seller-password').value;
-    
-    if (!email || !password) {
-      if (typeof showToast === 'function') showToast('Error', 'Please fill all fields', 'error');
-      return;
-    }
-
-    const originalBtnText = btn ? btn.textContent : 'Sign In';
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Authenticating...';
-    }
-
-    try {
-      // Wait for CloudDB to be ready so we have the latest sellers list
-      if (typeof CloudDB !== 'undefined' && CloudDB.status !== 'ready') {
-        if (typeof showToast === 'function') showToast('Connecting...', 'Waiting for cloud synchronization...', 'info');
-        await CloudDB.waitForReady();
-        if (typeof updateSyncBadge === 'function') updateSyncBadge();
-      }
-      
-      const result = Auth.loginSeller({ email, password });
-      if (result.ok) {
-        SellerState.currentSeller = result.seller;
-        if (btn) btn.textContent = 'Success! Entering...';
-        
-        if (typeof showToast === 'function') showToast('Welcome back!', `Hello, ${result.seller.name.split(' ')[0]} 👋`, 'success');
-        
-        setTimeout(() => {
-          renderSellerApp();
-          navigateTo('dashboard');
-        }, 800);
-      } else {
-        if (typeof showToast === 'function') showToast('Login Failed', result.message, 'error');
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = originalBtnText;
-        }
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      if (typeof showToast === 'function') showToast('Error', 'An unexpected error occurred.', 'error');
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = originalBtnText;
-      }
-    }
-  };
-
-  document.getElementById('seller-login-form')?.addEventListener('submit', window.handleSellerLogin);
-
-  // Seller logout
-  document.getElementById('seller-logout-btn')?.addEventListener('click', () => {
-    Auth.logoutSeller();
-  });
-
-
-  // Sidebar toggle (mobile)
-  document.getElementById('sidebar-toggle-btn')?.addEventListener('click', () => {
-    document.querySelector('.seller-sidebar')?.classList.toggle('open');
-  });
-  document.querySelector('.seller-sidebar')?.addEventListener('click', (e) => {
-    if (e.target.classList.contains('seller-sidebar')) document.querySelector('.seller-sidebar').classList.remove('open');
-  });
-
-  // Product search
-  document.getElementById('product-search-input')?.addEventListener('input', debounce((e) => {
-    SellerState.productSearch = e.target.value.trim();
-    renderProductsTable();
-  }, 300));
-
-  // Order search
-  document.getElementById('order-search-input')?.addEventListener('input', debounce((e) => {
-    SellerState.orderSearch = e.target.value.trim();
-    renderOrdersTable();
-  }, 300));
-
-  // Product form
-  document.getElementById('product-form')?.addEventListener('submit', saveProduct);
-  document.getElementById('add-product-btn')?.addEventListener('click', openAddProduct);
-  document.getElementById('add-product-btn-2')?.addEventListener('click', openAddProduct);
-
-  // Settings form
-  document.getElementById('settings-form')?.addEventListener('submit', saveSettings);
-
-  // Forgot password form
-  document.getElementById('forgot-password-form')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('forgot-email').value.trim();
-    if (!email) return;
-    
-    // Simulate API call
-    const form = document.getElementById('forgot-password-form');
-    const success = document.getElementById('forgot-success');
-    const displayEmail = document.getElementById('sent-email-display');
-    
-    if (form && success && displayEmail) {
-      displayEmail.textContent = email;
-      form.style.display = 'none';
-      success.style.display = 'block';
-      console.log(`[SellerAuth] Password reset requested for: ${email}`);
-    }
-  });
-
-  // Close modals
-  document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', () => closeAllModals()));
-}
-
 function openForgotPwdModal() {
   const form = document.getElementById('forgot-password-form');
   const success = document.getElementById('forgot-success');
@@ -3486,12 +3711,18 @@ function markNotifsRead() {
   renderNotifications();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+// Bootstrap initialization
+const bootstrapSeller = () => {
+  if (window.sellerInitialized) return;
+  window.sellerInitialized = true;
   initSellerApp();
-  initNotifications();
-  // Also initial render of badges
-  setTimeout(renderNotifications, 500);
-});
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootstrapSeller);
+} else {
+  bootstrapSeller();
+}
 
 function updateGlobalLocalizations() {
   document.querySelectorAll('.localized-price').forEach(el => {
@@ -3508,3 +3739,5 @@ if (document.readyState === 'loading') {
 } else {
   setTimeout(updateGlobalLocalizations, 100);
 }
+
+console.log('✅ Seller Portal initialized successfully');

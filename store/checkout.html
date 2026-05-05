@@ -8,21 +8,217 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/store.css?v=8.1">
   <style>
-    .checkout-layout { display: grid; grid-template-columns: 1fr 380px; gap: var(--space-8); align-items: start; }
-    .checkout-steps { display: flex; gap: 0; margin-bottom: var(--space-8); border-bottom: 1px solid var(--clr-border); padding-bottom: 20px; }
-    .checkout-step-item { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--clr-text-3); flex: 1; }
+    :root {
+      --checkout-accent: #10b981; /* Success Green */
+      --checkout-shadow: 0 12px 40px -12px rgba(0,0,0,0.08);
+      --checkout-border: #f1f5f9;
+    }
+    
+    .checkout-layout { display: grid; grid-template-columns: 1fr 400px; gap: var(--space-10); align-items: start; }
+    
+    /* Modern Stepper */
+    .checkout-steps { 
+      display: flex; 
+      justify-content: space-between; 
+      margin-bottom: var(--space-12); 
+      position: relative;
+      padding: 0 var(--space-4);
+    }
+    .checkout-steps::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: var(--clr-border);
+      z-index: 1;
+    }
+    .step-progress-fill {
+      position: absolute;
+      top: 20px;
+      left: 10%;
+      width: 0%; /* Dynamic */
+      height: 2px;
+      background: var(--clr-primary);
+      z-index: 2;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .checkout-step-item { 
+      display: flex; 
+      flex-direction: column;
+      align-items: center; 
+      gap: 12px; 
+      font-size: 0.8rem; 
+      font-weight: 700; 
+      color: var(--clr-text-3); 
+      position: relative;
+      z-index: 3;
+      flex: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
     .checkout-step-item.active { color: var(--clr-primary); }
-    .checkout-step-item.done { color: var(--clr-success); }
-    .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--clr-bg-3); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; transition: all 0.3s; }
-    .checkout-step-item.active .step-num { background: var(--clr-primary); color: #fff; transform: scale(1.1); }
-    .checkout-step-item.done .step-num { background: var(--clr-success); color: #fff; }
-    .order-summary-sidebar { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); padding: var(--space-6); position: sticky; top: 120px; box-shadow: var(--shadow-sm); }
-    .checkout-panel { display: none; margin-bottom: 40px; }
-    .checkout-panel.active { display: block; animation: fadeIn 0.4s ease; }
-    .card-checkout { background: #fff; border: 1px solid var(--clr-border); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-4); }
-    .success-screen { text-align: center; padding: var(--space-16) var(--space-6); }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 992px) { .checkout-layout { grid-template-columns: 1fr; } .order-summary-sidebar { position: static; } }
+    .checkout-step-item.done { color: var(--checkout-accent); }
+    
+    .step-num { 
+      width: 42px; 
+      height: 42px; 
+      border-radius: 50%; 
+      background: #fff; 
+      border: 2px solid var(--clr-border);
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 0.9rem; 
+      font-weight: 800; 
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+    .checkout-step-item.active .step-num { 
+      background: var(--clr-primary); 
+      color: #fff; 
+      border-color: var(--clr-primary);
+      transform: scale(1.1); 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .checkout-step-item.done .step-num { 
+      background: var(--checkout-accent); 
+      color: #fff; 
+      border-color: var(--checkout-accent);
+    }
+    
+    /* Panels & Cards */
+    .checkout-panel { display: none; }
+    .checkout-panel.active { 
+      display: block; 
+      animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+    @keyframes slideIn { 
+      from { opacity: 0; transform: translateY(20px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    
+    .card-checkout { 
+      background: #fff; 
+      border: 1px solid var(--checkout-border); 
+      border-radius: var(--radius-xl); 
+      padding: var(--space-8); 
+      margin-bottom: var(--space-6); 
+      box-shadow: var(--checkout-shadow);
+    }
+    
+    .card-checkout h3 {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      margin-bottom: var(--space-6);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    /* Form Enhancements */
+    .form-group-checkout { margin-bottom: var(--space-5); }
+    .checkout-input {
+      background: #fcfcfc !important;
+      border: 1px solid #edf2f7 !important;
+      border-radius: var(--radius-md) !important;
+      padding: 14px 18px !important;
+      transition: all 0.2s !important;
+    }
+    .checkout-input:focus {
+      background: #fff !important;
+      border-color: var(--clr-primary) !important;
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.03) !important;
+    }
+    
+    /* Sidebar Summary */
+    .order-summary-sidebar { 
+      background: #fff; 
+      border: 1px solid var(--checkout-border); 
+      border-radius: var(--radius-xl); 
+      padding: var(--space-8); 
+      position: sticky; 
+      top: 100px; 
+      box-shadow: var(--checkout-shadow);
+    }
+    .summary-heading {
+      font-weight: 800;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--clr-text-3);
+      margin-bottom: var(--space-6);
+      border-bottom: 1px solid var(--clr-border);
+      padding-bottom: var(--space-3);
+    }
+    .summary-item-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+      font-size: 0.95rem;
+    }
+    .summary-item-row.total {
+      margin-top: var(--space-5);
+      padding-top: var(--space-5);
+      border-top: 2px solid var(--clr-border);
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--clr-primary);
+    }
+    
+    /* Trust Badges */
+    .trust-badges-checkout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: var(--space-8);
+    }
+    .trust-badge-mini {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: var(--radius-md);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--clr-text-3);
+    }
+    .trust-badge-mini span:first-child { font-size: 1.2rem; }
+    
+    /* Payment Labels */
+    .payment-method-label {
+      background: #fcfcfc;
+      transition: all 0.3s ease !important;
+    }
+    .payment-method-label:hover {
+      border-color: var(--clr-primary) !important;
+      background: #fff;
+      transform: translateX(4px);
+    }
+    .payment-method-label.selected {
+      border-color: var(--clr-primary) !important;
+      background: rgba(0,0,0,0.02);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Floating Navigation */
+    .checkout-nav-btns {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: var(--space-8);
+    }
+
+    @media (max-width: 992px) { 
+      .checkout-layout { grid-template-columns: 1fr; } 
+      .order-summary-sidebar { position: static; } 
+      .checkout-steps::before { left: 15%; right: 15%; }
+    }
   </style>
 </head>
 <body class="checkout-page-body">
@@ -82,9 +278,19 @@
 
     <!-- Step Indicator -->
     <div class="checkout-steps" id="step-indicator">
-      <div class="checkout-step-item active" id="step-label-1"><div class="step-num">1</div> Address</div>
-      <div class="checkout-step-item" id="step-label-2"><div class="step-num">2</div> Payment</div>
-      <div class="checkout-step-item" id="step-label-3"><div class="step-num">3</div> Review</div>
+      <div class="step-progress-fill" id="step-fill"></div>
+      <div class="checkout-step-item active" id="step-label-1">
+        <div class="step-num">1</div>
+        <span>Shipping</span>
+      </div>
+      <div class="checkout-step-item" id="step-label-2">
+        <div class="step-num">2</div>
+        <span>Payment</span>
+      </div>
+      <div class="checkout-step-item" id="step-label-3">
+        <div class="step-num">3</div>
+        <span>Review</span>
+      </div>
     </div>
 
     <div class="checkout-layout" id="checkout-main-layout">
@@ -93,74 +299,112 @@
         <!-- Panel 1: Address -->
         <div class="checkout-panel active" id="panel-1">
           <div class="card-checkout">
-            <h3 style="font-size:1.2rem; margin-bottom:var(--space-6)">📍 Shipping Address</h3>
-            <div id="saved-addresses-selector" style="display:none; margin-bottom:var(--space-6)">
-              <div style="font-size:0.75rem; font-weight:800; color:var(--clr-text-3); text-transform:uppercase; margin-bottom:12px; letter-spacing:0.05em">Recently Used Addresses</div>
-              <div id="checkout-address-list" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:12px"></div>
+            <h3><span>📍</span> Shipping Address</h3>
+            <div id="saved-addresses-selector" style="display:none; margin-bottom:var(--space-8)">
+              <div style="font-size:0.75rem; font-weight:800; color:var(--clr-text-3); text-transform:uppercase; margin-bottom:16px; letter-spacing:0.05em">Recently Used Addresses</div>
+              <div id="checkout-address-list" style="display:flex; gap:16px; overflow-x:auto; padding-bottom:12px"></div>
               <div class="divider" style="height:1px; background:var(--clr-border); margin:24px 0"></div>
             </div>
-            <form id="address-form" style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4)">
-              <div style="grid-column:span 2"><label class="form-label">Full Name *</label><input class="form-control" placeholder="Recipient name" id="addr-name" required></div>
-              <div style="grid-column:span 2"><label class="form-label">Address Line 1 *</label><input class="form-control" placeholder="House/Flat No, Street, Landmark" id="addr-line1" required></div>
-              <div><label class="form-label">City *</label><input class="form-control" placeholder="Mumbai" id="addr-city" required></div>
-              <div><label class="form-label">Zip/Postal Code *</label><input class="form-control" placeholder="400001" id="addr-zip" required></div>
+            <form id="address-form" style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-6)">
+              <div style="grid-column:span 2" class="form-group-checkout">
+                <label class="form-label">Full Name *</label>
+                <input class="form-control checkout-input" placeholder="Recipient name" id="addr-name" required>
+              </div>
+              <div style="grid-column:span 2" class="form-group-checkout">
+                <label class="form-label">Address Line 1 *</label>
+                <input class="form-control checkout-input" placeholder="House/Flat No, Street, Landmark" id="addr-line1" required>
+              </div>
+              <div class="form-group-checkout">
+                <label class="form-label">City *</label>
+                <input class="form-control checkout-input" placeholder="Mumbai" id="addr-city" required>
+              </div>
+              <div class="form-group-checkout">
+                <label class="form-label">Zip/Postal Code *</label>
+                <input class="form-control checkout-input" placeholder="400001" id="addr-zip" required>
+              </div>
             </form>
 
-            <div style="margin-top:var(--space-8); padding:var(--space-5); background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.2); border-radius:var(--radius-lg); display:flex; justify-content:space-between; align-items:center">
-              <div>
-                <div style="font-weight:800; color:var(--clr-primary); font-size:1rem">🎁 Premium Gift Wrapping (+<span id="gift-wrap-price">₹149</span>)</div>
-                <div style="font-size:0.8rem; color:var(--clr-text-2); margin-top:4px">Luxury gold embossed paper with a personalized card</div>
+            <div style="margin-top:var(--space-8); padding:var(--space-6); background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.2); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; cursor:pointer" onclick="document.getElementById('gift-wrap-toggle').click()">
+              <div style="display:flex; align-items:center; gap:16px">
+                <div style="font-size:2rem">🎁</div>
+                <div>
+                  <div style="font-weight:800; color:var(--clr-primary); font-size:1.1rem">Premium Gift Wrapping (+<span id="gift-wrap-price">₹149</span>)</div>
+                  <div style="font-size:0.85rem; color:var(--clr-text-2); margin-top:4px">Luxury gold embossed paper with a personalized card</div>
+                </div>
               </div>
-              <input type="checkbox" id="gift-wrap-toggle" style="width:24px; height:24px; cursor:pointer; accent-color:var(--clr-primary)">
+              <input type="checkbox" id="gift-wrap-toggle" style="width:24px; height:24px; cursor:pointer; accent-color:var(--clr-primary)" onclick="event.stopPropagation()">
             </div>
             
-            <div style="margin-top:24px">
-              <label class="form-label">Special Order Notes (optional)</label>
-              <textarea class="form-control" id="order-notes" rows="3" placeholder="Any specific delivery instructions..."></textarea>
+            <div style="margin-top:32px">
+              <label class="form-label">Order Notes (optional)</label>
+              <textarea class="form-control checkout-input" id="order-notes" rows="3" placeholder="Any specific delivery instructions..."></textarea>
             </div>
           </div>
           <div style="text-align:right">
-            <button class="btn btn-primary" id="next-1" style="height:60px; padding:0 40px; font-size:1.1rem">Continue to Payment →</button>
+            <button class="btn btn-primary btn-auth" id="next-1" style="height:64px; padding:0 48px; font-size:1.1rem; border-radius:var(--radius-xl)">Continue to Payment →</button>
           </div>
         </div>
 
         <!-- Panel 2: Payment -->
         <div class="checkout-panel" id="panel-2">
           <div class="card-checkout">
-            <h3 style="font-size:1.2rem; margin-bottom:var(--space-6)">💳 Payment Method</h3>
-            <div style="display:flex; flex-direction:column; gap:12px">
-              <label style="display:flex; align-items:center; gap:16px; padding:var(--space-5); border:1px solid var(--clr-border); border-radius:var(--radius-lg); cursor:pointer; transition:all 0.2s" class="payment-method-label">
-                <input type="radio" name="payment" value="Card" checked style="width:20px; height:20px; accent-color:var(--clr-primary)">
+            <h3><span>💳</span> Payment Method</h3>
+            <div style="display:flex; flex-direction:column; gap:16px">
+              <label style="display:flex; align-items:center; gap:20px; padding:var(--space-6); border:1.5px solid var(--clr-border); border-radius:var(--radius-xl); cursor:pointer" class="payment-method-label selected">
+                <input type="radio" name="payment" value="Card" checked style="width:22px; height:22px; accent-color:var(--clr-primary)">
                 <div>
-                  <div style="font-weight:700">Credit / Debit Card</div>
-                  <div style="font-size:0.75rem; color:var(--clr-text-3)">Visa, Mastercard, RuPay, Amex</div>
+                  <div style="font-weight:800; font-size:1.05rem">Credit / Debit Card</div>
+                  <div style="font-size:0.8rem; color:var(--clr-text-3); margin-top:2px">Visa, Mastercard, RuPay, Amex</div>
+                </div>
+                <div style="margin-left:auto; display:flex; gap:8px">
+                  <span style="font-size:1.2rem">💳</span>
                 </div>
               </label>
-              <label style="display:flex; align-items:center; gap:16px; padding:var(--space-5); border:1px solid var(--clr-border); border-radius:var(--radius-lg); cursor:pointer; transition:all 0.2s" class="payment-method-label">
-                <input type="radio" name="payment" value="UPI" style="width:20px; height:20px; accent-color:var(--clr-primary)">
+              <label style="display:flex; align-items:center; gap:20px; padding:var(--space-6); border:1.5px solid var(--clr-border); border-radius:var(--radius-xl); cursor:pointer" class="payment-method-label">
+                <input type="radio" name="payment" value="UPI" style="width:22px; height:22px; accent-color:var(--clr-primary)">
                 <div>
-                  <div style="font-weight:700">UPI / Google Pay / PhonePe</div>
-                  <div style="font-size:0.75rem; color:var(--clr-text-3)">Scan & Pay or direct VPA</div>
+                  <div style="font-weight:800; font-size:1.05rem">UPI / Google Pay / PhonePe</div>
+                  <div style="font-size:0.8rem; color:var(--clr-text-3); margin-top:2px">Scan & Pay or direct VPA</div>
                 </div>
+                <div style="margin-left:auto; font-size:1.2rem">📱</div>
               </label>
-              <label id="payment-gateway-option" style="display:none; align-items:center; gap:16px; padding:var(--space-5); border:1px solid var(--clr-border); border-radius:var(--radius-lg); cursor:pointer; transition:all 0.2s" class="payment-method-label">
-                <input type="radio" name="payment" value="Gateway" style="width:20px; height:20px; accent-color:var(--clr-primary)">
+              <label id="payment-gateway-option" style="display:none; align-items:center; gap:20px; padding:var(--space-6); border:1.5px solid var(--clr-border); border-radius:var(--radius-xl); cursor:pointer" class="payment-method-label">
+                <input type="radio" name="payment" value="Gateway" style="width:22px; height:22px; accent-color:var(--clr-primary)">
                 <div>
-                  <div style="font-weight:700">Secured Online Payment</div>
-                  <div style="font-size:0.75rem; color:var(--clr-text-3)">Cards, Netbanking, Wallets (via Secure Gateway)</div>
+                  <div style="font-weight:800; font-size:1.05rem">Secured Online Payment</div>
+                  <div style="font-size:0.8rem; color:var(--clr-text-3); margin-top:2px">Cards, Netbanking, Wallets (Secure Gateway)</div>
                 </div>
+                <div style="margin-left:auto; font-size:1.2rem">🔒</div>
               </label>
-              <label style="display:flex; align-items:center; gap:16px; padding:var(--space-5); border:1px solid var(--clr-border); border-radius:var(--radius-lg); cursor:pointer; transition:all 0.2s" class="payment-method-label">
-                <input type="radio" name="payment" value="COD" style="width:20px; height:20px; accent-color:var(--clr-primary)">
+              <label style="display:flex; align-items:center; gap:20px; padding:var(--space-6); border:1.5px solid var(--clr-border); border-radius:var(--radius-xl); cursor:pointer" class="payment-method-label">
+                <input type="radio" name="payment" value="COD" style="width:22px; height:22px; accent-color:var(--clr-primary)">
                 <div>
-                  <div style="font-weight:700">Cash on Delivery</div>
-                  <div style="font-size:0.75rem; color:var(--clr-text-3)">Pay when your collection arrives</div>
+                  <div style="font-weight:800; font-size:1.05rem">Cash on Delivery (COD)</div>
+                  <div style="font-size:0.8rem; color:var(--clr-text-3); margin-top:2px">Pay when your order arrives</div>
                 </div>
+                <div style="margin-left:auto; font-size:1.2rem">💵</div>
               </label>
-            </div>
             </div>
 
-            <!-- UPI Details Block (Enhanced Elite UI) -->
+            <!-- Card Entry (Shown if Card selected) -->
+            <div id="card-entry-fields" style="margin-top:var(--space-8); padding-top:var(--space-8); border-top:1px dashed var(--clr-border)">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-5)">
+                <div style="grid-column:span 2" class="form-group-checkout">
+                  <label class="form-label">Card Number</label>
+                  <input class="form-control checkout-input" placeholder="0000 0000 0000 0000" id="card-num">
+                </div>
+                <div class="form-group-checkout">
+                  <label class="form-label">Expiry (MM/YY)</label>
+                  <input class="form-control checkout-input" placeholder="MM/YY" id="card-expiry">
+                </div>
+                <div class="form-group-checkout">
+                  <label class="form-label">CVV</label>
+                  <input class="form-control checkout-input" placeholder="***" type="password" id="card-cvv">
+                </div>
+              </div>
+            </div>
+
+            <!-- UPI Details Block -->
             <div id="upi-details" style="display:none; margin-top:24px; padding:32px; background:rgba(255,255,255,0.7); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-radius:24px; border:1px solid rgba(108,99,255,0.2); box-shadow:0 20px 40px rgba(0,0,0,0.05); animation:fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)">
               <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:32px; align-items:start">
                 <div style="text-align:center">
@@ -169,11 +413,9 @@
                   </div>
                   <div style="font-size:0.75rem; font-weight:700; color:var(--clr-primary); letter-spacing:0.05em; text-transform:uppercase">Scan to Pay Safely</div>
                 </div>
-                
                 <div>
                   <h4 style="font-size:1.2rem; font-family:var(--font-heading); margin-bottom:12px">Digital Payment</h4>
                   <p style="font-size:0.85rem; color:var(--clr-text-2); margin-bottom:20px; line-height:1.5">Use your preferred UPI app to scan and pay. Your order will be processed instantly after verification.</p>
-                  
                   <div style="display:flex; flex-direction:column; gap:16px">
                     <div style="background:#fff; border:1px solid var(--clr-border); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center">
                        <div style="flex:1">
@@ -182,66 +424,95 @@
                        </div>
                        <button class="btn btn-ghost" onclick="copyUPI(this)" style="padding:8px 14px; height:auto; border-radius:8px; font-size:0.8rem">Copy</button>
                     </div>
-                    
-                    <div style="display:flex; gap:10px">
-                       <div style="flex:1; padding:10px; border:1px solid var(--clr-border); border-radius:12px; background:#fff; text-align:center">
-                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Google_Pay_Logo.svg/1024px-Google_Pay_Logo.svg.png" style="height:14px; margin-bottom:4px; opacity:0.8"><br>
-                         <span style="font-size:0.6rem; color:var(--clr-text-3); font-weight:700">G-Pay</span>
-                       </div>
-                       <div style="flex:1; padding:10px; border:1px solid var(--clr-border); border-radius:12px; background:#fff; text-align:center">
-                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/1024px-PhonePe_Logo.svg.png" style="height:14px; margin-bottom:4px; opacity:0.8"><br>
-                         <span style="font-size:0.6rem; color:var(--clr-text-3); font-weight:700">PhonePe</span>
-                       </div>
-                       <div style="flex:1; padding:10px; border:1px solid var(--clr-border); border-radius:12px; background:#fff; text-align:center">
-                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/1024px-Paytm_Logo_%28standalone%29.svg.png" style="height:12px; margin-top:2px; margin-bottom:4px; opacity:0.8"><br>
-                         <span style="font-size:0.6rem; color:var(--clr-text-3); font-weight:700">Paytm</span>
-                       </div>
-                    </div>
                   </div>
                 </div>
               </div>
-              
               <div style="margin-top:32px; padding-top:24px; border-top:1px solid rgba(0,0,0,0.05)">
                 <label class="form-label" style="font-size:0.85rem; margin-bottom:10px; font-weight:700">Verification Reference (UTR)</label>
                 <div style="position:relative">
                   <span style="position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:1.1rem; opacity:0.4">#</span>
                   <input type="text" id="upi-txn-id" class="form-control" placeholder="12-digit transaction number" style="height:54px; padding-left:40px; border-radius:12px">
                 </div>
-                <div class="form-hint" style="font-size:0.75rem; margin-top:6px; color:var(--clr-text-3)">Usually found in your transaction history after successful payment.</div>
               </div>
             </div>
           </div>
-          <div style="display:flex; justify-content:space-between; margin-top:var(--space-4)">
-            <button class="btn btn-outline" id="back-2" style="height:56px; padding:0 30px">← Back</button>
-            <button class="btn btn-primary" id="next-2" style="height:56px; padding:0 40px; font-size:1.1rem">Review Order →</button>
+          <div class="checkout-nav-btns">
+            <button class="btn btn-ghost" onclick="showPanel(1)">← Back to Shipping</button>
+            <button class="btn btn-primary btn-auth" id="next-2" style="height:64px; padding:0 48px; font-size:1.1rem; border-radius:var(--radius-xl)">Review Order →</button>
           </div>
         </div>
 
         <!-- Panel 3: Review -->
         <div class="checkout-panel" id="panel-3">
           <div class="card-checkout">
-            <h3 style="font-size:1.2rem; margin-bottom:var(--space-6)">📋 Final Review</h3>
-            <div id="review-items" style="display:flex; flex-direction:column; gap:16px"></div>
+            <h3><span>📝</span> Review & Place Order</h3>
+            <div id="review-items" style="margin-bottom:var(--space-8)">
+              <!-- Loaded via JS -->
+            </div>
+            <div style="background:rgba(16,185,129,0.05); padding:var(--space-5); border-radius:var(--radius-lg); border:1px solid rgba(16,185,129,0.1); margin-top:var(--space-6)">
+              <div style="display:flex; gap:12px; align-items:center">
+                <span style="font-size:1.4rem">🛡️</span>
+                <div style="font-size:0.85rem; color:var(--clr-text-2); line-height:1.4">
+                  <strong>Secure Checkout:</strong> Your payment information is encrypted and never stored on our servers. You're covered by our 30-day buyer protection.
+                </div>
+              </div>
+            </div>
           </div>
-          <div style="display:flex; justify-content:space-between; margin-top:var(--space-4)">
-            <button class="btn btn-outline" id="back-3" style="height:56px; padding:0 30px">← Back</button>
-            <button class="btn btn-primary" id="place-order-btn" style="height:60px; padding:0 60px; font-size:1.2rem; background:var(--clr-success); border:none">✅ Confirm & Place Order</button>
+          <div class="checkout-nav-btns">
+            <button class="btn btn-ghost" onclick="showPanel(2)">← Back to Payment</button>
+            <button class="btn btn-primary btn-auth" id="place-order-btn" style="height:64px; padding:0 48px; font-size:1.1rem; border-radius:var(--radius-xl); background:var(--checkout-accent); border-color:var(--checkout-accent)">Place My Order Now →</button>
+          </div>
+        </div>
+
+        <!-- Panel 4: Success -->
+        <div class="checkout-panel" id="panel-success">
+          <div class="card-checkout success-screen">
+            <div style="width:100px; height:100px; background:var(--checkout-accent); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:3rem; margin:0 auto 32px; box-shadow:0 12px 30px rgba(16,185,129,0.3)">✓</div>
+            <h2 style="font-family:var(--font-heading); font-size:2.5rem; margin-bottom:12px">Order Confirmed!</h2>
+            <p style="color:var(--clr-text-2); font-size:1.1rem; margin-bottom:40px">Your journey with us has just begun. We've sent a confirmation email to <strong id="success-email"></strong></p>
+            <div style="background:var(--clr-bg-alt); padding:32px; border-radius:var(--radius-xl); display:inline-block; text-align:left; min-width:320px; border:1px solid var(--clr-border)">
+              <div style="font-size:0.8rem; text-transform:uppercase; font-weight:800; color:var(--clr-text-3); margin-bottom:12px">Order Details</div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px"><span>Order ID:</span><strong id="success-order-id">#ORD-0000</strong></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px"><span>Delivery Estimate:</span><strong>3-5 Business Days</strong></div>
+              <div style="display:flex; justify-content:space-between"><span>Payment Method:</span><strong id="success-payment">Credit Card</strong></div>
+            </div>
+            <div style="margin-top:48px; display:flex; gap:16px; justify-content:center">
+              <a href="orders.html" class="btn btn-primary" style="padding:16px 32px">Track My Order</a>
+              <a href="index.html" class="btn btn-outline" style="padding:16px 32px">Return to Store</a>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Right: Summary -->
-      <div class="order-summary-sidebar">
-        <h3 style="font-size:1.1rem; border-bottom:1px solid var(--clr-border); padding-bottom:12px; margin-bottom:20px">Order Summary</h3>
-        <div id="summary-items" style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px; max-height:300px; overflow-y:auto"></div>
-        <div style="display:flex; flex-direction:column; gap:10px; border-top:1px solid var(--clr-border); padding-top:20px">
-          <div style="display:flex; justify-content:space-between; color:var(--clr-text-2)"><span>Subtotal</span><span id="sum-subtotal">₹0</span></div>
-          <div style="display:flex; justify-content:space-between; color:var(--clr-text-2)"><span>Shipping</span><span id="sum-shipping" style="color:var(--clr-success); font-weight:700">FREE</span></div>
-          <div style="display:flex; justify-content:space-between; color:var(--clr-text-2)"><span>Taxes (GST)</span><span id="sum-tax">₹0</span></div>
-          <div id="gift-wrap-line" style="display:none; justify-content:space-between; color:var(--clr-primary); font-weight:600"><span>🎁 Gift Wrap</span><span id="sum-gift-wrap">₹149</span></div>
-          <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.4rem; border-top:2px solid var(--clr-primary); padding-top:16px; margin-top:10px"><span>Total</span><span id="sum-total">₹0</span></div>
+      <!-- Right: Summary Sidebar -->
+      <aside class="order-summary-sidebar">
+        <div class="summary-heading">Order Summary</div>
+        <div id="summary-items" style="display:flex; flex-direction:column; gap:20px; margin-bottom:32px">
+          <!-- Loaded via JS -->
         </div>
-
+        <div class="summary-breakdown">
+          <div class="summary-item-row"><span>Subtotal</span><span id="sum-subtotal">₹0</span></div>
+          <div class="summary-item-row" id="gift-wrap-line" style="display:none; color:var(--checkout-accent)"><span>🎁 Premium Gift Wrap</span><span id="sum-gift-wrap">₹0</span></div>
+          <div class="summary-item-row"><span>Shipping</span><span style="color:var(--checkout-accent); font-weight:700">Free</span></div>
+          <div class="summary-item-row"><span id="tax-label">GST (18%)</span><span id="sum-tax">₹0</span></div>
+          <div class="summary-item-row total">
+            <span>Total</span>
+            <span id="sum-total">₹0</span>
+          </div>
+        </div>
+        <div class="trust-badges-checkout">
+          <div class="trust-badge-mini">
+            <span>🔒</span>
+            <span>256-bit Secure</span>
+          </div>
+          <div class="trust-badge-mini">
+            <span>🛡️</span>
+            <span>Money Back</span>
+          </div>
+        </div>
+        <div style="margin-top:24px; font-size:0.75rem; color:var(--clr-text-3); text-align:center; line-height:1.5">
+          By placing your order, you agree to Arvaan's <a href="pages.html?p=terms" style="text-decoration:underline">Terms of Service</a> and <a href="pages.html?p=privacy" style="text-decoration:underline">Privacy Policy</a>.
+        </div>
         <div style="margin-top:24px; display:flex; gap:8px">
           <input type="text" id="promo-input" class="form-control" placeholder="Promo Code" style="height:48px">
           <button class="btn btn-outline btn-sm" onclick="PromoMgr.apply(document.getElementById('promo-input').value)" style="height:48px">Apply</button>
@@ -282,7 +553,13 @@
     renderCheckoutStep();
     window.scrollTo({top: 0, behavior: 'smooth'});
     
-    // Update step indicator
+    // Update step indicator & Progress Fill
+    const fill = document.getElementById('step-fill');
+    if (fill) {
+      const widths = { 1: '0%', 2: '50%', 3: '100%' };
+      fill.style.width = widths[step] || '0%';
+    }
+
     document.querySelectorAll('.checkout-step-item').forEach((el, idx) => {
       const s = idx + 1;
       el.classList.toggle('active', s === step);
@@ -315,20 +592,27 @@
     const summaryItems = UI.get('summary-items');
     if (summaryItems) {
       summaryItems.innerHTML = Cart.get().map(item => `
-        <div style="display:flex; gap:16px; align-items:center">
-          <div style="position:relative">
-            <img src="${item.image}" style="width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid var(--clr-border)">
-            <span style="position:absolute; top:-8px; right:-8px; background:var(--clr-primary); color:#fff; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800">${item.qty}</span>
+        <div style="display:flex; gap:20px; align-items:center; animation: fadeIn 0.4s ease">
+          <div style="position:relative; flex-shrink:0">
+            <img src="${item.image}" style="width:72px; height:72px; object-fit:cover; border-radius:12px; border:1px solid var(--clr-border); background:#fcfcfc">
+            <span style="position:absolute; top:-10px; right:-10px; background:var(--clr-primary); color:#fff; min-width:24px; height:24px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; padding:0 4px; box-shadow:0 4px 10px rgba(0,0,0,0.15)">${item.qty}</span>
           </div>
           <div style="flex:1">
-            <div style="font-size:0.85rem; font-weight:700; color:var(--clr-text)">${escapeHtml(item.name)}</div>
-            <div style="font-size:0.8rem; color:var(--clr-text-3)">Unit: ${formatCurrency(item.price)}</div>
+            <div style="font-size:0.9rem; font-weight:700; color:var(--clr-text); line-height:1.2; margin-bottom:4px">${escapeHtml(item.name)}</div>
+            <div style="font-size:0.75rem; color:var(--clr-text-3); font-weight:600">${formatCurrency(item.price)} each</div>
           </div>
-          <div style="font-size:0.9rem; font-weight:900">${formatCurrency(item.price * item.qty)}</div>
+          <div style="font-size:0.95rem; font-weight:900; color:var(--clr-primary)">${formatCurrency(item.price * item.qty)}</div>
         </div>
       `).join('');
     }
   }
+
+  function renderCheckoutStep() {
+    document.querySelectorAll('.checkout-panel').forEach(p => p.classList.remove('active'));
+    UI.get(`panel-${StoreState.checkoutStep}`).classList.add('active');
+  }
+
+  function showPanel(step) { goToStep(step); } // Compatibility shim
 
   function renderReview() {
     const total = Cart.total() + (StoreState.isGiftWrapped ? 149 : 0);
@@ -470,10 +754,15 @@
       loadGatewayScript(config.payment.gateway.type);
     }
 
-    // Payment method logic logic
+    // Payment method selection logic
     const upiRadios = document.querySelectorAll('input[name="payment"]');
     upiRadios.forEach(r => {
       r.addEventListener('change', () => {
+        // Highlight selection
+        document.querySelectorAll('.payment-method-label').forEach(lbl => lbl.classList.remove('selected'));
+        const label = r.closest('.payment-method-label');
+        if (label) label.classList.add('selected');
+
         const upiDetails = document.getElementById('upi-details');
         if (r.value === 'UPI') {
           updateUPIDetails();
