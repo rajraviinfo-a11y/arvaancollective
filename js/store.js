@@ -2437,6 +2437,46 @@ function toggleMobileMenu() {
   }
 }
 
+function toggleFilterDrawer(open) {
+  const overlay = document.getElementById('filter-drawer-overlay');
+  if (!overlay) {
+    // If not in DOM (e.g. injected via script), create it
+    const div = document.createElement('div');
+    div.id = 'filter-drawer-overlay';
+    div.className = 'filter-drawer-overlay';
+    div.innerHTML = `
+      <div class="filter-drawer">
+        <div class="filter-drawer-header">
+          <span>Refine Selection</span>
+          <button onclick="toggleFilterDrawer(false)" style="background:none; border:none; font-size:1.5rem">✕</button>
+        </div>
+        <div class="filter-drawer-content" id="mobile-filter-content"></div>
+        <div class="filter-drawer-footer">
+          <button class="btn btn-primary w-full" onclick="toggleFilterDrawer(false)">Show Results</button>
+        </div>
+      </div>
+    `;
+    div.onclick = (e) => { if (e.target.id === 'filter-drawer-overlay') toggleFilterDrawer(false); };
+    document.body.appendChild(div);
+  }
+  
+  const drawerOverlay = document.getElementById('filter-drawer-overlay');
+  if (open) {
+    // Sync current filters into mobile view
+    const mobileContent = document.getElementById('mobile-filter-content');
+    const desktopSidebar = document.getElementById('shop-sidebar');
+    if (mobileContent && desktopSidebar) {
+      mobileContent.innerHTML = desktopSidebar.innerHTML;
+      // Re-bind listeners if needed, though they usually use delegation
+    }
+    drawerOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  } else {
+    drawerOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
 function renderMobileDrawer() {
   const container = UI.get('mobile-cat-list');
   if (!container) return;

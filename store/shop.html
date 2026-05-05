@@ -126,9 +126,9 @@
                <span class="search-icon-nav">🔍</span>
                <input type="text" id="search-input" placeholder="Search results…" style="width:100%; padding:10px 10px 10px 40px; border:1px solid var(--clr-border); border-radius:var(--radius-md)">
             </div>
-            <div style="display:flex; gap:var(--space-4); align-items:center">
-              <span id="result-count" class="text-sm text-muted"></span>
-              <select id="sort-select" class="currency-select" onchange="StoreState.sortBy=this.value; renderProducts();" style="width:auto; border:1px solid var(--clr-border); padding:8px 12px">
+            <div style="display:flex; gap:var(--space-2); align-items:center">
+              <button class="btn btn-outline btn-sm mobile-filter-btn" id="mobile-filter-trigger" onclick="toggleFilterDrawer(true)" style="display:none; height:44px; padding:0 16px; font-weight:700">🔍 Filter</button>
+              <select id="sort-select" class="currency-select" onchange="StoreState.sortBy=this.value; renderProducts();" style="width:auto; border:1px solid var(--clr-border); padding:8px 12px; height:44px">
                 <option value="popular">Most Popular</option>
                 <option value="newest">Newest Additions</option>
                 <option value="price-asc">Price: Low-High</option>
