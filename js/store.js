@@ -400,10 +400,12 @@ function renderFeaturedProducts(limit = 8, categoryFilter = null) {
   if (categoryFilter) {
     products = products.filter(p => p.category === categoryFilter);
   } else {
-    products = products.filter(p => p.featured || p.rating >= 4.5);
+    const featured = products.filter(p => p.featured || p.rating >= 4.5);
+    // If no featured/high-rated products exist, show all active products
+    products = featured.length > 0 ? featured : products;
   }
   
-  products = products.sort((a, b) => b.rating - a.rating).slice(0, limit);
+  products = products.sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, limit);
   
   if (products.length === 0) {
     container.innerHTML = `<p style="padding:40px; text-align:center; color:var(--clr-text-3)">New masterful curations arriving soon.</p>`;
@@ -418,10 +420,11 @@ function renderTrendingProducts(limit = 4) {
   const container = UI.get('trending-products');
   if (!container) return;
   
-  const products = StoreState.products
-    .filter(p => p.isActive !== false && (p.isNew || p.trending))
-    .sort((a, b) => b.reviews - a.reviews)
-    .slice(0, limit);
+  let products = StoreState.products.filter(p => p.isActive !== false);
+  const trending = products.filter(p => p.isNew || p.trending);
+  // Fall back to all active products sorted by reviews if no trending/new ones
+  products = trending.length > 0 ? trending : products;
+  products = products.sort((a, b) => (b.reviews || 0) - (a.reviews || 0)).slice(0, limit);
     
   if (products.length === 0) {
     container.innerHTML = `<p style="padding:40px; text-align:center; color:var(--clr-text-3)">Coming soon to the spotlight.</p>`;
@@ -2579,43 +2582,48 @@ function initHomePage() {
   }
 
   const sectionsList = homeConfig.sections || [];
-  
-  // Mapping admin section types to DOM IDs and existing render functions
-  const sectionMap = {
-    'hero': { selector: '#hero-section', render: null },
-    'featured-categories': { selector: '#category-grid', render: renderCategoryChips },
-    'featured-products': { selector: '#featured-products', render: () => renderFeaturedProducts(8) },
-    'promo-banner': { selector: '.promo-feature-banner', render: null },
-    'flash-sale': { selector: '#flash-sale-section', render: renderFlashDeals },
-    'new-arrivals': { selector: '#trending-products', render: () => renderTrendingProducts(8) },
-    'testimonials': { selector: '#testimonial-grid', render: renderReviews },
-    'newsletter': { selector: '.newsletter-section', render: null }
-  };
 
-  const mainEl = document.querySelector('main');
-  if (mainEl && !mainEl.style.display) {
-    mainEl.style.display = 'flex';
-    mainEl.style.flexDirection = 'column';
-  }
+  // Always render these core sections regardless of admin config
+  // This ensures products show on mobile/fresh sessions without cached admin config
+  renderCategoryChips();
+  renderFeaturedProducts(8);
+  renderTrendingProducts(8);
+  renderFlashDeals();
+  renderReviews();
 
-  sectionsList.forEach(sec => {
-    const mapping = sectionMap[sec.type];
-    if (mapping) {
-      // Find the parent section block to reorder and toggle (often the immediate parent of the selector or the section itself)
-      const innerEl = document.querySelector(mapping.selector);
-      const sectionEl = innerEl ? innerEl.closest('section') : null;
-      
-      if (sectionEl) {
-        if (!sec.isEnabled) {
-          sectionEl.style.display = 'none';
-        } else {
-          sectionEl.style.display = '';
-          sectionEl.style.order = sec.order;
-          if (mapping.render) mapping.render(sec.config);
-        }
-      }
+  // Admin config section ordering/visibility overrides (applied on top)
+  if (sectionsList.length > 0) {
+    const sectionMap = {
+      'hero':                { selector: '#hero-section', render: null },
+      'featured-categories': { selector: '#category-grid', render: null }, // already rendered above
+      'featured-products':   { selector: '#featured-products', render: null }, // already rendered above
+      'promo-banner':        { selector: '.promo-feature-banner', render: null },
+      'flash-sale':          { selector: '#flash-sale-section', render: null }, // already rendered above
+      'new-arrivals':        { selector: '#trending-products', render: null }, // already rendered above
+      'testimonials':        { selector: '#testimonial-grid', render: null }, // already rendered above
+      'newsletter':          { selector: '.newsletter-section', render: null }
+    };
+
+    const mainEl = document.querySelector('main');
+    if (mainEl && !mainEl.style.display) {
+      mainEl.style.display = 'flex';
+      mainEl.style.flexDirection = 'column';
     }
-  });
+
+    sectionsList.forEach(sec => {
+      const mapping = sectionMap[sec.type];
+      if (!mapping) return;
+      const innerEl = document.querySelector(mapping.selector);
+      const sectionEl = innerEl ? (innerEl.closest('section') || innerEl.closest('div.section-block') || innerEl) : null;
+      if (!sectionEl) return;
+      if (!sec.isEnabled) {
+        sectionEl.style.display = 'none';
+      } else {
+        sectionEl.style.display = '';
+        if (sec.order !== undefined) sectionEl.style.order = sec.order;
+      }
+    });
+  }
 
   initRevealOnScroll();
   renderHeroContent();
