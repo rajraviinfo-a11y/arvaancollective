@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -486,6 +486,201 @@
                 <div style="font-size:0.85rem; color:var(--clr-text-2); line-height:1.4">
                   <strong>Secure Checkout:</strong> Your payment information is encrypted and never stored on our servers. You're covered by our 30-day buyer protection.
                 </div>
+    <div class="navbar-actions">
+       <a href="index.html" class="btn btn-ghost btn-sm">← Continue Shopping</a>
+       <button class="nav-action-btn cart-nav-btn" id="cart-btn">
+        <span>🛒</span>
+        <span class="cart-badge hidden" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main class="store-main">
+  <div class="page-container" style="padding-top:var(--space-10)">
+    <div class="section-title-row" style="margin-bottom:var(--space-8)">
+      <h1 class="section-heading">Secure Checkout</h1>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="checkout-steps" id="step-indicator">
+      <div class="step-progress-fill" id="step-fill"></div>
+      <div class="checkout-step-item active" id="step-label-1">
+        <div class="step-num">1</div>
+        <span>Shipping</span>
+      </div>
+      <div class="checkout-step-item" id="step-label-2">
+        <div class="step-num">2</div>
+        <span>Payment</span>
+      </div>
+      <div class="checkout-step-item" id="step-label-3">
+        <div class="step-num">3</div>
+        <span>Review</span>
+      </div>
+    </div>
+
+    <div class="checkout-layout" id="checkout-main-layout">
+      <!-- Left: Panels -->
+      <div class="checkout-panels-container">
+        <!-- Panel 1: Address -->
+        <div class="checkout-panel active" id="panel-1">
+          <div class="card-checkout">
+            <h3><span>📍</span> Shipping Address</h3>
+            <div id="saved-addresses-selector" style="display:none; margin-bottom:var(--space-8)">
+              <div style="font-size:0.75rem; font-weight:800; color:var(--clr-text-3); text-transform:uppercase; margin-bottom:16px; letter-spacing:0.05em">Recently Used Addresses</div>
+              <div id="checkout-address-list" style="display:flex; gap:16px; overflow-x:auto; padding-bottom:12px"></div>
+              <div class="divider" style="height:1px; background:var(--clr-border); margin:24px 0"></div>
+            </div>
+            <form id="address-form" style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-6)">
+              <div style="grid-column:span 2" class="form-group-checkout">
+                <label class="form-label">Full Name *</label>
+                <input class="form-control checkout-input" placeholder="Recipient name" id="addr-name" required>
+              </div>
+              <div style="grid-column:span 2" class="form-group-checkout">
+                <label class="form-label">Address Line 1 *</label>
+                <input class="form-control checkout-input" placeholder="House/Flat No, Street, Landmark" id="addr-line1" required>
+              </div>
+              <div class="form-group-checkout">
+                <label class="form-label">City *</label>
+                <input class="form-control checkout-input" placeholder="Mumbai" id="addr-city" required>
+              </div>
+              <div class="form-group-checkout">
+                <label class="form-label">Zip/Postal Code *</label>
+                <input class="form-control checkout-input" placeholder="400001" id="addr-zip" required>
+              </div>
+            </form>
+
+            <div style="margin-top:var(--space-8); padding:var(--space-6); background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.2); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; cursor:pointer" onclick="document.getElementById('gift-wrap-toggle').click()">
+              <div style="display:flex; align-items:center; gap:16px">
+                <div style="font-size:2rem">🎁</div>
+                <div>
+                  <div style="font-weight:800; color:var(--clr-primary); font-size:1.1rem">Premium Gift Wrapping (+<span id="gift-wrap-price">₹149</span>)</div>
+                  <div style="font-size:0.85rem; color:var(--clr-text-2); margin-top:4px">Luxury gold embossed paper with a personalized card</div>
+                </div>
+              </div>
+              <input type="checkbox" id="gift-wrap-toggle" style="width:24px; height:24px; cursor:pointer; accent-color:var(--clr-primary)" onclick="event.stopPropagation()">
+            </div>
+            
+            <div style="margin-top:32px">
+              <label class="form-label">Order Notes (optional)</label>
+              <textarea class="form-control checkout-input" id="order-notes" rows="3" placeholder="Any specific delivery instructions..."></textarea>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <button class="btn btn-primary btn-auth" id="next-1" style="height:64px; padding:0 48px; font-size:1.1rem; border-radius:var(--radius-xl)">Continue to Payment →</button>
+          </div>
+        </div>
+
+        <!-- Panel 2: Payment -->
+        <div class="checkout-panel" id="panel-2">
+          <div class="card-checkout">
+            <h3><span>💳</span> Payment Method</h3>
+            <div style="display:flex; flex-direction:column; gap:16px">
+              <label style="display:flex; align-items:center; gap:20px; padding:var(--space-6); border:1.5px solid var(--clr-border); border-radius:var(--radius-xl); cursor:pointer" class="payment-method-label selected">
+                <input type="radio" name="payment" value="Card" checked style="width:22px; height:22px; accent-color:var(--clr-primary)">
+                <div>
+                  <div style="font-weight:800; font-size:1.05rem">Credit / Debit Card</div>
+                  <div style="font-size:0.8rem; color:var(--clr-text-3); margin-top:2px">Visa, Mastercard, RuPay, Amex</div>
+                </div>
+                <div style="margin-left:auto; display:flex; gap:8px">
+                  <span style="font-size:1.2rem">💳</span>
+                </div>
+              </label>
+              <label style="display:flex; align-items:center; gap:20px; padding:var(--space-6); border:1.5px solid var(--clr-border); border-radius:var(--radius-xl); cursor:pointer" class="payment-method-label">
+                <input type="radio" name="payment" value="UPI" style="width:22px; height:22px; accent-color:var(--clr-primary)">
+                <div>
+                  <div style="font-weight:800; font-size:1.05rem">UPI / Google Pay / PhonePe</div>
+                  <div style="font-size:0.8rem; color:var(--clr-text-3); margin-top:2px">Scan & Pay or direct VPA</div>
+                </div>
+                <div style="margin-left:auto; font-size:1.2rem">📱</div>
+              </label>
+              <label id="payment-gateway-option" style="display:none; align-items:center; gap:20px; padding:var(--space-6); border:1.5px solid var(--clr-border); border-radius:var(--radius-xl); cursor:pointer" class="payment-method-label">
+                <input type="radio" name="payment" value="Gateway" style="width:22px; height:22px; accent-color:var(--clr-primary)">
+                <div>
+                  <div style="font-weight:800; font-size:1.05rem">Secured Online Payment</div>
+                  <div style="font-size:0.8rem; color:var(--clr-text-3); margin-top:2px">Cards, Netbanking, Wallets (Secure Gateway)</div>
+                </div>
+                <div style="margin-left:auto; font-size:1.2rem">🔒</div>
+              </label>
+              <label style="display:flex; align-items:center; gap:20px; padding:var(--space-6); border:1.5px solid var(--clr-border); border-radius:var(--radius-xl); cursor:pointer" class="payment-method-label">
+                <input type="radio" name="payment" value="COD" style="width:22px; height:22px; accent-color:var(--clr-primary)">
+                <div>
+                  <div style="font-weight:800; font-size:1.05rem">Cash on Delivery (COD)</div>
+                  <div style="font-size:0.8rem; color:var(--clr-text-3); margin-top:2px">Pay when your order arrives</div>
+                </div>
+                <div style="margin-left:auto; font-size:1.2rem">💵</div>
+              </label>
+            </div>
+
+            <!-- Card Entry (Shown if Card selected) -->
+            <div id="card-entry-fields" style="margin-top:var(--space-8); padding-top:var(--space-8); border-top:1px dashed var(--clr-border)">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-5)">
+                <div style="grid-column:span 2" class="form-group-checkout">
+                  <label class="form-label">Card Number</label>
+                  <input class="form-control checkout-input" placeholder="0000 0000 0000 0000" id="card-num">
+                </div>
+                <div class="form-group-checkout">
+                  <label class="form-label">Expiry (MM/YY)</label>
+                  <input class="form-control checkout-input" placeholder="MM/YY" id="card-expiry">
+                </div>
+                <div class="form-group-checkout">
+                  <label class="form-label">CVV</label>
+                  <input class="form-control checkout-input" placeholder="***" type="password" id="card-cvv">
+                </div>
+              </div>
+            </div>
+
+            <!-- UPI Details Block -->
+            <div id="upi-details" style="display:none; margin-top:24px; padding:32px; background:rgba(255,255,255,0.7); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-radius:24px; border:1px solid rgba(108,99,255,0.2); box-shadow:0 20px 40px rgba(0,0,0,0.05); animation:fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)">
+              <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:32px; align-items:start">
+                <div style="text-align:center">
+                  <div id="upi-qr-container" style="background:#fff; padding:16px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 8px 16px rgba(0,0,0,0.06); border:1px solid var(--clr-border); margin-bottom:12px">
+                    <img id="upi-qr-img" src="" alt="UPI QR Code" style="width:140px; height:140px; border-radius:8px">
+                  </div>
+                  <div style="font-size:0.75rem; font-weight:700; color:var(--clr-primary); letter-spacing:0.05em; text-transform:uppercase">Scan to Pay Safely</div>
+                </div>
+                <div>
+                  <h4 style="font-size:1.2rem; font-family:var(--font-heading); margin-bottom:12px">Digital Payment</h4>
+                  <p style="font-size:0.85rem; color:var(--clr-text-2); margin-bottom:20px; line-height:1.5">Use your preferred UPI app to scan and pay. Your order will be processed instantly after verification.</p>
+                  <div style="display:flex; flex-direction:column; gap:16px">
+                    <div style="background:#fff; border:1px solid var(--clr-border); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center">
+                       <div style="flex:1">
+                         <div style="font-size:0.7rem; color:var(--clr-text-3); font-weight:700; text-transform:uppercase; margin-bottom:2px">Official UPI ID</div>
+                         <code id="upi-vpa-display" style="font-weight:700; font-size:0.95rem; color:var(--clr-primary)">pay@upi</code>
+                       </div>
+                       <button class="btn btn-ghost" onclick="copyUPI(this)" style="padding:8px 14px; height:auto; border-radius:8px; font-size:0.8rem">Copy</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:32px; padding-top:24px; border-top:1px solid rgba(0,0,0,0.05)">
+                <label class="form-label" style="font-size:0.85rem; margin-bottom:10px; font-weight:700">Verification Reference (UTR)</label>
+                <div style="position:relative">
+                  <span style="position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:1.1rem; opacity:0.4">#</span>
+                  <input type="text" id="upi-txn-id" class="form-control" placeholder="12-digit transaction number" style="height:54px; padding-left:40px; border-radius:12px">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="checkout-nav-btns">
+            <button class="btn btn-ghost" onclick="showPanel(1)">← Back to Shipping</button>
+            <button class="btn btn-primary btn-auth" id="next-2" style="height:64px; padding:0 48px; font-size:1.1rem; border-radius:var(--radius-xl)">Review Order →</button>
+          </div>
+        </div>
+
+        <!-- Panel 3: Review -->
+        <div class="checkout-panel" id="panel-3">
+          <div class="card-checkout">
+            <h3><span>📝</span> Review & Place Order</h3>
+            <div id="review-items" style="margin-bottom:var(--space-8)">
+              <!-- Loaded via JS -->
+            </div>
+            <div style="background:rgba(16,185,129,0.05); padding:var(--space-5); border-radius:var(--radius-lg); border:1px solid rgba(16,185,129,0.1); margin-top:var(--space-6)">
+              <div style="display:flex; gap:12px; align-items:center">
+                <span style="font-size:1.4rem">🛡️</span>
+                <div style="font-size:0.85rem; color:var(--clr-text-2); line-height:1.4">
+                  <strong>Secure Checkout:</strong> Your payment information is encrypted and never stored on our servers. You're covered by our 30-day buyer protection.
+                </div>
               </div>
             </div>
           </div>
@@ -548,20 +743,9 @@
           <input type="text" id="promo-input" class="form-control" placeholder="Promo Code" style="height:48px">
           <button class="btn btn-outline btn-sm" onclick="PromoMgr.apply(document.getElementById('promo-input').value)" style="height:48px">Apply</button>
         </div>
-      </div>
+      </aside>
     </div>
 
-    <!-- Success screen -->
-    <div class="checkout-panel success-screen" id="panel-success">
-      <div style="font-size:6rem; margin-bottom:24px">🎉</div>
-      <h2 style="font-family:var(--font-heading); font-size:2.8rem; margin-bottom:12px">Order Placed!</h2>
-      <p style="color:var(--clr-text-2); max-width:500px; margin:0 auto 32px; font-size:1.1rem; line-height:1.6">Thank you for choosing Arvaan Collective. Your order has been registered and is being prepared for dispatch.</p>
-      <div id="success-order-id" style="font-family:monospace; font-size:1.4rem; font-weight:900; color:var(--clr-primary); background:var(--clr-bg-3); display:inline-block; padding:12px 24px; border-radius:var(--radius-md); margin-bottom:40px">Order ID: ORD-001</div>
-      <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap">
-        <a href="orders.html" class="btn btn-outline" style="height:60px; padding:0 30px; line-height:58px; text-decoration:none">📦 Track Order Status</a>
-        <a href="index.html" class="btn btn-primary" style="height:60px; padding:0 40px; line-height:60px; text-decoration:none">🛍️ Return to Shop</a>
-      </div>
-    </div>
   </div>
 </main>
 
@@ -600,7 +784,6 @@
 
   function updateSummary() {
     UI.safeHTML('sum-subtotal', formatCurrency(Cart.subtotal()));
-    UI.safeHTML('sum-shipping', Cart.shipping() === 0 ? 'FREE' : formatCurrency(Cart.shipping()));
     const taxAmt = Cart.tax();
     UI.safeHTML('sum-tax', formatCurrency(taxAmt));
     
@@ -698,7 +881,6 @@
   }
 
   function doPlaceOrder() {
-    const user = Auth.getBuyer();
     const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'Card';
 
     // TRIGGER GATEWAY IF SELECTED
@@ -737,22 +919,28 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Allow guest checkout - pre-fill name if logged in
     const user = Auth.getBuyer();
-    if (!user) { window.location.href = 'index.html'; return; }
+    if (user) {
+      UI.safeSet('addr-name', 'value', user.name || '');
+    }
 
-    if (Cart.count() === 0 && !UI.get('panel-success')?.classList.contains('active')) {
-      UI.get('checkout-main-layout').innerHTML = `
-        <div style="grid-column:span 2; text-align:center; padding:100px 0">
-          <div style="font-size:5rem">🛒</div>
-          <h2 style="font-family:var(--font-heading); font-size:2rem; margin-top:20px">Your cart is empty</h2>
-          <p style="color:var(--clr-text-3); margin:12px 0 32px">Explore our collection to add masterpieces to your cart.</p>
-          <a href="shop.html" class="btn btn-primary" style="padding:16px 40px; text-decoration:none">Start Shopping →</a>
-        </div>`;
+    if (Cart.count() === 0) {
+      const layout = UI.get('checkout-main-layout');
+      if (layout) {
+        layout.innerHTML = `
+          <div style="grid-column:span 2; text-align:center; padding:100px 0">
+            <div style="font-size:5rem">🛒</div>
+            <h2 style="font-family:var(--font-heading); font-size:2rem; margin-top:20px">Your cart is empty</h2>
+            <p style="color:var(--clr-text-3); margin:12px 0 32px">Explore our collection to add masterpieces to your cart.</p>
+            <a href="shop.html" class="btn btn-primary" style="padding:16px 40px; text-decoration:none">Start Shopping →</a>
+          </div>`;
+      }
       return;
     }
 
-    // Saved Addresses
-    renderSavedAddresses();
+    // Saved Addresses (only if logged in)
+    if (user) renderSavedAddresses();
 
     // Gift wrap
     const giftToggle = UI.get('gift-wrap-toggle');
@@ -766,23 +954,41 @@
     UI.safeHTML('gift-wrap-price', formatCurrency(149));
     updateSummary();
 
-    // Navigation
-    UI.get('next-1').onclick = () => {
-      if (!UI.get('addr-name').value || !UI.get('addr-line1').value) {
-        showToast('Required Field', 'Please provide a shipping name and address.', 'warning');
-        return;
-      }
-      goToStep(2);
-    };
-    UI.get('next-2').onclick = () => { renderReview(); goToStep(3); };
-    UI.get('back-2').onclick = () => goToStep(1);
-    UI.get('back-3').onclick = () => goToStep(2);
-    UI.get('place-order-btn').onclick = doPlaceOrder;
+    // Navigation - safe checks for buttons
+    const n1 = UI.get('next-1');
+    if (n1) {
+      n1.onclick = () => {
+        const name = UI.get('addr-name').value;
+        const addr = UI.get('addr-line1').value;
+        if (!name || !addr) {
+          showToast('Required Field', 'Please provide a shipping name and address.', 'warning');
+          return;
+        }
+        goToStep(2);
+      };
+    }
 
-    const config = AdminStore.getSiteConfig();
-    if (config.payment?.gateway?.enabled) {
-      document.getElementById('payment-gateway-option').style.display = 'flex';
-      loadGatewayScript(config.payment.gateway.type);
+    const n2 = UI.get('next-2');
+    if (n2) n2.onclick = () => { renderReview(); goToStep(3); };
+
+    // Back buttons are handled by showPanel(n) in HTML, but we'll add JS hooks too
+    document.querySelectorAll('.btn-ghost').forEach(btn => {
+      if (btn.textContent.includes('Back to Shipping')) btn.onclick = () => goToStep(1);
+      if (btn.textContent.includes('Back to Payment')) btn.onclick = () => goToStep(2);
+    });
+
+    const placeBtn = UI.get('place-order-btn');
+    if (placeBtn) placeBtn.onclick = doPlaceOrder;
+
+    try {
+      const config = AdminStore.getSiteConfig();
+      if (config?.payment?.gateway?.enabled) {
+        const gwOpt = document.getElementById('payment-gateway-option');
+        if (gwOpt) gwOpt.style.display = 'flex';
+        loadGatewayScript(config.payment.gateway.type);
+      }
+    } catch (e) {
+      console.warn('Config load failed', e);
     }
 
     // Payment method selection logic
@@ -795,11 +1001,13 @@
         if (label) label.classList.add('selected');
 
         const upiDetails = document.getElementById('upi-details');
-        if (r.value === 'UPI') {
-          updateUPIDetails();
-          upiDetails.style.display = 'block';
-        } else {
-          upiDetails.style.display = 'none';
+        if (upiDetails) {
+          if (r.value === 'UPI') {
+            updateUPIDetails();
+            upiDetails.style.display = 'block';
+          } else {
+            upiDetails.style.display = 'none';
+          }
         }
       });
     });
@@ -811,14 +1019,16 @@
     const payeeName = config.payment?.payeeName || 'Arvaan Collective';
     const totalAmount = Cart.total() + (StoreState.isGiftWrapped ? 149 : 0);
     
-    document.getElementById('upi-vpa-display').textContent = upiId;
+    const upiVpa = document.getElementById('upi-vpa-display');
+    if (upiVpa) upiVpa.textContent = upiId;
     
     // upi://pay?pa=VPA&pn=NAME&am=AMOUNT&cu=INR&tn=Order Payment
     const upiLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent('Order ' + Date.now().toString().slice(-6))}`;
     
     // Generate QR using api.qrserver.com
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiLink)}`;
-    document.getElementById('upi-qr-img').src = qrUrl;
+    const qrImg = document.getElementById('upi-qr-img');
+    if (qrImg) qrImg.src = qrUrl;
   }
 
   function copyUPI(btn) {
@@ -848,7 +1058,7 @@
     const gate = config.payment.gateway;
     const items = Cart.get();
     const total = Cart.total() + (StoreState.isGiftWrapped ? 149 : 0);
-    const buyer = Auth.getBuyer();
+    const buyer = Auth.getBuyer() || { name: 'Guest', email: '' };
 
     if (!gate.apiKey) {
       showToast('Configuration Error', 'Gateway API Key is missing in admin settings.', 'error');
@@ -889,10 +1099,12 @@
       const cartItems = Cart.get();
       const orders = Store.getOrders();
       const paymentMethod = gatewayRef ? 'Gateway' : (document.querySelector('input[name="payment"]:checked')?.value || 'Card');
+      const orderId = `ORD-${Date.now().toString().slice(-6)}`;
       
       const newOrder = {
-        id: `ORD-${Date.now().toString().slice(-6)}`,
-        userId: user.id,
+        id: orderId,
+        userId: user?.id || 'guest',
+        customerName: user?.name || UI.get('addr-name').value,
         // Capture sellerId from cart item (supporting both sellerId and seller properties)
         sellerId: cartItems.length > 0 ? (cartItems[0].sellerId || cartItems[0].seller) : null,
         subtotal: Cart.subtotal(),
@@ -902,6 +1114,7 @@
         total: Cart.total() + (StoreState.isGiftWrapped ? 149 : 0),
         status: paymentMethod === 'COD' ? 'pending' : 'paid',
         date: new Date().toISOString().slice(0, 10),
+        createdAt: new Date().toISOString(),
         items: cartItems,
         address: `${UI.get('addr-name').value}, ${UI.get('addr-line1').value}, ${UI.get('addr-city').value} - ${UI.get('addr-zip').value}`,
         paymentMethod: paymentMethod,
@@ -915,7 +1128,7 @@
       const products = Store.getProducts();
       let inventoryChanged = false;
       cartItems.forEach(cartItem => {
-         const product = products.find(p => p.id === cartItem.id);
+         const product = products.find(p => String(p.id) === String(cartItem.id));
          if (product) {
             if (typeof product.stock === 'number') {
                product.stock = Math.max(0, product.stock - cartItem.qty);
@@ -930,13 +1143,41 @@
 
       orders.push(newOrder);
       Store.setOrders(orders);
-      Cart.clear();
 
-      document.getElementById('checkout-main-layout').style.display = 'none';
-      document.getElementById('step-indicator').style.display = 'none';
-      document.querySelectorAll('.checkout-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('panel-success').classList.add('active');
-      document.getElementById('success-order-id').textContent = `Order ID: ${newOrder.orderId || newOrder.id}`;
+      // Push to CloudDB immediately
+      if (typeof CloudDB !== 'undefined') {
+        CloudDB.pushDoc('orders', newOrder).catch(e => console.warn('Order sync failed', e));
+      }
+
+      Cart.clear();
+      updateCartCount();
+
+      // Show enhanced success screen
+      const layout = document.getElementById('checkout-main-layout');
+      const stepBar = document.getElementById('step-indicator');
+      if (layout) layout.style.display = 'none';
+      if (stepBar) stepBar.style.display = 'none';
+
+      const mainContainer = document.querySelector('main .page-container');
+      if (mainContainer) {
+        mainContainer.innerHTML = `
+          <div style="text-align:center; padding:60px 20px; animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)">
+            <div style="width:100px; height:100px; background:var(--checkout-accent); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:3rem; margin:0 auto 32px; box-shadow:0 12px 30px rgba(16,185,129,0.3)">✓</div>
+            <h2 style="font-family:var(--font-heading); font-size:2.5rem; margin-bottom:12px">Order Confirmed!</h2>
+            <p style="color:var(--clr-text-2); font-size:1.1rem; margin-bottom:40px">Thank you${user?.name ? ', ' + user.name : ''}! Your order is being prepared for dispatch.</p>
+            <div style="background:var(--clr-bg-alt); padding:32px; border-radius:var(--radius-xl); display:inline-block; text-align:left; min-width:320px; border:1px solid var(--clr-border)">
+              <div style="font-size:0.8rem; text-transform:uppercase; font-weight:800; color:var(--clr-text-3); margin-bottom:12px">Order Details</div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px"><span>Order ID:</span><strong style="color:var(--clr-primary)">#${orderId}</strong></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px"><span>Payment Method:</span><strong>${paymentMethod}</strong></div>
+              <div style="display:flex; justify-content:space-between"><span>Delivery Estimate:</span><strong>3-5 Business Days</strong></div>
+            </div>
+            <div style="margin-top:48px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap">
+              <a href="orders.html" class="btn btn-primary" style="padding:16px 32px; text-decoration:none">📦 Track My Order</a>
+              <a href="index.html" class="btn btn-outline" style="padding:16px 32px; text-decoration:none">← Return to Store</a>
+            </div>
+          </div>`;
+      }
+      
       showToast('Success! 🎉', 'Your order has been placed successfully.', 'success');
   }
 </script>
