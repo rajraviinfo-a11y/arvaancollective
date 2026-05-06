@@ -522,7 +522,13 @@ function renderProducts(gridId = 'products-grid', options = {}) {
       <button class="btn btn-outline" onclick="resetFilters()" style="margin-top: 20px;">Clear All Filters</button>
     </div>`;
   } else {
-    grid.className = (StoreState.viewMode === 'list') ? 'products-list' : 'products-grid';
+    // Preserve product-grid-4 class so mobile CSS breakpoints apply correctly
+    // Only switch to products-list for explicit list view
+    if (StoreState.viewMode === 'list') {
+      grid.className = 'products-list';
+    } else if (!grid.classList.contains('product-grid-4')) {
+      grid.className = 'products-grid';
+    }
     grid.innerHTML = paginated.map(p => renderProductCard(p)).join('');
     addProductCardListeners();
   }
@@ -1926,8 +1932,11 @@ function initShopPage() {
   console.log('initShopPage: Starting catalog initialization...');
   if (!StoreState.products || StoreState.products.length === 0) {
     const p = (typeof Store !== 'undefined') ? Store.getProducts() : [];
-    if (p && p.length > 0) StoreState.products = p.filter(prod => prod.isActive !== false);
-    else if (typeof SEED_PRODUCTS !== 'undefined') StoreState.products = SEED_PRODUCTS.filter(prod => prod.isActive !== false);
+    if (p && p.length > 0) {
+      StoreState.products = p.filter(prod => prod.isActive !== false);
+    } else if (typeof SEED_PRODUCTS !== 'undefined') {
+      StoreState.products = SEED_PRODUCTS.filter(prod => prod.isActive !== false);
+    }
   }
 
   const max = getMaxPrice();
@@ -2738,10 +2747,16 @@ window.alert = () => {};
  */
 function initStore() {
   try {
-    // 1. Core Data
+    // 1. Core Data — Load from localStorage FIRST for instant render (critical for mobile)
     if (typeof Store !== 'undefined' && Store.init) {
        Store.init();
-       StoreState.products = Store.getProducts().filter(p => p.isActive !== false);
+       let products = Store.getProducts().filter(p => p.isActive !== false);
+       // Fallback to seed data if localStorage is empty (e.g. first visit)
+       if (products.length === 0 && typeof SEED_PRODUCTS !== 'undefined') {
+         products = SEED_PRODUCTS.filter(p => p.isActive !== false);
+       }
+       StoreState.products = products;
+       console.log('[Store] Loaded', StoreState.products.length, 'products from localStorage');
     }
     
     // 2. Critical Shell Components

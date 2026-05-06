@@ -420,6 +420,10 @@ input, select, textarea { font-family: inherit; }
 }
 .product-card:hover .product-wish-btn { opacity: 1; }
 .product-wish-btn.wishlisted { opacity: 1; }
+/* Always show wish button on touch devices */
+@media (hover: none) {
+  .product-wish-btn { opacity: 1; }
+}
 
 /* Product Actions (Quick View) */
 .product-actions-overlay {
@@ -433,6 +437,17 @@ input, select, textarea { font-family: inherit; }
 }
 .product-card:hover .product-actions-overlay {
   opacity: 1; transform: translateY(0);
+}
+/* On touch devices (mobile), always show quick actions */
+@media (hover: none) {
+  .product-actions-overlay {
+    opacity: 1;
+    transform: translateY(0);
+    background: rgba(0,0,0,0.55);
+    padding: 8px;
+    gap: 6px;
+  }
+  .quick-action-btn { font-size: 0.7rem; padding: 6px 4px; }
 }
 .quick-action-btn {
   flex: 1; padding: 8px;
@@ -757,7 +772,17 @@ input, select, textarea { font-family: inherit; }
   margin-bottom: 24px;
   flex-wrap: wrap;
 }
-.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.products-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+  gap: 16px; 
+}
+@media (max-width: 768px) {
+  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+}
+@media (max-width: 480px) {
+  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
 .products-list { display: flex; flex-direction: column; gap: 16px; }
 
 
@@ -1378,8 +1403,18 @@ input, select, textarea { font-family: inherit; }
   .product-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .product-card-name { font-size: 0.75rem; line-height: 1.3; height: 2.6em; }
   .product-card-price { font-size: 0.85rem; font-weight: 700; }
-  .add-cart-btn span:last-child { display: none; }
-  .add-cart-btn { padding: 6px; width: 32px; height: 32px; min-width: 32px; }
+  /* Product card body — tighter for small screens */
+  .product-body { padding: 10px 12px; gap: 4px; }
+  .product-name { font-size: 0.78rem; }
+  .product-rating { font-size: 0.7rem; }
+  .product-price { font-size: 0.9rem; }
+  /* Add to cart button — compact but tapable */
+  .product-foot .add-cart-btn { 
+    padding: 8px 10px; 
+    font-size: 0.72rem; 
+    min-width: 44px; 
+    min-height: 36px;
+  }
 
   .footer-grid { grid-template-columns: 1fr; text-align: left; gap: 32px; }
   .newsletter-inner { padding: 24px var(--space-4); text-align: center; }
