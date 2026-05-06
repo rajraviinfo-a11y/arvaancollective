@@ -26,6 +26,10 @@ const CloudDB = {
     return true;
   },
 
+  isReady() {
+    return this.status === 'ready' && !!this.db;
+  },
+
   _addToQueue(fn) {
     console.log('CloudDB: Queuing operation until ready...');
     this._queue.push(fn);
@@ -55,7 +59,6 @@ const CloudDB = {
           const localTs = localStorage.getItem(syncKey);
           const cloudTs = cloudData.updatedAt;
 
-          // Only pull if cloud is newer or local is missing sync timestamp
           if (!localTs || (cloudTs && new Date(cloudTs) > new Date(localTs))) {
             console.log(`CloudDB: Pulling newer config for ${key}...`);
             localStorage.setItem(localKey, JSON.stringify(cloudData.value));
@@ -72,7 +75,7 @@ const CloudDB = {
 
   // ── Config: Push a single admin config doc to Firestore ───────────────────
   async pushConfig(key, value) {
-    if (this.status !== 'ready') {
+    if (!this.isReady()) {
       this._addToQueue(() => this.pushConfig(key, value));
       return;
     }
@@ -83,7 +86,6 @@ const CloudDB = {
         value, 
         updatedAt: now 
       });
-      // Mark as synced locally
       localStorage.setItem(`arvaan_sync_ts_${key}`, now);
       console.log(`CloudDB: Pushed config ${key} to Firestore`);
     } catch (e) {
@@ -106,7 +108,7 @@ const CloudDB = {
       let cloudItems = snap.empty ? [] : snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
       if (typeof Store !== 'undefined') {
-        // 1. Filter out deleted products if applicable
+        // Filter out deleted products if applicable
         if (colName === 'products') {
           const deletedIds = Store.getDeletedIds();
           if (deletedIds.length > 0) {
@@ -114,7 +116,7 @@ const CloudDB = {
           }
         }
 
-        // 2. Universal Merge: preserve local-only items not yet in Firestore
+        // Universal Merge: preserve local-only items not yet in Firestore
         const existingLocalRaw = localStorage.getItem(localKey);
         if (existingLocalRaw) {
           try {
@@ -144,7 +146,6 @@ const CloudDB = {
     return null;
   },
 
-
   _clean(obj) {
     if (Array.isArray(obj)) return obj.map(v => this._clean(v));
     if (obj !== null && typeof obj === 'object') {
@@ -159,7 +160,7 @@ const CloudDB = {
   },
 
   async pushCollection(colName, items) {
-    if (this.status !== 'ready') {
+    if (!this.isReady()) {
       this._addToQueue(() => this.pushCollection(colName, items));
       return;
     }
@@ -177,7 +178,6 @@ const CloudDB = {
         chunk.forEach(item => {
           if (!item || !item.id) return;
           const ref = this.db.collection(colName).doc(String(item.id));
-          // Sanitize object to remove 'undefined' values which Firestore rejects
           const data = this._clean(item);
           batch.set(ref, data);
         });
@@ -192,8 +192,29 @@ const CloudDB = {
     }
   },
 
+  // ── Push a single document to Firestore (faster than full collection push) ─
+  async pushDoc(colName, item) {
+    if (!item || !item.id) return;
+    if (!this.isReady()) {
+      this._addToQueue(() => this.pushDoc(colName, item));
+      return;
+    }
+    this._activeSyncs++;
+    try {
+      const ref = this.db.collection(colName).doc(String(item.id));
+      const data = this._clean(item);
+      await ref.set(data, { merge: true });
+      console.log(`CloudDB: Pushed ${colName}/${item.id} to Firestore`);
+    } catch (e) {
+      this._lastError = `pushDoc(${colName}/${item.id}): ${e.message}`;
+      console.warn(`CloudDB: pushDoc(${colName}/${item.id}) failed`, e.message);
+    } finally {
+      this._activeSyncs--;
+    }
+  },
+
   async deleteItem(colName, docId) {
-    if (this.status !== 'ready') {
+    if (!this.isReady()) {
       this._addToQueue(() => this.deleteItem(colName, docId));
       return;
     }
@@ -207,7 +228,7 @@ const CloudDB = {
   },
 
   async purgeCollection(colName) {
-    if (this.status !== 'ready') {
+    if (!this.isReady()) {
       this._addToQueue(() => this.purgeCollection(colName));
       return;
     }
@@ -226,18 +247,19 @@ const CloudDB = {
 
   // ── User Profiles ─────────────────────────────────────────────────────────
   async saveUserProfile(uid, profile) {
-    if (!this.ready) return;
+    if (!this.isReady()) return;  // Fixed: was this.ready (undefined)
     try {
       const safeProfile = { ...profile };
       delete safeProfile.password;
       await this.db.collection('users').doc(uid).set(safeProfile, { merge: true });
+      console.log(`CloudDB: Saved user profile for ${uid}`);
     } catch (e) {
       console.warn('CloudDB: saveUserProfile failed', e.message);
     }
   },
 
   async getUserProfile(uid) {
-    if (!this.ready) return null;
+    if (!this.isReady()) return null;  // Fixed: was this.ready (undefined)
     try {
       const snap = await this.db.collection('users').doc(uid).get();
       return snap.exists ? snap.data() : null;
@@ -247,16 +269,24 @@ const CloudDB = {
     }
   },
 
+  // ── Seller Profile sync ───────────────────────────────────────────────────
+  async saveSellerProfile(seller) {
+    if (!seller || !seller.id) return;
+    const safeSeller = { ...seller };
+    delete safeSeller.password; // Never store passwords in Firestore
+    await this.pushDoc('sellers', { ...safeSeller, id: seller.id });
+  },
+
   // ── Cart / Wishlist ───────────────────────────────────────────────────────
   async saveUserList(colName, uid, items) {
-    if (!this.ready || !uid) return;
+    if (!this.isReady() || !uid) return;  // Fixed: was this.ready (undefined)
     try {
       await this.db.collection(colName).doc(uid).set({ items, updatedAt: new Date().toISOString() });
     } catch (e) { console.warn(`CloudDB: saveUserList(${colName}) failed`, e.message); }
   },
 
   async pullUserList(colName, uid, localKey) {
-    if (!this.ready || !uid) return null;
+    if (!this.isReady() || !uid) return null;  // Fixed: was this.ready (undefined)
     try {
       const snap = await this.db.collection(colName).doc(uid).get();
       if (snap.exists) {
@@ -275,12 +305,11 @@ const CloudDB = {
   
   // ── Deleted IDs Synchronization ───────────────────────────────────────────
   async pullDeletedIds() {
-    if (!this.ready) return [];
+    if (!this.isReady()) return [];  // Fixed: was this.ready (undefined)
     try {
       const snap = await this.db.collection('deleted_ids').get();
       const ids = snap.docs.map(d => String(d.id));
       if (ids.length > 0) {
-        // Merge with local deleted IDs
         const localIds = Store.getDeletedIds();
         const merged = Array.from(new Set([...localIds, ...ids]));
         localStorage.setItem('arvaan_deleted_product_ids', JSON.stringify(merged));
@@ -294,7 +323,7 @@ const CloudDB = {
   },
 
   async pushDeletedId(id) {
-    if (this.status !== 'ready') {
+    if (!this.isReady()) {
       this._addToQueue(() => this.pushDeletedId(id));
       return;
     }
@@ -312,7 +341,7 @@ const CloudDB = {
 
   // ── First-run Seeding: push defaults if Firestore is empty ───────────────
   async seedIfEmpty() {
-    if (!this.ready) return;
+    if (!this.isReady()) return;
     try {
       // Check config to determine if it's the first run
       const cfgSnap = await this.db.collection('config').doc('site').get();
@@ -368,9 +397,6 @@ const CloudDB = {
         
         if (products.length !== filtered.length) {
           Store.setProducts(filtered);
-          if (this.status === 'ready') {
-            await this.pushCollection('products', filtered);
-          }
         }
         localStorage.setItem('arvaan_seed_version', '15');
       }
@@ -398,20 +424,50 @@ const CloudDB = {
     document.dispatchEvent(new CustomEvent('arvaan:cloud-ready', { detail: { offline: false } }));
     console.log('✅ CloudDB bootstrap complete & Queue processed');
     
-    // Force a one-time sync of local data to cloud after bootstrap to catch any unsynced items
+    // After bootstrap: sync any local data not yet in Firestore
     setTimeout(() => {
-      if (typeof Store !== 'undefined') {
-        const collections = ['products', 'orders', 'sellers', 'promotions'];
-        collections.forEach(col => {
-          const localKey = col === 'products' ? 'arvaan_products' : `arvaan_${col}`;
-          const items = Store.get(col === 'products' ? 'products' : col);
-          if (Array.isArray(items) && items.length > 0) {
-            console.log(`CloudDB: Running post-bootstrap sync for ${col}...`);
-            this.pushCollection(col, items).catch(e => console.warn(`CloudDB: Background sync for ${col} failed`, e));
-          }
-        });
+      this._syncLocalToCloud();
+    }, 1500);
+  },
+
+  // ── Sync local localStorage data to Firestore (catch unsynced items) ───────
+  async _syncLocalToCloud() {
+    if (!this.isReady() || typeof Store === 'undefined') return;
+    
+    const collectionMap = {
+      'products':     'arvaan_products',
+      'orders':       'arvaan_orders',
+      'sellers':      'arvaan_sellers',
+      'promotions':   'arvaan_promotions',
+    };
+
+    for (const [col, localKey] of Object.entries(collectionMap)) {
+      try {
+        const localRaw = localStorage.getItem(localKey);
+        if (!localRaw) continue;
+        const localItems = JSON.parse(localRaw);
+        if (!Array.isArray(localItems) || localItems.length === 0) continue;
+
+        // Get what's already in Firestore
+        const snap = await this.db.collection(col).get();
+        const cloudIds = new Set(snap.docs.map(d => d.id));
+
+        // Find items only in localStorage (not yet pushed)
+        const unsynced = localItems.filter(item => item && item.id && !cloudIds.has(String(item.id)));
+        
+        if (unsynced.length > 0) {
+          console.log(`CloudDB: Syncing ${unsynced.length} unsynced ${col} to Firestore...`);
+          // For sellers, strip passwords before pushing
+          const safeItems = col === 'sellers' 
+            ? unsynced.map(s => { const safe = {...s}; delete safe.password; return safe; })
+            : unsynced;
+          await this.pushCollection(col, safeItems);
+        }
+      } catch (e) {
+        console.warn(`CloudDB: _syncLocalToCloud for ${col} failed`, e.message);
       }
-    }, 2000);
+    }
+    console.log('CloudDB: Post-bootstrap local→cloud sync complete');
   }
 };
 
@@ -429,34 +485,72 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Patch Store.set for generic collections
+  // Patch Store.set — CRITICAL: Also patch the internal 'set' method so calls
+  // via this.set() inside the Store object also trigger Firestore sync
   if (typeof Store !== 'undefined') {
     const _origStoreSet = Store.set.bind(Store);
-    Store.set = function(key, val) {
+    
+    const _patchedSet = function(key, val) {
       _origStoreSet(key, val);
       
-      const collections = ['products', 'orders', 'sellers', 'promotions', 'transactions', 'reviews', 'deleted_product_ids'];
-      if (collections.includes(key) && Array.isArray(val)) {
+      const syncCollections = {
+        'products':            'products',
+        'orders':              'orders',
+        'sellers':             'sellers',
+        'promotions':          'promotions',
+        'transactions':        'transactions',
+        'reviews':             'reviews',
+        'deleted_product_ids': 'deleted_product_ids',
+      };
+
+      if (syncCollections[key] && Array.isArray(val)) {
+        const colName = syncCollections[key];
         clearTimeout(Store[`_${key}SyncTimer`]);
         Store[`_${key}SyncTimer`] = setTimeout(() => {
-          // Special handling for products: also explicitly delete any docs listed in deleted IDs
           if (key === 'products') {
+            // Remove docs for deleted IDs
             const deletedIds = Store.getDeletedIds();
             deletedIds.forEach(id => CloudDB.deleteItem('products', id).catch(() => {}));
           }
           
-          // Special handling for deleted IDs: push individual docs to 'deleted_ids' collection
           if (key === 'deleted_product_ids') {
             val.forEach(id => CloudDB.pushDeletedId(id).catch(() => {}));
-            return; // No need to call pushCollection for the whole array
+            return;
           }
 
-          CloudDB.pushCollection(key, val).catch(() => {});
+          // For sellers — strip passwords before pushing to Firestore
+          const safeVal = key === 'sellers'
+            ? val.map(s => { const safe = {...s}; delete safe.password; return safe; })
+            : val;
+
+          CloudDB.pushCollection(colName, safeVal).catch(() => {});
         }, 800);
       }
+    };
+
+    // Patch both the external reference AND the internal this.set
+    Store.set = _patchedSet;
+    Store['set'] = _patchedSet; // Ensure prototype-level calls also hit the patch
+  }
+
+  // Expose Auth.saveSeller helper (was missing, caused errors in requestPayout etc.)
+  if (typeof Auth !== 'undefined' && !Auth.saveSeller) {
+    Auth.saveSeller = function(seller) {
+      if (!seller || !seller.id) return;
+      const sellers = Store.getSellers();
+      const idx = sellers.findIndex(s => s.id === seller.id);
+      if (idx !== -1) {
+        sellers[idx] = seller;
+      } else {
+        sellers.push(seller);
+      }
+      Store.setSellers(sellers); // This triggers the patched set → Firestore sync
+      Store.setCurrentSeller(seller);
+      // Also push immediately to Firestore for instant sync
+      CloudDB.saveSellerProfile(seller);
     };
   }
 });
 
-// Expose globally
+// ── Expose globally ─────────────────────────────────────────────────────────
 window.CloudDB = CloudDB;

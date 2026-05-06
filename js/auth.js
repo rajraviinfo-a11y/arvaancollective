@@ -121,6 +121,10 @@ const Auth = {
     Store.setSellers(sellers);
     // Auto-login after registration for better UX
     Store.setCurrentSeller(seller);
+    // Immediately push to Firestore (don't rely on Store.set patch timing)
+    if (typeof CloudDB !== 'undefined') {
+      CloudDB.saveSellerProfile(seller).catch(e => console.warn('CloudDB: seller push failed', e));
+    }
     return { ok: true, seller };
   },
 

@@ -2049,6 +2049,12 @@ function saveProduct(e, status = 'published') {
   }
 
   Store.setProducts(products);
+
+  // Immediately push the product to Firestore (direct push, no debounce)
+  if (typeof CloudDB !== 'undefined') {
+    CloudDB.pushDoc('products', productData).catch(e => console.warn('CloudDB: product push failed', e));
+  }
+
   renderProductsTable();
   closeAllModals();
   showToast(
