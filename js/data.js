@@ -4,6 +4,33 @@
    ============================================= */
 'use strict';
 
+// ── App Version Cache Buster ─────────────────────────────────────────────────
+// Increment this number whenever JS/CSS changes need to be forced on mobile.
+// When the version changes, stale localStorage keys are cleared automatically.
+const APP_VERSION = '20';
+(function() {
+  const storedVersion = localStorage.getItem('arvaan_app_version');
+  if (storedVersion !== APP_VERSION) {
+    console.log(`[CacheBuster] Version changed ${storedVersion} → ${APP_VERSION}. Clearing stale cache...`);
+    // Preserve user-specific data, clear everything else
+    const preserve = ['arvaan_cart', 'arvaan_current_buyer', 'arvaan_wishlist', 'arvaan_orders', 'arvaan_current_seller'];
+    const preserved = {};
+    preserve.forEach(key => {
+      const val = localStorage.getItem(key);
+      if (val) preserved[key] = val;
+    });
+    // Clear all arvaan_ keys
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('arvaan_'))
+      .forEach(k => localStorage.removeItem(k));
+    // Restore preserved data
+    Object.entries(preserved).forEach(([k, v]) => localStorage.setItem(k, v));
+    // Set new version
+    localStorage.setItem('arvaan_app_version', APP_VERSION);
+    console.log('[CacheBuster] Stale cache cleared. Fresh data will be loaded from Firestore.');
+  }
+})();
+
 const SEED_PRODUCTS = [];
 
 // ── Global Store Logic ──────────────────────────────────────────────────────

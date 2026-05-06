@@ -2,55 +2,269 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Clear Cache & Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Clear Cache — Arvaan Collective</title>
   <style>
-    body { font-family: sans-serif; padding: 40px; text-align: center; }
-    button { padding: 15px 30px; font-size: 18px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px; }
-    #status { margin-top: 20px; font-size: 16px; color: #333; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f14;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+    .logo { font-size: 2.5rem; margin-bottom: 16px; }
+    h1 { font-size: 1.4rem; margin-bottom: 8px; }
+    p { color: #888; font-size: 0.9rem; margin-bottom: 28px; line-height: 1.5; }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-danger { background: #e74c3c; color: #fff; }
+    .btn-warning { background: #f39c12; color: #fff; }
+    .btn-home { background: #2a2a3a; color: #ccc; }
+    .log {
+      background: #0a0a10;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: left;
+      font-family: monospace;
+      font-size: 0.8rem;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 20px;
+      display: none;
+      line-height: 1.8;
+    }
+    .log.visible { display: block; }
+    .log-line { margin-bottom: 2px; }
+    .ok { color: #2ecc71; }
+    .warn { color: #f39c12; }
+    .err { color: #e74c3c; }
+    .progress {
+      height: 4px;
+      background: #2a2a3a;
+      border-radius: 2px;
+      margin: 16px 0;
+      display: none;
+    }
+    .progress.visible { display: block; }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #6c63ff, #a855f7);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .badge-ready { background: #1a3a1a; color: #2ecc71; }
+    .badge-working { background: #3a3a1a; color: #f39c12; }
+    .badge-done { background: #1a2a3a; color: #6c63ff; }
   </style>
-  
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="js/firebase-config.js"></script>
-  <script src="js/firebase-sync.js"></script>
 </head>
 <body>
-  <h2>Arvaan Collective - System Reset</h2>
-  <p>Click the button below to completely wipe all local cache and all dummy products from the database.</p>
-  <button id="clearBtn">Wipe All Data</button>
-  <div id="status"></div>
+  <div class="card">
+    <div class="logo">🧹</div>
+    <h1>Cache & Data Reset</h1>
+    <p>Use this to fix display issues, stale products, or login problems on mobile.</p>
+
+    <div class="status-badge badge-ready" id="status-badge">● Ready</div>
+
+    <div class="progress" id="progress-bar">
+      <div class="progress-bar" id="progress-fill"></div>
+    </div>
+
+    <button class="btn btn-warning" id="btnLocalOnly">
+      🗑️ Clear Local Cache Only
+      <div style="font-size:0.75rem; font-weight:400; opacity:0.8; margin-top:4px">Keeps Firebase data · Fixes mobile display issues</div>
+    </button>
+
+    <button class="btn btn-danger" id="btnFull">
+      ⚠️ Full Reset (Local + Firebase)
+      <div style="font-size:0.75rem; font-weight:400; opacity:0.8; margin-top:4px">Deletes all products from Firebase too</div>
+    </button>
+
+    <button class="btn btn-home" onclick="window.location.href='store/index.html'">
+      ← Back to Store
+    </button>
+
+    <div class="log" id="log"></div>
+  </div>
 
   <script>
-    document.getElementById('clearBtn').addEventListener('click', async () => {
-      const status = document.getElementById('status');
-      status.innerHTML = "Clearing Local Storage...<br>";
-      
-      // Clear LocalStorage
-      localStorage.clear();
-      status.innerHTML += "✅ Local Storage Cleared!<br>";
+    const log = document.getElementById('log');
+    const badge = document.getElementById('status-badge');
+    const progress = document.getElementById('progress-bar');
+    const fill = document.getElementById('progress-fill');
 
-      // Clear Firebase
-      if (window.CloudDB && window.CloudDB.db) {
-        status.innerHTML += "Connecting to Firebase to delete products...<br>";
+    function addLog(msg, type = 'ok') {
+      log.classList.add('visible');
+      const line = document.createElement('div');
+      line.className = `log-line ${type}`;
+      const icon = type === 'ok' ? '✅' : type === 'warn' ? '⚠️' : '❌';
+      line.textContent = `${icon} ${msg}`;
+      log.appendChild(line);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function setProgress(pct) {
+      progress.classList.add('visible');
+      fill.style.width = pct + '%';
+    }
+
+    function setBadge(text, cls) {
+      badge.textContent = text;
+      badge.className = `status-badge ${cls}`;
+    }
+
+    function disableButtons() {
+      document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+    }
+
+    function clearLocalStorage() {
+      // Preserve user session data
+      const preserve = ['arvaan_cart', 'arvaan_current_buyer', 'arvaan_wishlist', 'arvaan_orders'];
+      const preserved = {};
+      preserve.forEach(key => {
+        const val = localStorage.getItem(key);
+        if (val) preserved[key] = val;
+      });
+
+      // Clear all arvaan_ keys
+      const keys = Object.keys(localStorage).filter(k => k.startsWith('arvaan_'));
+      keys.forEach(k => localStorage.removeItem(k));
+      addLog(`Cleared ${keys.length} localStorage keys`);
+
+      // Clear any browser caches via Cache API (Service Worker caches)
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => {
+            caches.delete(name);
+            addLog(`Cleared cache store: ${name}`);
+          });
+        });
+      }
+
+      // Restore user data
+      Object.entries(preserved).forEach(([k, v]) => localStorage.setItem(k, v));
+      if (Object.keys(preserved).length > 0) {
+        addLog(`Preserved: ${Object.keys(preserved).join(', ')}`, 'warn');
+      }
+
+      // Force version bump so fresh data is pulled on next load
+      localStorage.removeItem('arvaan_app_version');
+      localStorage.removeItem('arvaan_seed_version');
+    }
+
+    // ── Local Only ────────────────────────────────────────────────────────────
+    document.getElementById('btnLocalOnly').addEventListener('click', async () => {
+      if (!confirm('Clear local cache? This will reload fresh data from Firestore.')) return;
+      disableButtons();
+      setBadge('● Working...', 'badge-working');
+      setProgress(30);
+      addLog('Starting local cache clear...');
+
+      clearLocalStorage();
+      setProgress(80);
+      addLog('Local cache cleared!');
+      setProgress(100);
+      setBadge('✓ Done', 'badge-done');
+      addLog('Redirecting to store in 2 seconds...');
+
+      setTimeout(() => {
+        // Force reload bypassing cache
+        window.location.href = 'store/index.html?nocache=' + Date.now();
+      }, 2000);
+    });
+
+    // ── Full Reset ────────────────────────────────────────────────────────────
+    document.getElementById('btnFull').addEventListener('click', async () => {
+      if (!confirm('⚠️ This will DELETE all products from Firebase AND clear local cache. Are you sure?')) return;
+      disableButtons();
+      setBadge('● Working...', 'badge-working');
+      setProgress(10);
+      addLog('Starting full reset...');
+
+      // 1. Clear local storage
+      clearLocalStorage();
+      setProgress(30);
+
+      // 2. Clear Firebase
+      if (window.db) {
         try {
-          const snap = await window.CloudDB.db.collection('products').get();
-          if (!snap.empty) {
-            const batch = window.CloudDB.db.batch();
-            snap.docs.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-            status.innerHTML += `✅ Successfully deleted ${snap.docs.length} products from Firebase!<br>`;
-          } else {
-            status.innerHTML += "✅ No products found in Firebase.<br>";
+          // Sign in anonymously
+          try { await firebase.auth().signInAnonymously(); } catch(e) {}
+          
+          const collections = ['products', 'orders', 'sellers', 'promotions', 'transactions', 'deleted_ids'];
+          let total = 0;
+          for (let i = 0; i < collections.length; i++) {
+            const col = collections[i];
+            try {
+              const snap = await window.db.collection(col).get();
+              if (!snap.empty) {
+                const batch = window.db.batch();
+                snap.docs.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                addLog(`Deleted ${snap.size} docs from "${col}"`);
+                total += snap.size;
+              } else {
+                addLog(`"${col}" is already empty`, 'warn');
+              }
+            } catch (e) {
+              addLog(`Failed to clear "${col}": ${e.message}`, 'err');
+            }
+            setProgress(30 + Math.round(60 * (i + 1) / collections.length));
           }
+          addLog(`Firebase cleared — ${total} total documents deleted`);
         } catch (e) {
-          status.innerHTML += "❌ Error clearing Firebase: " + e.message + "<br>";
+          addLog('Firebase error: ' + e.message, 'err');
         }
       } else {
-        status.innerHTML += "⚠️ Firebase not connected.<br>";
+        addLog('Firebase not connected', 'warn');
       }
-      
-      status.innerHTML += "<br><strong>Done! You can now close this page and refresh the main site.</strong>";
+
+      setProgress(100);
+      setBadge('✓ Done', 'badge-done');
+      addLog('Full reset complete! Redirecting...');
+      setTimeout(() => {
+        window.location.href = 'store/index.html?nocache=' + Date.now();
+      }, 2000);
     });
   </script>
 </body>
