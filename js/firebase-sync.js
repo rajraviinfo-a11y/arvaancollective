@@ -204,10 +204,17 @@ const CloudDB = {
       const ref = this.db.collection(colName).doc(String(item.id));
       const data = this._clean(item);
       await ref.set(data, { merge: true });
-      console.log(`CloudDB: Pushed ${colName}/${item.id} to Firestore`);
+      console.log(`✅ CloudDB: Synced ${colName}/${item.id} to Firestore`);
     } catch (e) {
       this._lastError = `pushDoc(${colName}/${item.id}): ${e.message}`;
-      console.warn(`CloudDB: pushDoc(${colName}/${item.id}) failed`, e.message);
+      if (e.code === 'permission-denied') {
+        console.error(`🔴 CloudDB: PERMISSION DENIED writing to Firestore.`);
+        console.error(`🔴 Fix: Go to Firebase Console → Firestore → Rules and set:`);
+        console.error(`   allow read, write: if true;`);
+        console.error(`   OR enable Anonymous Auth: Firebase Console → Authentication → Anonymous`);
+      } else {
+        console.warn(`CloudDB: pushDoc(${colName}/${item.id}) failed`, e.message);
+      }
     } finally {
       this._activeSyncs--;
     }
@@ -375,13 +382,21 @@ const CloudDB = {
       return;
     }
     try {
-      // Sign in anonymously so Firestore security rules allow read/write
+      // Try anonymous sign-in (optional — only needed if Firestore rules require auth)
+      // If anonymous auth is disabled in Firebase Console, this fails gracefully
       if (this.auth && !this.auth.currentUser) {
         try {
           await this.auth.signInAnonymously();
           console.log('CloudDB: Signed in anonymously for Firestore access');
         } catch (authErr) {
-          console.warn('CloudDB: Anonymous sign-in failed', authErr.message);
+          if (authErr.code === 'auth/admin-restricted-operation') {
+            console.warn('CloudDB: Anonymous auth is disabled in Firebase Console.');
+            console.warn('CloudDB: ➡️ Fix: Go to Firebase Console → Authentication → Sign-in method → Enable Anonymous');
+            console.warn('CloudDB: Continuing without auth — ensure Firestore rules allow unauthenticated writes.');
+          } else {
+            console.warn('CloudDB: Anonymous sign-in failed', authErr.message);
+          }
+          // Continue without auth — Firestore rules must allow open access
         }
       }
 
